@@ -35,6 +35,7 @@ const App = (() => {
     coach:     () => CoachTab.render(),
     dojo:      () => DojoTab.render(),
     scanner:   () => ScannerTab.render(),
+    quickstats:() => QuickStatsTab.render(),
     rules:     () => RulesTab.render(),
   };
 

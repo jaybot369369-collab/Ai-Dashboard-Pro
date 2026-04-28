@@ -61,6 +61,7 @@ const DB = (() => {
     { id: 'dojo',       label: 'ICT Dojo',         icon: '🥋', builtin: true },
     { id: 'scanner',    label: 'Scanner',          icon: '🔭', builtin: true },
     { id: 'quickstats', label: 'Quick Stats',      icon: '📊', builtin: true },
+    { id: 'protools',   label: 'Pro Tools',        icon: '🛠', builtin: true },
     { id: 'rules',      label: 'Rules',            icon: '📜', builtin: true },
   ];
   function getTabs() {

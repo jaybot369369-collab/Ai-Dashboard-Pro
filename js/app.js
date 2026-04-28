@@ -37,6 +37,7 @@ const App = (() => {
     dojo:      () => DojoTab.render(),
     scanner:   () => ScannerTab.render(),
     quickstats:() => QuickStatsTab.render(),
+    protools:  () => ProToolsTab.render(),
     rules:     () => RulesTab.render(),
   };
 

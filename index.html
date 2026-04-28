@@ -265,6 +265,8 @@
             <input type="file" id="fScreenshotFile" accept="image/*" multiple style="margin-top:6px;font-size:.8rem"
                    onchange="App._handleScreenshotFiles(event)" />
             <div id="fScreenshotPreview" class="screenshot-preview-grid" style="margin-top:10px"></div>
+            <button type="button" class="btn-ghost btn-sm" id="fAutoTagBtn" style="margin-top:8px;display:none" onclick="App._aiAutoTag()">✨ Auto-tag last screenshot with AI</button>
+            <div id="fAutoTagOut" style="margin-top:8px;font-size:.82rem"></div>
           </div>
         </fieldset>
 
@@ -356,6 +358,7 @@
 <script src="js/tabs/goals.js"></script>
 <script src="js/tabs/reports.js"></script>
 <script src="js/tabs/coach.js"></script>
+<script src="js/tabs/ai_coach.js"></script>
 <script src="js/tabs/dojo.js"></script>
 <script src="js/tabs/scanner.js"></script>
 <script src="js/tabs/quickstats.js"></script>

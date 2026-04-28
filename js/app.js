@@ -33,6 +33,7 @@ const App = (() => {
     goals:     () => GoalsTab.render(),
     reports:   () => ReportsTab.render(),
     coach:     () => CoachTab.render(),
+    aicoach:   () => AICoachTab.render(),
     dojo:      () => DojoTab.render(),
     scanner:   () => ScannerTab.render(),
     quickstats:() => QuickStatsTab.render(),
@@ -147,6 +148,13 @@ const App = (() => {
         <button type="button" class="thumb-remove" onclick="App._removeScreenshot(${i})">✕</button>
       </div>`
     ).join('');
+    // Show auto-tag button if there's at least one base64 image (vision-capable) and AI key is set
+    const btn = $('fAutoTagBtn');
+    if (btn) {
+      const hasImg = _pendingScreenshots.some(u => u.startsWith('data:image'));
+      const hasKey = !!localStorage.getItem('jb_ai_key');
+      btn.style.display = (hasImg && hasKey) ? 'inline-block' : 'none';
+    }
   }
 
   function addScreenshotUrl(raw) {
@@ -561,6 +569,40 @@ const App = (() => {
     _switchTab: navigate,
     getDateFilter,
     getDataMode,
+    _aiAutoTag: async () => {
+      const out = $('fAutoTagOut');
+      const btn = $('fAutoTagBtn');
+      const lastImg = [..._pendingScreenshots].reverse().find(u => u.startsWith('data:image'));
+      if (!lastImg) { out.textContent = 'No image to tag'; return; }
+      btn.disabled = true; out.innerHTML = '<span style="color:var(--gold)">✨ Analyzing chart…</span>';
+      try {
+        const r = await AICoachTab.autoTagImage(lastImg);
+        out.innerHTML = `<div class="ai-autotag-out">
+          <div><strong>Setup:</strong> ${r.setup_type||'?'} · <strong>Direction:</strong> ${r.direction||'?'} · <strong>Session:</strong> ${r.session||'?'}</div>
+          ${r.suggested_entry ? `<div><strong>Suggested entry:</strong> ${r.suggested_entry}${r.suggested_stop?` · <strong>Stop:</strong> ${r.suggested_stop}`:''}</div>` : ''}
+          ${r.notes ? `<div class="text-sub" style="margin-top:4px">${r.notes}</div>` : ''}
+          ${r.key_features?.length ? `<ul style="margin:6px 0 0 18px">${r.key_features.map(f=>`<li>${f}</li>`).join('')}</ul>` : ''}
+          <button type="button" class="btn-ghost btn-sm" onclick="App._applyAutoTag(${JSON.stringify(r).replace(/"/g,'&quot;')})" style="margin-top:6px">⬇ Apply to form</button>
+        </div>`;
+      } catch (e) { out.innerHTML = `<span style="color:var(--red)">⚠ ${e.message}</span>`; }
+      finally { btn.disabled = false; }
+    },
+    _applyAutoTag: (r) => {
+      // Apply suggestions to form fields where empty
+      if (r.direction && $('fDirection').value !== r.direction) $('fDirection').value = (r.direction.toLowerCase().startsWith('l') ? 'Long' : 'Short');
+      if (r.session) {
+        const map = { London:'London', NY:'NY', Asian:'Asian' };
+        const sess = Object.keys(map).find(k => r.session.includes(k));
+        if (sess) $('fSession').value = sess;
+      }
+      if (r.suggested_entry && !$('fEntry').value) $('fEntry').value = parseFloat(String(r.suggested_entry).replace(/[^\d.]/g,'')) || '';
+      if (r.suggested_stop  && !$('fSl').value)    $('fSl').value    = parseFloat(String(r.suggested_stop ).replace(/[^\d.]/g,'')) || '';
+      if (r.setup_type && _pendingSetups && !_pendingSetups.includes(r.setup_type)) {
+        _pendingSetups.push(r.setup_type);
+        renderSetupChips();
+      }
+      if (typeof toast === 'function') toast('Applied AI suggestions', 'success');
+    },
     _handleScreenshotFiles: (e) => {
       const files = Array.from(e.target.files || []);
       if (!files.length) return;

@@ -57,6 +57,7 @@ const DB = (() => {
     { id: 'goals',      label: 'Goals',            icon: '🎯', builtin: true },
     { id: 'reports',    label: 'Reports',          icon: '📑', builtin: true },
     { id: 'coach',      label: 'Perf Coach',       icon: '🧠', builtin: true },
+    { id: 'aicoach',    label: 'AI Coach',         icon: '✨', builtin: true },
     { id: 'dojo',       label: 'ICT Dojo',         icon: '🥋', builtin: true },
     { id: 'scanner',    label: 'Scanner',          icon: '🔭', builtin: true },
     { id: 'quickstats', label: 'Quick Stats',      icon: '📊', builtin: true },

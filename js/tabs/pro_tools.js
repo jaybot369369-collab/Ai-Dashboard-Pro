@@ -334,11 +334,13 @@ const ProToolsTab = (() => {
     content.innerHTML = `<div class="pro-wrap">
       <div class="pro-subnav">
         <button class="pro-sub-btn${_sub==='sizer'?' active':''}" data-sub="sizer">📐 Position Sizer</button>
+        <button class="pro-sub-btn${_sub==='qstats'?' active':''}" data-sub="qstats">📊 Quick Stats</button>
         <button class="pro-sub-btn${_sub==='replay'?' active':''}" data-sub="replay">▶ Trade Replay</button>
         <button class="pro-sub-btn${_sub==='corr'?' active':''}" data-sub="corr">📊 Correlation</button>
       </div>
       <div id="proBody">${
         _sub === 'sizer'   ? renderSizer() :
+        _sub === 'qstats'  ? `<div class="pro-section"><div class="qs-wrap" style="padding:0">${typeof QuickStatsTab !== 'undefined' ? QuickStatsTab._renderHTML() : '<div class="empty-state">QuickStatsTab not loaded</div>'}</div></div>` :
         _sub === 'replay'  ? renderReplay() :
         renderCorrelation()
       }</div>
@@ -361,6 +363,8 @@ const ProToolsTab = (() => {
         saveSizer();
         if (typeof toast === 'function') toast('Defaults saved', 'success');
       });
+    } else if (_sub === 'qstats') {
+      if (typeof QuickStatsTab !== 'undefined') QuickStatsTab._wireUp();
     } else if (_sub === 'replay') {
       document.getElementById('rpTrade')?.addEventListener('change', e => {
         if (e.target.value) runReplay(e.target.value);

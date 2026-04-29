@@ -46,36 +46,28 @@ const DB = (() => {
 
   /* ── Tabs ────────────────────────────────────────────── */
   const DEFAULT_TABS = [
-    { id: 'dashboard',  label: 'Dashboard',       icon: '📊', builtin: true },
-    { id: 'tradelog',   label: 'Trade Log',        icon: '📋', builtin: true },
-    { id: 'journal',    label: 'Journal',          icon: '📝', builtin: true },
-    { id: 'analytics',  label: 'Analytics',        icon: '📈', builtin: true },
-    { id: 'watchlist',  label: 'Watchlist',        icon: '👁', builtin: true },
-    { id: 'playbook',   label: 'Playbook',         icon: '📖', builtin: true },
-    { id: 'mistakes',   label: 'Mistakes',         icon: '⚠️', builtin: true },
-    { id: 'strengths',  label: 'Strengths',        icon: '💪', builtin: true },
-    { id: 'goals',      label: 'Goals',            icon: '🎯', builtin: true },
-    { id: 'reports',    label: 'Reports',          icon: '📑', builtin: true },
-    { id: 'coach',      label: 'Perf Coach',       icon: '🧠', builtin: true },
-    { id: 'aicoach',    label: 'AI Coach',         icon: '✨', builtin: true },
+    { id: 'dashboard',  label: 'Dashboard',        icon: '📊', builtin: true },
     { id: 'dojo',       label: 'ICT Dojo',         icon: '🥋', builtin: true },
     { id: 'scanner',    label: 'Scanner',          icon: '🔭', builtin: true },
-    { id: 'quickstats', label: 'Quick Stats',      icon: '📊', builtin: true },
-    { id: 'protools',   label: 'Pro Tools',        icon: '🛠', builtin: true },
+    { id: 'tradelog',   label: 'Trade Log',        icon: '📋', builtin: true },
+    { id: 'watchlist',  label: 'Watchlist',        icon: '👁', builtin: true },
+    { id: 'playbook',   label: 'Playbook',         icon: '📖', builtin: true },
     { id: 'rules',      label: 'Rules',            icon: '📜', builtin: true },
+    { id: 'coach',      label: 'Dr. Coach',        icon: '🩺', builtin: true },
+    { id: 'aicoach',    label: 'AI Coach',         icon: '✨', builtin: true },
+    { id: 'goals',      label: 'Goals',            icon: '🎯', builtin: true },
+    { id: 'tendencies', label: 'Tendencies',       icon: '🧭', builtin: true },
+    { id: 'reports',    label: 'Reports',          icon: '📑', builtin: true },
+    { id: 'protools',   label: 'Pro Tools',        icon: '🛠', builtin: true },
   ];
+  // Tabs from old versions that should be silently dropped from the sidebar
+  const RETIRED_TAB_IDS = new Set(['journal','analytics','mistakes','strengths','quickstats']);
   function getTabs() {
     const stored = load(KEYS.tabs);
-    if (!stored) return DEFAULT_TABS;
-    // Merge in any new builtin tabs that didn't exist when user last saved
-    const existing = new Set(stored.map(t => t.id));
-    const newOnes  = DEFAULT_TABS.filter(t => !existing.has(t.id));
-    if (newOnes.length) {
-      const merged = [...stored, ...newOnes];
-      save(KEYS.tabs, merged);
-      return merged;
-    }
-    return stored;
+    // Always honor the canonical builtin order from DEFAULT_TABS;
+    // preserve any user-added (custom) tabs at the end.
+    const customStored = (stored || []).filter(t => !t.builtin && !RETIRED_TAB_IDS.has(t.id));
+    return [...DEFAULT_TABS, ...customStored];
   }
   function saveTabs(tabs) { save(KEYS.tabs, tabs); }
   function addTab(label, icon) {

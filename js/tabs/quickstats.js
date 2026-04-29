@@ -371,62 +371,49 @@ const QuickStatsTab = (() => {
     }, 50);
   }
 
-  /* ── Public render ──────────────────────────────────── */
-  function render() {
-    const content = document.getElementById('content');
-    content.innerHTML = `<div class="qs-wrap">
-
-      <div class="qs-controls">
-        <div class="qs-ctrl">
-          <label>Setup</label>
-          <select id="qsSetup">
-            ${Object.entries(SETUPS).map(([k,v]) => `<option value="${k}"${k===_setup?' selected':''}>${v.label}</option>`).join('')}
-          </select>
+  /* ── Inner HTML (controls + body shell) — for embedding ── */
+  function _renderHTML() {
+    return `<div class="qs-controls">
+        <div class="qs-ctrl"><label>Setup</label>
+          <select id="qsSetup">${Object.entries(SETUPS).map(([k,v]) => `<option value="${k}"${k===_setup?' selected':''}>${v.label}</option>`).join('')}</select>
         </div>
-        <div class="qs-ctrl">
-          <label>Pair</label>
-          <select id="qsPair">
-            ${PAIRS.map(p => `<option value="${p}"${p===_pair?' selected':''}>${p.replace('USDT','/USDT')}</option>`).join('')}
-          </select>
+        <div class="qs-ctrl"><label>Pair</label>
+          <select id="qsPair">${PAIRS.map(p => `<option value="${p}"${p===_pair?' selected':''}>${p.replace('USDT','/USDT')}</option>`).join('')}</select>
         </div>
-        <div class="qs-ctrl">
-          <label>Timeframe</label>
-          <select id="qsTF">
-            ${TFS.map(tf => `<option value="${tf}"${tf===_tf?' selected':''}>${tf.toUpperCase()}</option>`).join('')}
-          </select>
+        <div class="qs-ctrl"><label>Timeframe</label>
+          <select id="qsTF">${TFS.map(tf => `<option value="${tf}"${tf===_tf?' selected':''}>${tf.toUpperCase()}</option>`).join('')}</select>
         </div>
-        <div class="qs-ctrl">
-          <label>Lookback (days)</label>
-          <select id="qsLookback">
-            ${[7,14,30,60,90,180,365].map(d => `<option value="${d}"${d===_lookback?' selected':''}>${d}d</option>`).join('')}
-          </select>
+        <div class="qs-ctrl"><label>Lookback (days)</label>
+          <select id="qsLookback">${[7,14,30,60,90,180,365].map(d => `<option value="${d}"${d===_lookback?' selected':''}>${d}d</option>`).join('')}</select>
         </div>
-        <div class="qs-ctrl">
-          <label>Reward:Risk</label>
-          <select id="qsRR">
-            ${[1, 1.5, 2, 2.5, 3, 4, 5].map(r => `<option value="${r}"${r===_rr?' selected':''}>1:${r}</option>`).join('')}
-          </select>
+        <div class="qs-ctrl"><label>Reward:Risk</label>
+          <select id="qsRR">${[1, 1.5, 2, 2.5, 3, 4, 5].map(r => `<option value="${r}"${r===_rr?' selected':''}>1:${r}</option>`).join('')}</select>
         </div>
         <div class="qs-ctrl qs-ctrl-check">
           <label><input type="checkbox" id="qsKZ"${_kzOnly?' checked':''}> Killzone-only</label>
         </div>
         <button class="btn-primary" id="qsRunBtn" style="margin-left:auto">▶ Run Backtest</button>
       </div>
+      <div id="qsBody" style="margin-top:18px"></div>`;
+  }
 
-      <div id="qsBody" style="margin-top:18px"></div>
-    </div>`;
-
-    // Wire up controls
-    document.getElementById('qsSetup').addEventListener('change', e => { _setup = e.target.value; save('setup', _setup); });
-    document.getElementById('qsPair').addEventListener('change',  e => { _pair  = e.target.value; save('pair',  _pair); });
-    document.getElementById('qsTF').addEventListener('change',    e => { _tf    = e.target.value; save('tf',    _tf); });
-    document.getElementById('qsLookback').addEventListener('change', e => { _lookback = parseInt(e.target.value); save('lookback', _lookback); });
-    document.getElementById('qsRR').addEventListener('change',    e => { _rr    = parseFloat(e.target.value); save('rr', _rr); });
-    document.getElementById('qsKZ').addEventListener('change',    e => { _kzOnly = e.target.checked; save('kz', _kzOnly?'1':'0'); });
-    document.getElementById('qsRunBtn').addEventListener('click', run);
-
+  function _wireUp() {
+    document.getElementById('qsSetup')?.addEventListener('change', e => { _setup = e.target.value; save('setup', _setup); });
+    document.getElementById('qsPair')?.addEventListener('change',  e => { _pair  = e.target.value; save('pair',  _pair); });
+    document.getElementById('qsTF')?.addEventListener('change',    e => { _tf    = e.target.value; save('tf',    _tf); });
+    document.getElementById('qsLookback')?.addEventListener('change', e => { _lookback = parseInt(e.target.value); save('lookback', _lookback); });
+    document.getElementById('qsRR')?.addEventListener('change',    e => { _rr    = parseFloat(e.target.value); save('rr', _rr); });
+    document.getElementById('qsKZ')?.addEventListener('change',    e => { _kzOnly = e.target.checked; save('kz', _kzOnly?'1':'0'); });
+    document.getElementById('qsRunBtn')?.addEventListener('click', run);
     updateBody();
   }
 
-  return { render, _run: run };
+  /* ── Standalone tab render (for direct navigation) ──── */
+  function render() {
+    const content = document.getElementById('content');
+    content.innerHTML = `<div class="qs-wrap">${_renderHTML()}</div>`;
+    _wireUp();
+  }
+
+  return { render, _run: run, _renderHTML, _wireUp };
 })();

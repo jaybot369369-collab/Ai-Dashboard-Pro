@@ -22,23 +22,19 @@ const App = (() => {
 
   /* ── Tab renderers map ───────────────────────────────── */
   const RENDERERS = {
-    dashboard: () => DashboardTab.render(),
-    tradelog:  () => TradeLogTab.render(),
-    journal:   () => JournalTab.render(),
-    analytics: () => AnalyticsTab.render(),
-    watchlist: () => WatchlistTab.render(),
-    playbook:  () => PlaybookTab.render(),
-    mistakes:  () => MistakesTab.render(),
-    strengths: () => StrengthsTab.render(),
-    goals:     () => GoalsTab.render(),
-    reports:   () => ReportsTab.render(),
-    coach:     () => CoachTab.render(),
-    aicoach:   () => AICoachTab.render(),
-    dojo:      () => DojoTab.render(),
-    scanner:   () => ScannerTab.render(),
-    quickstats:() => QuickStatsTab.render(),
-    protools:  () => ProToolsTab.render(),
-    rules:     () => RulesTab.render(),
+    dashboard:  () => DashboardTab.render(),
+    dojo:       () => DojoTab.render(),
+    scanner:    () => ScannerTab.render(),
+    tradelog:   () => TradeLogTab.render(),
+    watchlist:  () => WatchlistTab.render(),
+    playbook:   () => PlaybookTab.render(),
+    rules:      () => RulesTab.render(),
+    coach:      () => CoachTab.render(),
+    aicoach:    () => AICoachTab.render(),
+    goals:      () => GoalsTab.render(),
+    tendencies: () => TendenciesTab.render(),
+    reports:    () => ReportsTab.render(),
+    protools:   () => ProToolsTab.render(),
   };
 
   /* ══════════════════════════════════════════════════════

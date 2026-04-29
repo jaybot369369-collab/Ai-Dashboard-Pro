@@ -360,11 +360,11 @@ const App = (() => {
     const el = $('macroPill');
     if (!el || typeof MacroEvents === 'undefined') return;
     const next = MacroEvents.next();
-    if (!next) { el.innerHTML = ''; el.style.display = 'none'; return; }
+    if (!next) { el.innerHTML = ''; el.classList.add('macro-empty'); return; }
     const days = MacroEvents.daysUntil(next.date);
     const cls = days <= 0 ? 'macro-today' : days <= 1 ? 'macro-soon' : days <= 3 ? 'macro-near' : 'macro-far';
     const when = days < 0 ? 'past' : days === 0 ? 'TODAY' : days === 1 ? 'tomorrow' : `in ${days}d`;
-    el.style.display = 'inline-flex';
+    el.style.display = '';
     el.className = 'macro-pill ' + cls;
     el.innerHTML = `${next.icon} <span class="macro-name">${next.name}</span> <span class="macro-when">${when}</span>`;
     el.onclick = showMacroPopup;

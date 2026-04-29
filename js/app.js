@@ -358,6 +358,56 @@ const App = (() => {
   }
 
   /* ══════════════════════════════════════════════════════
+     MACRO EVENTS PILL (topbar)
+  ══════════════════════════════════════════════════════ */
+  function renderMacroPill() {
+    const el = $('macroPill');
+    if (!el || typeof MacroEvents === 'undefined') return;
+    const next = MacroEvents.next();
+    if (!next) { el.innerHTML = ''; el.style.display = 'none'; return; }
+    const days = MacroEvents.daysUntil(next.date);
+    const cls = days <= 0 ? 'macro-today' : days <= 1 ? 'macro-soon' : days <= 3 ? 'macro-near' : 'macro-far';
+    const when = days < 0 ? 'past' : days === 0 ? 'TODAY' : days === 1 ? 'tomorrow' : `in ${days}d`;
+    el.style.display = 'inline-flex';
+    el.className = 'macro-pill ' + cls;
+    el.innerHTML = `${next.icon} <span class="macro-name">${next.name}</span> <span class="macro-when">${when}</span>`;
+    el.onclick = showMacroPopup;
+  }
+
+  function showMacroPopup() {
+    const upc = (typeof MacroEvents !== 'undefined') ? MacroEvents.upcoming(30) : [];
+    if (!upc.length) { toast('No major events in next 30 days', 'info'); return; }
+    const html = upc.map(e => {
+      const days = MacroEvents.daysUntil(e.date);
+      return `<div class="macro-row">
+        <div class="macro-row-icon">${e.icon}</div>
+        <div class="macro-row-body">
+          <div class="macro-row-name">${e.name}</div>
+          <div class="macro-row-desc">${e.desc}</div>
+        </div>
+        <div class="macro-row-when">
+          <div>${e.date}</div>
+          <div class="text-dim" style="font-size:.72rem">${days === 0 ? 'TODAY' : days === 1 ? 'tomorrow' : `${days}d`}</div>
+        </div>
+      </div>`;
+    }).join('');
+    showPopup('📅 Upcoming Macro Events (30d)', html);
+  }
+
+  function showPopup(title, html) {
+    let pop = document.getElementById('macroPopup');
+    if (pop) pop.remove();
+    pop = document.createElement('div');
+    pop.id = 'macroPopup'; pop.className = 'modal-overlay';
+    pop.innerHTML = `<div class="modal modal-sm">
+      <div class="modal-header"><h2>${title}</h2><button class="modal-close" onclick="document.getElementById('macroPopup').remove()">✕</button></div>
+      <div class="modal-body" style="max-height:60vh;overflow-y:auto">${html}</div>
+    </div>`;
+    document.body.appendChild(pop);
+    pop.addEventListener('click', e => { if (e.target === pop) pop.remove(); });
+  }
+
+  /* ══════════════════════════════════════════════════════
      CONFIRM MODAL
   ══════════════════════════════════════════════════════ */
   function confirmDelete(message, cb) {
@@ -468,6 +518,10 @@ const App = (() => {
     // Build nav and render default tab
     buildNav();
     navigate('dashboard');
+
+    // Macro events pill in topbar (refresh every minute)
+    renderMacroPill();
+    setInterval(renderMacroPill, 60000);
 
     // Theme toggle
     $('themeToggle').addEventListener('click', () => {

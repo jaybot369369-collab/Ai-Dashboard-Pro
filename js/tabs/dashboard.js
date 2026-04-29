@@ -194,9 +194,13 @@ const DashboardTab = (() => {
       const pillCls = md ? (md.win && !md.loss ? 'win' : md.loss && !md.win ? 'loss' : '') : '';
       const tDay    = tradesByDay[dateStr];
       const tradeCount = tDay ? tDay.total : 0;
-      html += `<div class="cal-day ${cls}${isToday}${mdCls}" data-date="${dateStr}"
-                    title="${dateStr}${pnl !== undefined ? ': ' + fmt$(pnl) : ''}${tradeCount ? ` · ${tradeCount} trade${tradeCount>1?'s':''}` : ''}${md ? ' · multi-day position' : ''}">
+      const macros = (typeof MacroEvents !== 'undefined') ? MacroEvents.onDate(dateStr) : [];
+      const macroIcons = macros.length ? `<div class="cal-macro">${macros.map(m=>m.icon).join('')}</div>` : '';
+      const macroTitle = macros.length ? ' · ' + macros.map(m=>m.name).join(', ') : '';
+      html += `<div class="cal-day ${cls}${isToday}${mdCls}${macros.length?' has-macro':''}" data-date="${dateStr}"
+                    title="${dateStr}${pnl !== undefined ? ': ' + fmt$(pnl) : ''}${tradeCount ? ` · ${tradeCount} trade${tradeCount>1?'s':''}` : ''}${md ? ' · multi-day position' : ''}${macroTitle}">
         <span class="cal-num">${d}</span>
+        ${macroIcons}
         ${pnl !== undefined ? `<span class="cal-pnl">${pnl >= 0 ? '+' : ''}${Math.abs(pnl) >= 1000 ? (pnl / 1000).toFixed(1) + 'k' : pnl.toFixed(0)}</span>` : ''}
         ${dotHtml(tDay)}
         ${md ? `<div class="multi-day-pill ${pillCls}"></div>` : ''}

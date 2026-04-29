@@ -871,6 +871,37 @@ ${s.formations.slice(0, 5).map(f => `  · [${f.tier}] ${f.type}  (${f.tf})  ${f.
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       try { new Notification(`🦖 ${_pair} confluence — ${signals.pdDir.label}`, { body: 'Open ICT Dojo for full setup' }); } catch {}
     }
+    // Telegram alert with full payload
+    if (typeof Telegram !== 'undefined' && Telegram.isEnabled()) {
+      const dir = signals.pdDir.label.includes('BULL') ? 'LONG' : signals.pdDir.label.includes('BEAR') ? 'SHORT' : 'UNCLEAR';
+      const px  = _ticker ? parseFloat(_ticker.lastPrice) : null;
+      const kz  = kzStatus().find(k => k.active)?.name || 'none';
+      // Compute simple entry/SL/TP from current price + recent swing
+      const c4 = _candles['4h'] || [];
+      const recent = c4.slice(-25);
+      const swingHi = recent.length ? Math.max(...recent.map(x=>x.high)) : null;
+      const swingLo = recent.length ? Math.min(...recent.map(x=>x.low))  : null;
+      let entry, sl, tp;
+      if (px && dir === 'LONG' && swingLo) {
+        entry = px; sl = swingLo * 0.998; tp = entry + (entry - sl) * 2;
+      } else if (px && dir === 'SHORT' && swingHi) {
+        entry = px; sl = swingHi * 1.002; tp = entry - (sl - entry) * 2;
+      }
+      const fmt = n => n != null ? n.toLocaleString('en-US', { maximumFractionDigits: dp(_pair) }) : '?';
+      const text = `🦖 *DINO FIRE — ICT DOJO*\n\n` +
+        `*${_pair}* — *${dir}* setup\n` +
+        `Direction: ${signals.pdDir.label}\n` +
+        `PD ratio: ${signals.confluence.bulls}▲ / ${signals.confluence.bears}▼ (total ${signals.confluence.total})\n` +
+        `Killzone: ${kz}\n` +
+        `\n*Market conditions:*\n` +
+        `• Trend: ${signals.trend.label}\n` +
+        `• Position: ${signals.premDisc.zone} (${signals.premDisc.pct.toFixed(0)}% of range)\n` +
+        `• Structure: ${signals.structure.label}\n` +
+        `• AMD: ${signals.amd.phase}\n` +
+        (entry ? `\n*Suggested levels:*\n• Entry: \`${fmt(entry)}\`\n• SL: \`${fmt(sl)}\`\n• TP (2R): \`${fmt(tp)}\`\n` : '') +
+        `\n_Open dashboard → ICT Dojo for full detail_`;
+      Telegram.send(text).catch(e => console.warn('TG send failed:', e.message));
+    }
   }
 
   /* ── PD Arrays section (collapsible details) ─────────── */

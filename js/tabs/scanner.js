@@ -6,6 +6,7 @@
 const ScannerTab = (() => {
 
   /* ── State ──────────────────────────────────────────── */
+  let _lastDinoSent = JSON.parse(localStorage.getItem('jb_scan_dinosent') || '{}'); // { symbol: timestamp }
   let _results    = [];
   let _loading    = false;
   let _err        = null;
@@ -221,6 +222,8 @@ const ScannerTab = (() => {
       }
       _results = all.filter(r => !r.error);
       _lastFetch = Date.now();
+      // Fire Telegram alerts for fresh dino tiers (10-min throttle per pair)
+      maybeAlertNewDinos();
     } catch (e) {
       _err = e.message;
       console.error('Scanner load error:', e);
@@ -229,6 +232,59 @@ const ScannerTab = (() => {
       updateBody();
       updateStatus();
     }
+  }
+
+  /* ── Telegram alerting on dino fires ────────────────── */
+  function maybeAlertNewDinos() {
+    if (typeof Telegram === 'undefined' || !Telegram.isEnabled()) return;
+    const dinos = _results.filter(r => r.tier === 'dino');
+    const now = Date.now();
+    const TEN_MIN = 10 * 60 * 1000;
+    for (const r of dinos) {
+      const last = _lastDinoSent[r.symbol] || 0;
+      if (now - last < TEN_MIN) continue;
+      _lastDinoSent[r.symbol] = now;
+      sendDinoAlert(r);
+    }
+    localStorage.setItem('jb_scan_dinosent', JSON.stringify(_lastDinoSent));
+  }
+
+  function sendDinoAlert(r) {
+    const dirWord = r.dir === 'bull' ? 'LONG' : r.dir === 'bear' ? 'SHORT' : 'UNCLEAR';
+    // Suggest entry/SL/TP from price + sweep
+    let entry = r.price, sl = null, tp = null;
+    if (r.sweep && r.sweep.type === r.dir) {
+      // Use sweep range as risk reference
+      // Entry at current price; SL beyond sweep wick (~0.5%); TP at 2R
+      const sweepBufferPct = 0.005;
+      if (r.dir === 'bull') {
+        sl = r.price * (1 - sweepBufferPct);
+        tp = entry + (entry - sl) * 2;
+      } else if (r.dir === 'bear') {
+        sl = r.price * (1 + sweepBufferPct);
+        tp = entry - (sl - entry) * 2;
+      }
+    } else {
+      // Default: 1% stop, 2R target
+      if (r.dir === 'bull') { sl = r.price * 0.99; tp = entry + (entry - sl) * 2; }
+      else if (r.dir === 'bear') { sl = r.price * 1.01; tp = entry - (sl - entry) * 2; }
+    }
+    const fmt = n => n != null ? n.toLocaleString('en-US', { maximumFractionDigits: dp(r.symbol) }) : '?';
+    const text = `🦖 *DINO FIRE — SCANNER*\n\n` +
+      `*${r.symbol.replace('USDT','')}/USDT* — *${dirWord}* setup\n` +
+      `PD ratio: ${r.pd.bulls}▲ / ${r.pd.bears}▼\n` +
+      `Reasons: ${(r.reasons||[]).join(', ')}\n` +
+      `\n*Market conditions:*\n` +
+      `• Price: ${fmt(r.price)} (${r.change24h>=0?'+':''}${r.change24h.toFixed(2)}% 24h)\n` +
+      `• Trend: ${r.trend.label}\n` +
+      `• Position: ${r.premDisc.zone} (${r.premDisc.pct.toFixed(0)}% of 20-bar range)\n` +
+      (r.sweep ? `• Sweep: ${r.sweep.label}\n` : '') +
+      `\n*Suggested levels:*\n` +
+      `• Entry: \`${fmt(entry)}\`\n` +
+      `• SL: \`${fmt(sl)}\`\n` +
+      `• TP (2R): \`${fmt(tp)}\`\n` +
+      `\n_Open dashboard → Scanner → click ${r.symbol.replace('USDT','')} for ICT Dojo_`;
+    Telegram.send(text).catch(e => console.warn('TG send failed:', e.message));
   }
 
   /* ── Rendering ──────────────────────────────────────── */

@@ -328,6 +328,96 @@ const ProToolsTab = (() => {
     </div>`;
   }
 
+  /* ══════════════════════════════════════════════════════
+     TELEGRAM SETTINGS — bot integration for phone alerts
+  ══════════════════════════════════════════════════════ */
+  function renderTelegram() {
+    const token   = (typeof Telegram !== 'undefined') ? Telegram.getToken() : '';
+    const chat    = (typeof Telegram !== 'undefined') ? Telegram.getChat() : '';
+    const enabled = (typeof Telegram !== 'undefined') ? Telegram.getEnabled() : false;
+    const log     = (typeof Telegram !== 'undefined') ? Telegram.getLog() : [];
+    const masked  = token ? token.slice(0,8) + '••••' + token.slice(-4) : '';
+    return `<div class="pro-section">
+      <h3 class="pro-hdr">🔔 Telegram Bot — Dino Alerts</h3>
+      <p class="text-sub" style="font-size:.85rem;margin:0 0 14px">Get pinged on your phone <strong>only</strong> when 🦖 dino fires in <strong>ICT Dojo</strong> or <strong>Scanner</strong>. Each alert includes entry, SL, TP, PD ratio, direction, and live market conditions.</p>
+
+      <div class="tg-grid">
+        <div class="form-group">
+          <label>Bot Token <span class="text-xs text-sub">${token ? '· current: ' + masked : ''}</span></label>
+          <input type="password" id="tgToken" value="${token}" placeholder="paste from @BotFather (e.g. 123:AAH...)" />
+        </div>
+        <div class="form-group">
+          <label>Chat ID</label>
+          <div style="display:flex;gap:6px">
+            <input type="text" id="tgChat" value="${chat}" placeholder="auto-discover or paste manually" style="flex:1" />
+            <button class="btn-ghost" id="tgDiscoverBtn" title="Auto-find from /getUpdates (DM your bot first)">🔍 Find</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Enabled</label>
+          <label class="tg-switch">
+            <input type="checkbox" id="tgEnabled"${enabled?' checked':''} />
+            <span class="tg-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn-primary" id="tgSaveBtn">💾 Save</button>
+        <button class="btn-ghost" id="tgTestBtn">📨 Send Test Message</button>
+        <span id="tgStatus" class="text-dim" style="font-size:.82rem;align-self:center"></span>
+      </div>
+
+      <h4 class="pro-hdr" style="font-size:.88rem;margin-top:20px">📜 Recent sends (last ${log.length})</h4>
+      ${log.length ? `<div class="tg-log">
+        ${log.map(e => `<div class="tg-log-row">
+          <span class="tg-log-icon">${e.ok ? '✅' : '⚠'}</span>
+          <span class="tg-log-time text-dim">${new Date(e.time).toLocaleString()}</span>
+          <span class="tg-log-text">${(e.text || '').slice(0,80).replace(/\n/g,' ')}${(e.text||'').length>80?'…':''}</span>
+          ${!e.ok ? `<span style="color:var(--red);font-size:.75rem">${e.err||''}</span>` : ''}
+        </div>`).join('')}
+      </div>` : '<p class="text-dim" style="font-size:.85rem">No messages sent yet.</p>'}
+
+      <div class="pro-tip" style="margin-top:14px">
+        <strong>How alerts trigger:</strong> Scanner (every 60s) and ICT Dojo (every 60s) both check for dino conditions on each scan. When 3+ PD confluence aligns inside an active killzone with a confirming sweep, you get a single alert per pair (10-min throttle to prevent spam).
+      </div>
+    </div>`;
+  }
+
+  function wireTelegram() {
+    document.getElementById('tgSaveBtn')?.addEventListener('click', () => {
+      Telegram.setToken(document.getElementById('tgToken').value.trim());
+      Telegram.setChat(document.getElementById('tgChat').value.trim());
+      Telegram.setEnabled(document.getElementById('tgEnabled').checked);
+      if (typeof toast === 'function') toast('Telegram settings saved', 'success');
+      render();
+    });
+    document.getElementById('tgDiscoverBtn')?.addEventListener('click', async () => {
+      const status = document.getElementById('tgStatus');
+      const tokenInput = document.getElementById('tgToken').value.trim();
+      if (!tokenInput) { status.textContent = '⚠ Paste token first'; status.style.color = 'var(--red)'; return; }
+      Telegram.setToken(tokenInput);
+      status.textContent = 'Looking…'; status.style.color = 'var(--gold)';
+      try {
+        const id = await Telegram.discoverChatId();
+        document.getElementById('tgChat').value = id;
+        status.textContent = '✅ Found: ' + id; status.style.color = 'var(--green)';
+      } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; }
+    });
+    document.getElementById('tgTestBtn')?.addEventListener('click', async () => {
+      const status = document.getElementById('tgStatus');
+      Telegram.setToken(document.getElementById('tgToken').value.trim());
+      Telegram.setChat(document.getElementById('tgChat').value.trim());
+      Telegram.setEnabled(true);
+      status.textContent = 'Sending…'; status.style.color = 'var(--gold)';
+      try {
+        await Telegram.send(`🧪 *Test from AI Dashboard Pro*\n\nIf you see this on your phone, alerts are working ✅\n\n_Sent ${new Date().toLocaleString()}_`, { force: true });
+        status.textContent = '✅ Message sent! Check your phone.'; status.style.color = 'var(--green)';
+        setTimeout(render, 1500);
+      } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; }
+    });
+  }
+
   /* ── Tab nav ────────────────────────────────────────── */
   function render() {
     const content = document.getElementById('content');
@@ -337,11 +427,13 @@ const ProToolsTab = (() => {
         <button class="pro-sub-btn${_sub==='qstats'?' active':''}" data-sub="qstats">📊 Quick Stats</button>
         <button class="pro-sub-btn${_sub==='replay'?' active':''}" data-sub="replay">▶ Trade Replay</button>
         <button class="pro-sub-btn${_sub==='corr'?' active':''}" data-sub="corr">📊 Correlation</button>
+        <button class="pro-sub-btn${_sub==='telegram'?' active':''}" data-sub="telegram">🔔 Telegram</button>
       </div>
       <div id="proBody">${
         _sub === 'sizer'   ? renderSizer() :
         _sub === 'qstats'  ? `<div class="pro-section"><div class="qs-wrap" style="padding:0">${typeof QuickStatsTab !== 'undefined' ? QuickStatsTab._renderHTML() : '<div class="empty-state">QuickStatsTab not loaded</div>'}</div></div>` :
         _sub === 'replay'  ? renderReplay() :
+        _sub === 'telegram'? renderTelegram() :
         renderCorrelation()
       }</div>
     </div>`;
@@ -365,6 +457,8 @@ const ProToolsTab = (() => {
       });
     } else if (_sub === 'qstats') {
       if (typeof QuickStatsTab !== 'undefined') QuickStatsTab._wireUp();
+    } else if (_sub === 'telegram') {
+      wireTelegram();
     } else if (_sub === 'replay') {
       document.getElementById('rpTrade')?.addEventListener('change', e => {
         if (e.target.value) runReplay(e.target.value);

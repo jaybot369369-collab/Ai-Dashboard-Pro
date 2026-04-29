@@ -38,6 +38,108 @@ const CoachTab = (() => {
     }
   }
 
+  /* TELEGRAM moved to Pro Tools — kept stub to avoid breaking refs */
+  function renderTelegram_DEPRECATED(wrap) {
+    const token   = Telegram.getToken();
+    const chat    = Telegram.getChat();
+    const enabled = Telegram.getEnabled();
+    const log     = Telegram.getLog();
+    const masked  = token ? token.slice(0,8) + '••••' + token.slice(-4) : '';
+
+    wrap.innerHTML = `<div class="tg-wrap">
+      <div class="tg-section">
+        <h3 class="tg-hdr">🔔 Telegram Bot — Phone Alerts</h3>
+        <p class="text-sub" style="font-size:.85rem;margin:0 0 14px">When the 🦖 dino fires in ICT Dojo (3+ PD confluence + active killzone), get pinged on your phone.</p>
+
+        <div class="tg-grid">
+          <div class="form-group">
+            <label>Bot Token <span class="text-xs text-sub">${token ? '· current: ' + masked : ''}</span></label>
+            <input type="password" id="tgToken" value="${token}" placeholder="paste from @BotFather (e.g. 123:AAH...)" />
+          </div>
+          <div class="form-group">
+            <label>Chat ID</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="tgChat" value="${chat}" placeholder="auto-discover or paste manually" style="flex:1" />
+              <button class="btn-ghost" id="tgDiscoverBtn" title="Auto-find from /getUpdates (DM your bot first)">🔍 Find</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Enabled</label>
+            <label class="tg-switch">
+              <input type="checkbox" id="tgEnabled"${enabled?' checked':''} />
+              <span class="tg-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn-primary" id="tgSaveBtn">💾 Save</button>
+          <button class="btn-ghost" id="tgTestBtn">📨 Send Test Message</button>
+          <span id="tgStatus" class="text-dim" style="font-size:.82rem;align-self:center"></span>
+        </div>
+      </div>
+
+      <div class="tg-section" style="margin-top:14px">
+        <h3 class="tg-hdr">📜 Recent sends (last ${log.length})</h3>
+        ${log.length ? `<div class="tg-log">
+          ${log.map(e => `<div class="tg-log-row">
+            <span class="tg-log-icon">${e.ok ? '✅' : '⚠'}</span>
+            <span class="tg-log-time text-dim">${new Date(e.time).toLocaleString()}</span>
+            <span class="tg-log-text">${(e.text || '').slice(0,80).replace(/\n/g,' ')}${(e.text||'').length>80?'…':''}</span>
+            ${!e.ok ? `<span style="color:var(--red);font-size:.75rem">${e.err||''}</span>` : ''}
+          </div>`).join('')}
+        </div>` : '<p class="text-dim" style="font-size:.85rem">No messages sent yet.</p>'}
+      </div>
+
+      <div class="tg-section" style="margin-top:14px">
+        <h3 class="tg-hdr">🆘 Setup Guide</h3>
+        <ol style="font-size:.85rem;color:var(--text-sub);padding-left:20px;line-height:1.7">
+          <li>Open Telegram → search <strong>@BotFather</strong> → <code>/newbot</code></li>
+          <li>Name your bot anything (must end in <code>bot</code>)</li>
+          <li>Copy the token BotFather gives you → paste above</li>
+          <li>DM your new bot — send any message (this is required by Telegram)</li>
+          <li>Click <strong>🔍 Find</strong> to auto-discover your chat ID</li>
+          <li>Toggle <strong>Enabled</strong> on, click <strong>📨 Send Test</strong> to verify</li>
+        </ol>
+      </div>
+    </div>`;
+
+    document.getElementById('tgSaveBtn').addEventListener('click', () => {
+      Telegram.setToken(document.getElementById('tgToken').value.trim());
+      Telegram.setChat(document.getElementById('tgChat').value.trim());
+      Telegram.setEnabled(document.getElementById('tgEnabled').checked);
+      if (typeof toast === 'function') toast('Telegram settings saved', 'success');
+      renderSub();
+    });
+
+    document.getElementById('tgDiscoverBtn').addEventListener('click', async () => {
+      const status = document.getElementById('tgStatus');
+      const tokenInput = document.getElementById('tgToken').value.trim();
+      if (!tokenInput) { status.textContent = '⚠ Paste token first'; status.style.color = 'var(--red)'; return; }
+      Telegram.setToken(tokenInput);
+      status.textContent = 'Looking…'; status.style.color = 'var(--gold)';
+      try {
+        const id = await Telegram.discoverChatId();
+        document.getElementById('tgChat').value = id;
+        status.textContent = '✅ Found: ' + id; status.style.color = 'var(--green)';
+      } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; }
+    });
+
+    document.getElementById('tgTestBtn').addEventListener('click', async () => {
+      const status = document.getElementById('tgStatus');
+      // Pull live values from form, save first
+      Telegram.setToken(document.getElementById('tgToken').value.trim());
+      Telegram.setChat(document.getElementById('tgChat').value.trim());
+      Telegram.setEnabled(true);
+      status.textContent = 'Sending…'; status.style.color = 'var(--gold)';
+      try {
+        await Telegram.send(`🧪 *Test from AI Dashboard Pro*\n\nIf you see this on your phone, alerts are working ✅\n\n_Sent ${new Date().toLocaleString()}_`, { force: true });
+        status.textContent = '✅ Message sent! Check your phone.'; status.style.color = 'var(--green)';
+        setTimeout(renderSub, 1500); // refresh log
+      } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; }
+    });
+  }
+
   /* ═══════════════════════════════════════════════════════
      ALERT ENGINE — 7 alert types
   ═══════════════════════════════════════════════════════ */

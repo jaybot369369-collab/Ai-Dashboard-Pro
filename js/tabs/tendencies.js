@@ -18,10 +18,15 @@ const TendenciesTab = (() => {
     if (!items.length) {
       return `<div class="empty-state"><div class="empty-icon">${isMis?'⚠️':'💪'}</div>
         <p>No ${isMis?'mistakes':'strengths'} logged yet.</p>
-        <button class="btn-primary" onclick="TendenciesTab._add('${kind}')" style="margin-top:12px">${addLabel}</button>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <button class="btn-primary" onclick="TendenciesTab._autoAnalyze()">🧠 Auto-Analyze My Trades</button>
+          <button class="btn-ghost" onclick="TendenciesTab._add('${kind}')">${addLabel}</button>
+        </div>
+        <p class="text-dim" style="font-size:.78rem;margin-top:14px">Auto-Analyze scans every closed trade and surfaces patterns: worst/best session, worst/best setup, revenge trading, win/loss streaks, R-multiple consistency.</p>
       </div>`;
     }
-    return `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap">
+        <button class="btn-ghost btn-sm" onclick="TendenciesTab._autoAnalyze()" title="Scan all your trades and auto-detect patterns">🧠 Auto-Analyze Trades</button>
         <button class="btn-primary btn-sm" onclick="TendenciesTab._add('${kind}')">${addLabel}</button>
       </div>
       <div class="tend-grid">
@@ -109,5 +114,39 @@ const TendenciesTab = (() => {
     render();
   }
 
-  return { render, _edit, _add, _delete, _inc };
+  function _autoAnalyze() {
+    const trades = DB.getTrades();
+    if (!trades.length) { alert('No trades to analyze yet — log some trades first.'); return; }
+    const found = DB.analyzePatterns(trades);
+    if (!found.mistakes.length && !found.strengths.length) {
+      alert('No clear patterns found yet. Need at least 5 trades per session/setup to surface a tendency.');
+      return;
+    }
+    const stamp = new Date().toISOString().slice(0,10);
+    // MISTAKES — merge: skip duplicates by title
+    const existingM = DB.getMistakes();
+    const exM = new Set(existingM.map(x => x.title));
+    const newMistakes = found.mistakes.filter(m => !exM.has(m.title)).map(m => ({
+      id: 'auto_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title: m.title, description: m.description,
+      seenCount: m.seenCount || 0, lastSeen: m.lastSeen || stamp,
+      linkedTradeIds: m.linkedTradeIds || [], dateAdded: stamp, auto: true,
+    }));
+    if (newMistakes.length) DB.saveMistakes([...existingM, ...newMistakes]);
+
+    const existingS = DB.getStrengths();
+    const exS = new Set(existingS.map(x => x.title));
+    const newStrengths = found.strengths.filter(s => !exS.has(s.title)).map(s => ({
+      id: 'auto_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title: s.title, description: s.description,
+      seenCount: s.seenCount || 0, lastSeen: s.lastSeen || stamp,
+      linkedTradeIds: s.linkedTradeIds || [], dateAdded: stamp, auto: true,
+    }));
+    if (newStrengths.length) DB.saveStrengths([...existingS, ...newStrengths]);
+
+    if (typeof toast === 'function') toast(`Added ${newMistakes.length} mistake${newMistakes.length===1?'':'s'} + ${newStrengths.length} strength${newStrengths.length===1?'':'s'}`, 'success');
+    render();
+  }
+
+  return { render, _edit, _add, _delete, _inc, _autoAnalyze };
 })();

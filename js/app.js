@@ -26,7 +26,6 @@ const App = (() => {
     dojo:       () => DojoTab.render(),
     scanner:    () => ScannerTab.render(),
     tradelog:   () => TradeLogTab.render(),
-    watchlist:  () => WatchlistTab.render(),
     playbook:   () => PlaybookTab.render(),
     rules:      () => RulesTab.render(),
     coach:      () => CoachTab.render(),

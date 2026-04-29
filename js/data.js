@@ -50,7 +50,6 @@ const DB = (() => {
     { id: 'dojo',       label: 'ICT Dojo',         icon: '🥋', builtin: true },
     { id: 'scanner',    label: 'Scanner',          icon: '🔭', builtin: true },
     { id: 'tradelog',   label: 'Trade Log',        icon: '📋', builtin: true },
-    { id: 'watchlist',  label: 'Watchlist',        icon: '👁', builtin: true },
     { id: 'playbook',   label: 'Playbook',         icon: '📖', builtin: true },
     { id: 'rules',      label: 'Rules',            icon: '📜', builtin: true },
     { id: 'coach',      label: 'Dr. Coach',        icon: '🩺', builtin: true },
@@ -61,7 +60,7 @@ const DB = (() => {
     { id: 'protools',   label: 'Pro Tools',        icon: '🛠', builtin: true },
   ];
   // Tabs from old versions that should be silently dropped from the sidebar
-  const RETIRED_TAB_IDS = new Set(['journal','analytics','mistakes','strengths','quickstats']);
+  const RETIRED_TAB_IDS = new Set(['journal','analytics','mistakes','strengths','quickstats','watchlist']);
   function getTabs() {
     const stored = load(KEYS.tabs);
     // Always honor the canonical builtin order from DEFAULT_TABS;

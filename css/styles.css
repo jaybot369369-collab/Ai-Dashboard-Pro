@@ -2232,3 +2232,81 @@ input.date-picker::-webkit-calendar-picker-indicator {
 .corr-table tbody th { text-align: left; }
 .corr-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: .76rem; color: var(--text-sub); }
 .corr-sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+
+/* Scanner: view toggle, custom pairs, list view */
+.scan-view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.scan-vbtn {
+  background: transparent; border: none; color: var(--text-sub);
+  padding: 4px 10px; cursor: pointer; font-size: .95rem;
+  border-right: 1px solid var(--border);
+}
+.scan-vbtn:last-child { border-right: none; }
+.scan-vbtn.active {
+  background: linear-gradient(135deg, #8b5cf6, #4f8ef7);
+  color: white;
+}
+
+.scan-custom-bar {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+}
+.scan-custom-input { display: flex; gap: 6px; flex-shrink: 0; }
+.scan-custom-input input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: .85rem;
+  min-width: 180px;
+}
+.scan-custom-chips { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; min-width: 0; }
+.scan-custom-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(139,92,246,.15);
+  border: 1px solid #8b5cf6;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: .76rem;
+  font-family: var(--mono);
+  color: #c4b5fd;
+}
+.scan-custom-chip button {
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer; padding: 0 2px; font-size: .85rem;
+}
+.scan-custom-chip button:hover { color: var(--red); }
+
+.scan-list-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+.scan-list { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.scan-list th, .scan-list td {
+  text-align: left; padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.scan-list th {
+  background: var(--bg);
+  color: var(--text-sub);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+.scan-list-row { cursor: pointer; transition: background .12s; }
+.scan-list-row:hover { background: rgba(255,255,255,.03); }

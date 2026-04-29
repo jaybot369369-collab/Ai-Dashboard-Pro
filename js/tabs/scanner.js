@@ -13,6 +13,9 @@ const ScannerTab = (() => {
   let _pollTimer  = null;
   let _filter     = localStorage.getItem('jb_scan_filter') || 'all'; // all | dino | A | B
   let _topN       = parseInt(localStorage.getItem('jb_scan_topn') || '30');
+  let _view       = localStorage.getItem('jb_scan_view') || 'grid'; // grid | list
+  let _mode       = localStorage.getItem('jb_scan_mode') || 'top'; // top | custom | both
+  let _customPairs= JSON.parse(localStorage.getItem('jb_scan_custom') || '[]');
 
   /* ── Utils ──────────────────────────────────────────── */
   const dp     = s => s.startsWith('BTC') ? 2 : (s.startsWith('ETH') ? 2 : 4);
@@ -149,10 +152,25 @@ const ScannerTab = (() => {
     const r = await fetch('https://api.binance.com/api/v3/ticker/24hr');
     if (!r.ok) throw new Error('ticker fetch ' + r.status);
     const all = await r.json();
-    return all
+    const byVol = all
       .filter(t => t.symbol.endsWith('USDT') && !t.symbol.includes('UP') && !t.symbol.includes('DOWN') && !t.symbol.includes('BULL') && !t.symbol.includes('BEAR'))
-      .sort((a,b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
-      .slice(0, _topN);
+      .sort((a,b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume));
+
+    // Custom-only mode: ONLY scan user-added tickers
+    if (_mode === 'custom') {
+      const map = Object.fromEntries(byVol.map(t => [t.symbol, t]));
+      return _customPairs.map(sym => map[sym] || { symbol: sym, lastPrice: '0', priceChangePercent: '0', quoteVolume: '0' });
+    }
+
+    // Top-only mode
+    const top = byVol.slice(0, _topN);
+    if (_mode === 'top') return top;
+
+    // Both: merge — top N + any custom that aren't already in top N
+    const seen = new Set(top.map(t => t.symbol));
+    const map = Object.fromEntries(byVol.map(t => [t.symbol, t]));
+    const extras = _customPairs.filter(s => !seen.has(s)).map(sym => map[sym] || { symbol: sym, lastPrice: '0', priceChangePercent: '0', quoteVolume: '0' });
+    return [...extras, ...top]; // custom first so they're prominent
   }
 
   async function fetchKlines(symbol, interval = '4h', limit = 100) {
@@ -260,6 +278,23 @@ const ScannerTab = (() => {
     return t === 'dino' ? 0 : t === 'A' ? 1 : t === 'B' ? 2 : 99;
   }
 
+  function renderListRow(r) {
+    const change = r.change24h;
+    const changeColor = change >= 0 ? 'var(--green)' : 'var(--red)';
+    const isCustom = _customPairs.includes(r.symbol);
+    return `<tr class="scan-list-row" onclick="ScannerTab._pickPair('${r.symbol}')">
+      <td>${tierBadge(r.tier)}</td>
+      <td><strong>${r.symbol.replace('USDT','')}</strong>${isCustom ? ' <span style="color:#8b5cf6;font-size:.7rem">★</span>' : ''}</td>
+      <td>${dirBadge(r.dir) || '<span class="text-dim">—</span>'}</td>
+      <td style="font-family:var(--mono)">${fmtP(r.price, r.symbol)}</td>
+      <td style="color:${changeColor};font-family:var(--mono)">${change>=0?'+':''}${change.toFixed(2)}%</td>
+      <td>${r.trend.label}</td>
+      <td>${r.premDisc.zone} <span class="text-dim">${r.premDisc.pct.toFixed(0)}%</span></td>
+      <td><span style="color:var(--green)">${r.pd.bulls}▲</span> / <span style="color:var(--red)">${r.pd.bears}▼</span></td>
+      <td>${r.sweep ? `<span style="color:${r.sweep.type==='bull'?'var(--green)':'var(--red)'}">⚡ ${r.sweep.label}</span>` : '<span class="text-dim">—</span>'}</td>
+    </tr>`;
+  }
+
   function updateBody() {
     const el = document.getElementById('scanBody');
     if (!el) return;
@@ -283,6 +318,22 @@ const ScannerTab = (() => {
       B:    _results.filter(r => r.tier === 'B').length,
     };
 
+    let body = '';
+    if (filtered.length) {
+      if (_view === 'list') {
+        body = `<div class="scan-list-wrap"><table class="scan-list">
+          <thead><tr>
+            <th>Tier</th><th>Pair</th><th>Bias</th><th>Price</th><th>24h</th><th>Trend</th><th>Position</th><th>PD</th><th>Sweep</th>
+          </tr></thead>
+          <tbody>${filtered.map(renderListRow).join('')}</tbody>
+        </table></div>`;
+      } else {
+        body = `<div class="scan-grid">${filtered.map(renderCard).join('')}</div>`;
+      }
+    } else {
+      body = `<div class="empty-state"><div class="empty-icon">😴</div><p>No setups matching <strong>${_filter}</strong> filter right now.</p><p class="text-dim" style="font-size:.85rem">Try a different filter or wait for the next scan.</p></div>`;
+    }
+
     el.innerHTML = `
       <div class="scan-summary">
         <span>Scanned <strong>${_results.length}</strong> pairs</span>
@@ -290,10 +341,7 @@ const ScannerTab = (() => {
         <span class="scan-pill scan-pill-a">A: ${counts.A}</span>
         <span class="scan-pill scan-pill-b">B: ${counts.B}</span>
       </div>
-      ${filtered.length
-        ? `<div class="scan-grid">${filtered.map(renderCard).join('')}</div>`
-        : `<div class="empty-state"><div class="empty-icon">😴</div><p>No setups matching <strong>${_filter}</strong> filter right now.</p><p class="text-dim" style="font-size:.85rem">Try a different filter or wait for the next scan.</p></div>`
-      }
+      ${body}
     `;
   }
 
@@ -321,13 +369,37 @@ const ScannerTab = (() => {
           ${['all','dino','A','B'].map(f => `<button class="btn-ghost btn-sm scan-fbtn${_filter===f?' active':''}" onclick="ScannerTab._setFilter('${f}')">${f === 'all' ? 'All' : f === 'dino' ? '🦖 Dino' : f}</button>`).join('')}
         </div>
         <div class="scan-controls">
-          <label class="text-dim" style="font-size:.78rem">Top
-            <select onchange="ScannerTab._setTopN(this.value)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:2px 6px;border-radius:4px;margin-left:4px">
-              ${[15,30,50,100].map(n=>`<option value="${n}"${n===_topN?' selected':''}>${n}</option>`).join('')}
+          <div class="scan-view-toggle">
+            <button class="scan-vbtn${_view==='grid'?' active':''}" onclick="ScannerTab._setView('grid')" title="Grid view">▦</button>
+            <button class="scan-vbtn${_view==='list'?' active':''}" onclick="ScannerTab._setView('list')" title="List view">☰</button>
+          </div>
+          <label class="text-dim" style="font-size:.78rem">Mode
+            <select onchange="ScannerTab._setMode(this.value)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:2px 6px;border-radius:4px;margin-left:4px">
+              <option value="top"${_mode==='top'?' selected':''}>Top by volume</option>
+              <option value="custom"${_mode==='custom'?' selected':''}>Custom only</option>
+              <option value="both"${_mode==='both'?' selected':''}>Both</option>
+            </select>
+          </label>
+          <label class="text-dim" style="font-size:.78rem"${_mode==='custom'?' style="display:none"':''}>Top
+            <select onchange="ScannerTab._setTopN(this.value)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:2px 6px;border-radius:4px;margin-left:4px"${_mode==='custom'?' disabled':''}>
+              ${[15,30,50,100,200].map(n=>`<option value="${n}"${n===_topN?' selected':''}>${n}</option>`).join('')}
             </select>
           </label>
           <span id="scanStatus" class="text-dim" style="font-size:.78rem">Idle</span>
           <button class="btn-primary btn-sm" onclick="ScannerTab._refresh()">↻ Scan</button>
+        </div>
+      </div>
+
+      <div class="scan-custom-bar">
+        <div class="scan-custom-input">
+          <input type="text" id="scanAddInput" placeholder="add ticker — e.g. SOL, LINKUSDT, PEPE" />
+          <button class="btn-primary btn-sm" onclick="ScannerTab._addPair()">＋ Add</button>
+        </div>
+        <div class="scan-custom-chips">
+          ${_customPairs.length
+            ? _customPairs.map(p => `<span class="scan-custom-chip">${p.replace('USDT','')}<button onclick="ScannerTab._removePair('${p}')">✕</button></span>`).join('')
+            : `<span class="text-dim" style="font-size:.78rem">No custom pairs added yet — add any USDT ticker above to track it</span>`
+          }
         </div>
       </div>
 
@@ -339,6 +411,10 @@ const ScannerTab = (() => {
         </div>
       </div>
     </div>`;
+
+    // Wire Enter key on custom-pair input
+    const addInput = document.getElementById('scanAddInput');
+    if (addInput) addInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); ScannerTab._addPair(); } });
 
     // Auto-load on first open
     if (!_lastFetch || (Date.now() - _lastFetch) > 60000) {
@@ -354,6 +430,27 @@ const ScannerTab = (() => {
     _refresh:    () => loadData(),
     _setFilter:  f => { _filter = f; localStorage.setItem('jb_scan_filter', f); render(); },
     _setTopN:    n => { _topN = parseInt(n); localStorage.setItem('jb_scan_topn', _topN); loadData(); },
+    _setView:    v => { _view = v; localStorage.setItem('jb_scan_view', v); render(); },
+    _setMode:    m => { _mode = m; localStorage.setItem('jb_scan_mode', m); render(); loadData(); },
+    _addPair:    () => {
+      const input = document.getElementById('scanAddInput');
+      const raw = (input?.value || '').trim().toUpperCase().replace('/', '');
+      if (!raw) return;
+      const sym = raw.endsWith('USDT') ? raw : raw + 'USDT';
+      if (!_customPairs.includes(sym)) {
+        _customPairs.push(sym);
+        localStorage.setItem('jb_scan_custom', JSON.stringify(_customPairs));
+      }
+      if (input) input.value = '';
+      render();
+      loadData();
+    },
+    _removePair: sym => {
+      _customPairs = _customPairs.filter(p => p !== sym);
+      localStorage.setItem('jb_scan_custom', JSON.stringify(_customPairs));
+      render();
+      if (_mode !== 'top') loadData();
+    },
     _pickPair:   sym => {
       // Switch to Dojo tab with this pair selected
       if (typeof DojoTab !== 'undefined' && DojoTab._pair) {

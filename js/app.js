@@ -653,31 +653,41 @@ const App = (() => {
       }
       if (typeof toast === 'function') toast('Applied AI suggestions', 'success');
     },
-    _handleScreenshotFiles: (e) => {
+    _handleScreenshotFiles: async (e) => {
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
-      let pending = files.length;
+      const useR2 = (typeof R2 !== 'undefined') && R2.isEnabled();
+      const oversized = files.filter(f => f.size > 8 * 1024 * 1024);
+      if (oversized.length) toast(`${oversized.length} file(s) over 8MB skipped`, 'error');
+      const valid = files.filter(f => f.size <= 8 * 1024 * 1024);
+      if (!valid.length) { e.target.value = ''; return; }
+
       const newUrls = [];
-      files.forEach((f, idx) => {
-        if (f.size > 4 * 1024 * 1024) {
-          toast(`${f.name} too large (max 4 MB)`, 'error');
-          if (--pending === 0) finish();
-          return;
+      if (useR2) {
+        toast(`Uploading ${valid.length} image${valid.length===1?'':'s'} to R2…`, 'info');
+        for (const f of valid) {
+          try {
+            const r = await R2.upload(f);
+            newUrls.push(r.url);
+          } catch (err) {
+            console.warn('R2 upload failed, falling back to base64:', err.message);
+            // Fallback: base64 for this file
+            const dataUrl = await new Promise(res => { const r = new FileReader(); r.onload = ev => res(ev.target.result); r.readAsDataURL(f); });
+            newUrls.push(dataUrl);
+          }
         }
-        const reader = new FileReader();
-        reader.onload = ev => {
-          newUrls[idx] = ev.target.result;
-          if (--pending === 0) finish();
-        };
-        reader.readAsDataURL(f);
-      });
-      function finish() {
-        const filtered = newUrls.filter(Boolean);
-        filtered.forEach(u => { if (!_pendingScreenshots.includes(u)) _pendingScreenshots.push(u); });
-        renderScreenshotPrev();
-        toast(`${filtered.length} image${filtered.length !== 1 ? 's' : ''} attached`);
-        e.target.value = '';
+      } else {
+        // Original base64 path
+        for (const f of valid) {
+          const dataUrl = await new Promise(res => { const r = new FileReader(); r.onload = ev => res(ev.target.result); r.readAsDataURL(f); });
+          newUrls.push(dataUrl);
+        }
       }
+
+      newUrls.forEach(u => { if (!_pendingScreenshots.includes(u)) _pendingScreenshots.push(u); });
+      renderScreenshotPrev();
+      toast(`${newUrls.length} image${newUrls.length === 1 ? '' : 's'} attached${useR2 ? ' (R2 cloud)' : ''}`);
+      e.target.value = '';
     },
     _removeScreenshot: (idx) => {
       _pendingScreenshots.splice(idx, 1);

@@ -418,6 +418,128 @@ const ProToolsTab = (() => {
     });
   }
 
+  /* ══════════════════════════════════════════════════════
+     STORAGE — Cloudflare R2 image upload settings
+  ══════════════════════════════════════════════════════ */
+  function renderStorage() {
+    const workerUrl = (typeof R2 !== 'undefined') ? R2.getWorkerUrl() : '';
+    const enabled   = (typeof R2 !== 'undefined') ? R2.getEnabled() : false;
+    const log       = (typeof R2 !== 'undefined') ? R2.getLog() : [];
+    // Count localStorage usage
+    let base64Count = 0, base64Bytes = 0;
+    if (typeof DB !== 'undefined') {
+      DB.getTrades().forEach(t => {
+        const urls = DB.getScreenshots(t);
+        urls.forEach(u => {
+          if (u.startsWith('data:image')) { base64Count++; base64Bytes += u.length; }
+        });
+      });
+    }
+    const base64MB = (base64Bytes / 1024 / 1024).toFixed(2);
+
+    return `<div class="pro-section">
+      <h3 class="pro-hdr">📦 Cloudflare R2 — Cloud Image Storage</h3>
+      <p class="text-sub" style="font-size:.85rem;margin:0 0 14px">Replace base64 images in localStorage with R2 cloud URLs. New uploads compress to WebP @ 80% quality, max 1200px wide. Free 10GB / forever.</p>
+
+      <div class="form-group">
+        <label>Cloudflare Worker URL <span class="text-xs text-sub">(from Worker deploy)</span></label>
+        <input type="text" id="r2Url" value="${workerUrl}" placeholder="https://image-uploader.YOURACCOUNT.workers.dev" />
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:.9rem">
+          <span>Enabled</span>
+          <label class="tg-switch">
+            <input type="checkbox" id="r2Enabled"${enabled?' checked':''} />
+            <span class="tg-slider"></span>
+          </label>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn-primary" id="r2SaveBtn">💾 Save</button>
+        <button class="btn-ghost" id="r2TestBtn">📡 Test Connection</button>
+        <span id="r2Status" class="text-dim" style="font-size:.82rem;align-self:center"></span>
+      </div>
+
+      <div class="pro-tip" style="margin-top:18px">
+        <strong>Current localStorage image bloat:</strong>
+        <span style="color:${base64Count>10?'var(--gold)':'var(--text)'}">${base64Count} base64 image${base64Count===1?'':'s'} · ${base64MB} MB</span>
+        ${base64Count > 0 ? '<br>Click <strong>Migrate now</strong> to move them all to R2 and reclaim that localStorage space.' : '<br>No base64 images detected. New uploads will go straight to R2 once configured.'}
+      </div>
+
+      ${base64Count > 0 ? `<div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-primary" id="r2MigrateBtn">🚚 Migrate ${base64Count} image${base64Count===1?'':'s'} to R2</button>
+        <span id="r2MigrateStatus" class="text-dim" style="font-size:.82rem;align-self:center"></span>
+      </div>` : ''}
+
+      <h4 class="pro-hdr" style="font-size:.88rem;margin-top:24px">📜 Recent activity (last ${log.length})</h4>
+      ${log.length ? `<div class="tg-log">
+        ${log.map(e => `<div class="tg-log-row">
+          <span class="tg-log-icon">${e.op==='upload'?'⬆':e.op==='delete'?'🗑':'📡'}</span>
+          <span class="tg-log-time text-dim">${new Date(e.time).toLocaleString()}</span>
+          <span class="tg-log-text">${e.op === 'upload' ? `${(e.size/1024).toFixed(1)} KB · ${e.url||''}` : (e.key || e.op)}</span>
+        </div>`).join('')}
+      </div>` : '<p class="text-dim" style="font-size:.85rem">No activity yet.</p>'}
+
+      <h4 class="pro-hdr" style="font-size:.88rem;margin-top:24px">🆘 Setup Guide (~7 min)</h4>
+      <ol style="font-size:.85rem;color:var(--text-sub);padding-left:20px;line-height:1.8">
+        <li>Go to <strong>cloudflare.com</strong> → sign up free → confirm email</li>
+        <li>Left sidebar → <strong>R2 Object Storage</strong> → <strong>Create bucket</strong> → name it <code>ai-dashboard-images</code></li>
+        <li>Open the bucket → <strong>Settings</strong> tab → scroll to <strong>Public Access</strong> → click <strong>Allow Access</strong> on the <em>R2.dev subdomain</em> row → copy that <code>https://pub-XXXXX.r2.dev</code> URL</li>
+        <li>Left sidebar → <strong>Workers &amp; Pages</strong> → <strong>Create application</strong> → <strong>Create Worker</strong> → name <code>image-uploader</code> → <strong>Deploy</strong></li>
+        <li>Click your new Worker → <strong>Edit code</strong> → delete sample → paste the contents of <code>CLOUDFLARE_R2_WORKER.js</code> from your repo (or copy from the Setup Guide tooltip below) → <strong>Save and Deploy</strong></li>
+        <li>Back to Worker → <strong>Settings → Variables</strong>:
+          <ul style="margin-top:4px">
+            <li>Under <strong>R2 Bucket Bindings</strong>: variable name <code>IMAGES</code>, bucket <code>ai-dashboard-images</code></li>
+            <li>Under <strong>Environment Variables</strong>: name <code>PUBLIC_URL</code>, value the <code>pub-XXXXX.r2.dev</code> URL from step 3</li>
+          </ul>
+        </li>
+        <li>Copy the Worker URL from the top of the page (e.g. <code>https://image-uploader.YOURACCOUNT.workers.dev</code>) → paste it above → toggle Enabled → 📡 Test Connection</li>
+      </ol>
+      <details style="margin-top:10px">
+        <summary class="text-sub" style="cursor:pointer;font-size:.82rem">📜 Show Worker code to paste</summary>
+        <pre style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;overflow-x:auto;font-size:.75rem;margin-top:8px;max-height:240px"><code id="r2WorkerCode">Loading…</code></pre>
+      </details>
+    </div>`;
+  }
+
+  function wireStorage() {
+    document.getElementById('r2SaveBtn')?.addEventListener('click', () => {
+      R2.setWorkerUrl(document.getElementById('r2Url').value.trim());
+      R2.setEnabled(document.getElementById('r2Enabled').checked);
+      if (typeof toast === 'function') toast('R2 settings saved', 'success');
+      render();
+    });
+    document.getElementById('r2TestBtn')?.addEventListener('click', async () => {
+      const status = document.getElementById('r2Status');
+      R2.setWorkerUrl(document.getElementById('r2Url').value.trim());
+      status.textContent = 'Pinging worker…'; status.style.color = 'var(--gold)';
+      try {
+        const txt = await R2.testConnection();
+        status.textContent = '✅ Worker says: ' + txt; status.style.color = 'var(--green)';
+      } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; }
+    });
+    document.getElementById('r2MigrateBtn')?.addEventListener('click', async () => {
+      const status = document.getElementById('r2MigrateStatus');
+      const btn = document.getElementById('r2MigrateBtn');
+      btn.disabled = true; status.textContent = 'Starting…'; status.style.color = 'var(--gold)';
+      try {
+        const result = await R2.migrateAllBase64({
+          onProgress: ({done, total, fail}) => { status.textContent = `${done}/${total} done${fail?` (${fail} failed)`:''}`; },
+        });
+        status.textContent = `✅ Migrated ${result.done}/${result.total}${result.fail?` (${result.fail} failed)`:''}`;
+        status.style.color = 'var(--green)';
+        setTimeout(render, 1500);
+      } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; btn.disabled = false; }
+    });
+    // Load worker code into <pre> when expanded
+    const codeEl = document.getElementById('r2WorkerCode');
+    if (codeEl) {
+      fetch('CLOUDFLARE_R2_WORKER.js').then(r => r.text()).then(t => { codeEl.textContent = t; }).catch(() => { codeEl.textContent = 'Could not load — find it in the repo root: CLOUDFLARE_R2_WORKER.js'; });
+    }
+  }
+
   /* ── Tab nav ────────────────────────────────────────── */
   function render() {
     const content = document.getElementById('content');
@@ -428,12 +550,14 @@ const ProToolsTab = (() => {
         <button class="pro-sub-btn${_sub==='replay'?' active':''}" data-sub="replay">▶ Trade Replay</button>
         <button class="pro-sub-btn${_sub==='corr'?' active':''}" data-sub="corr">📊 Correlation</button>
         <button class="pro-sub-btn${_sub==='telegram'?' active':''}" data-sub="telegram">🔔 Telegram</button>
+        <button class="pro-sub-btn${_sub==='storage'?' active':''}" data-sub="storage">📦 Storage</button>
       </div>
       <div id="proBody">${
         _sub === 'sizer'   ? renderSizer() :
         _sub === 'qstats'  ? `<div class="pro-section"><div class="qs-wrap" style="padding:0">${typeof QuickStatsTab !== 'undefined' ? QuickStatsTab._renderHTML() : '<div class="empty-state">QuickStatsTab not loaded</div>'}</div></div>` :
         _sub === 'replay'  ? renderReplay() :
         _sub === 'telegram'? renderTelegram() :
+        _sub === 'storage' ? renderStorage() :
         renderCorrelation()
       }</div>
     </div>`;
@@ -459,6 +583,8 @@ const ProToolsTab = (() => {
       if (typeof QuickStatsTab !== 'undefined') QuickStatsTab._wireUp();
     } else if (_sub === 'telegram') {
       wireTelegram();
+    } else if (_sub === 'storage') {
+      wireStorage();
     } else if (_sub === 'replay') {
       document.getElementById('rpTrade')?.addEventListener('change', e => {
         if (e.target.value) runReplay(e.target.value);

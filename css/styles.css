@@ -1884,8 +1884,7 @@ input.date-picker::-webkit-calendar-picker-indicator {
   border: 1px solid var(--border);
 }
 .scan-pill-dino { background: rgba(139,92,246,.15); color: #c4b5fd; border-color: #8b5cf6; }
-.scan-pill-a    { background: rgba(0,200,150,.15); color: var(--green); border-color: var(--green); }
-.scan-pill-b    { background: rgba(245,200,66,.15); color: var(--gold); border-color: var(--gold); }
+.scan-pill-a, .scan-pill-b, .scan-pill-c, .scan-pill-d { color: var(--text-sub); }
 
 .scan-grid {
   display: grid;
@@ -1908,8 +1907,6 @@ input.date-picker::-webkit-calendar-picker-indicator {
   border-color: var(--accent);
 }
 .scan-dino { border-color: #8b5cf6; box-shadow: 0 0 14px rgba(139,92,246,.3); }
-.scan-A    { border-color: var(--green); }
-.scan-B    { border-color: var(--gold); }
 
 .scan-card-hdr {
   display: flex; justify-content: space-between; align-items: flex-start;
@@ -1924,8 +1921,9 @@ input.date-picker::-webkit-calendar-picker-indicator {
   letter-spacing: .04em;
 }
 .scan-tier.scan-dino { background: linear-gradient(135deg, #8b5cf6, #4f8ef7); color: white; }
-.scan-tier.scan-a    { background: var(--green); color: white; }
-.scan-tier.scan-b    { background: var(--gold); color: var(--bg); }
+.scan-tier.scan-a, .scan-tier.scan-b, .scan-tier.scan-c, .scan-tier.scan-d {
+  background: var(--bg); color: var(--text); border: 1px solid var(--border);
+}
 .scan-tier.scan-none { background: var(--bg); color: var(--text-dim); }
 
 .scan-dir {

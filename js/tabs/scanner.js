@@ -135,16 +135,27 @@ const ScannerTab = (() => {
     const dom = pd.bulls > pd.bears ? pd.bulls : pd.bears;
     const dir = pd.bulls > pd.bears ? 'bull' : pd.bears > pd.bulls ? 'bear' : null;
     let tier = null, reasons = [];
-    // 🦖 DINO: 3+ confluence + active killzone + sweep aligned
+    // 🦖 DINO: 3+ PD confluence + active killzone + aligned sweep — fires Telegram
     if (dom >= 3 && kzActive && sweep && sweep.type === dir) {
       tier = 'dino'; reasons = ['3+ PD confluence', `killzone: ${kzActive}`, 'aligned sweep'];
-    } else if (dom >= 3 && kzActive) {
-      tier = 'A'; reasons = ['3+ PD confluence', `killzone: ${kzActive}`];
-    } else if (dom >= 2 && (kzActive || sweep)) {
-      tier = 'B'; reasons = ['2+ PD confluence', kzActive ? `killzone: ${kzActive}` : 'active sweep'];
-    } else if (dom >= 2) {
-      tier = 'B'; reasons = ['2+ PD confluence'];
     }
+    // A: 3+ PD confluence inside an active killzone
+    else if (dom >= 3 && kzActive) {
+      tier = 'A'; reasons = ['3+ PD confluence', `killzone: ${kzActive}`];
+    }
+    // B: 3+ PD confluence (off-killzone) — strong area, just bad timing
+    else if (dom >= 3) {
+      tier = 'B'; reasons = ['3+ PD confluence (off-killzone)'];
+    }
+    // C: 2+ PD confluence + (killzone OR active sweep) — worth watching
+    else if (dom >= 2 && (kzActive || sweep)) {
+      tier = 'C'; reasons = ['2+ PD confluence', kzActive ? `killzone: ${kzActive}` : 'active sweep'];
+    }
+    // D: 2+ PD confluence on its own — weak, low-priority
+    else if (dom >= 2) {
+      tier = 'D'; reasons = ['2+ PD confluence'];
+    }
+    // None: < 2 confluence — not surfaced
     return { tier, dir, dominant: dom, reasons };
   }
 
@@ -222,8 +233,8 @@ const ScannerTab = (() => {
       }
       _results = all.filter(r => !r.error);
       _lastFetch = Date.now();
-      // Fire Telegram alerts for fresh dino tiers (10-min throttle per pair)
-      maybeAlertNewDinos();
+      // Fire Telegram alerts for fresh dino + A-tier signals (10-min throttle per pair)
+      maybeAlertNewSignals();
     } catch (e) {
       _err = e.message;
       console.error('Scanner load error:', e);
@@ -234,22 +245,24 @@ const ScannerTab = (() => {
     }
   }
 
-  /* ── Telegram alerting on dino fires ────────────────── */
-  function maybeAlertNewDinos() {
+  /* ── Telegram alerting on dino + A-tier signals ─────── */
+  function maybeAlertNewSignals() {
     if (typeof Telegram === 'undefined' || !Telegram.isEnabled()) return;
-    const dinos = _results.filter(r => r.tier === 'dino');
+    const eligible = _results.filter(r => r.tier === 'dino' || r.tier === 'A');
     const now = Date.now();
     const TEN_MIN = 10 * 60 * 1000;
-    for (const r of dinos) {
+    for (const r of eligible) {
       const last = _lastDinoSent[r.symbol] || 0;
       if (now - last < TEN_MIN) continue;
       _lastDinoSent[r.symbol] = now;
-      sendDinoAlert(r);
+      sendSignalAlert(r);
     }
     localStorage.setItem('jb_scan_dinosent', JSON.stringify(_lastDinoSent));
   }
 
-  function sendDinoAlert(r) {
+  function sendSignalAlert(r) {
+    const isDino = r.tier === 'dino';
+    const tierLabel = isDino ? '🦖 DINO FIRE' : '🅰 A-TIER ALERT';
     const dirWord = r.dir === 'bull' ? 'LONG' : r.dir === 'bear' ? 'SHORT' : 'UNCLEAR';
     // Suggest entry/SL/TP from price + sweep
     let entry = r.price, sl = null, tp = null;
@@ -270,8 +283,9 @@ const ScannerTab = (() => {
       else if (r.dir === 'bear') { sl = r.price * 1.01; tp = entry - (sl - entry) * 2; }
     }
     const fmt = n => n != null ? n.toLocaleString('en-US', { maximumFractionDigits: dp(r.symbol) }) : '?';
-    const text = `🦖 *DINO FIRE — SCANNER*\n\n` +
+    const text = `${tierLabel} — *SCANNER*\n\n` +
       `*${r.symbol.replace('USDT','')}/USDT* — *${dirWord}* setup\n` +
+      `Tier: *${isDino ? 'DINO 🦖' : 'A-TIER'}*\n` +
       `PD ratio: ${r.pd.bulls}▲ / ${r.pd.bears}▼\n` +
       `Reasons: ${(r.reasons||[]).join(', ')}\n` +
       `\n*Market conditions:*\n` +
@@ -292,6 +306,8 @@ const ScannerTab = (() => {
     if (t === 'dino') return '<span class="scan-tier scan-dino">🦖 DINO</span>';
     if (t === 'A')    return '<span class="scan-tier scan-a">A-TIER</span>';
     if (t === 'B')    return '<span class="scan-tier scan-b">B-TIER</span>';
+    if (t === 'C')    return '<span class="scan-tier scan-c">C-TIER</span>';
+    if (t === 'D')    return '<span class="scan-tier scan-d">D-TIER</span>';
     return '<span class="scan-tier scan-none">—</span>';
   }
   function dirBadge(d) {
@@ -331,7 +347,7 @@ const ScannerTab = (() => {
   }
 
   function tierOrder(t) {
-    return t === 'dino' ? 0 : t === 'A' ? 1 : t === 'B' ? 2 : 99;
+    return t === 'dino' ? 0 : t === 'A' ? 1 : t === 'B' ? 2 : t === 'C' ? 3 : t === 'D' ? 4 : 99;
   }
 
   function renderListRow(r) {
@@ -364,6 +380,8 @@ const ScannerTab = (() => {
         if (_filter === 'dino') return r.tier === 'dino';
         if (_filter === 'A')    return r.tier === 'dino' || r.tier === 'A';
         if (_filter === 'B')    return r.tier === 'B';
+        if (_filter === 'C')    return r.tier === 'C';
+        if (_filter === 'D')    return r.tier === 'D';
         return true;
       })
       .sort((a,b) => tierOrder(a.tier) - tierOrder(b.tier) || b.dominant - a.dominant);
@@ -372,6 +390,8 @@ const ScannerTab = (() => {
       dino: _results.filter(r => r.tier === 'dino').length,
       A:    _results.filter(r => r.tier === 'A').length,
       B:    _results.filter(r => r.tier === 'B').length,
+      C:    _results.filter(r => r.tier === 'C').length,
+      D:    _results.filter(r => r.tier === 'D').length,
     };
 
     let body = '';
@@ -396,6 +416,8 @@ const ScannerTab = (() => {
         <span class="scan-pill scan-pill-dino">🦖 ${counts.dino}</span>
         <span class="scan-pill scan-pill-a">A: ${counts.A}</span>
         <span class="scan-pill scan-pill-b">B: ${counts.B}</span>
+        <span class="scan-pill scan-pill-c">C: ${counts.C}</span>
+        <span class="scan-pill scan-pill-d">D: ${counts.D}</span>
       </div>
       ${body}
     `;
@@ -422,7 +444,7 @@ const ScannerTab = (() => {
     content.innerHTML = `<div class="scan-wrap">
       <div class="scan-top-bar">
         <div class="scan-filters">
-          ${['all','dino','A','B'].map(f => `<button class="btn-ghost btn-sm scan-fbtn${_filter===f?' active':''}" onclick="ScannerTab._setFilter('${f}')">${f === 'all' ? 'All' : f === 'dino' ? '🦖 Dino' : f}</button>`).join('')}
+          ${['all','dino','A','B','C','D'].map(f => `<button class="btn-ghost btn-sm scan-fbtn${_filter===f?' active':''}" onclick="ScannerTab._setFilter('${f}')">${f === 'all' ? 'All' : f === 'dino' ? '🦖 Dino' : f}</button>`).join('')}
         </div>
         <div class="scan-controls">
           <div class="scan-view-toggle">

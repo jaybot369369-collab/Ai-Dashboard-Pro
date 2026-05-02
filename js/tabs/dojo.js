@@ -857,26 +857,36 @@ ${s.formations.slice(0, 5).map(f => `  · [${f.tier}] ${f.type}  (${f.tf})  ${f.
   }
 
   function maybeFireDino(conf, signals) {
-    if (!conf || !conf.dino) {
-      if (!conf || !conf.dino) _dinoArmed = true; // re-arm when confluence drops
+    // Determine fire tier: dino (full) or A-tier (3+ confluence + active KZ, no aligned sweep)
+    const activeKZ = kzStatus().find(k => k.active);
+    const isDino = !!(conf && conf.dino);
+    const isATier = !isDino && conf && (conf.total >= 3) && !!activeKZ;
+    const fireKind = isDino ? 'dino' : isATier ? 'A' : null;
+
+    if (!fireKind) {
+      _dinoArmed = true; // re-arm when conditions drop
       return;
     }
     if (!_dinoArmed) return;
-    // fired in last 10 minutes? skip
     if (Date.now() - _lastDinoFire < 10 * 60 * 1000) return;
     _lastDinoFire = Date.now();
     _dinoArmed = false;
-    playDinoBeep();
-    // Browser notification (if user previously allowed)
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      try { new Notification(`🦖 ${_pair} confluence — ${signals.pdDir.label}`, { body: 'Open ICT Dojo for full setup' }); } catch {}
+
+    // Sound + browser notification only for dino (avoid A-tier noise on local box)
+    if (isDino) {
+      playDinoBeep();
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try { new Notification(`🦖 ${_pair} confluence — ${signals.pdDir.label}`, { body: 'Open ICT Dojo for full setup' }); } catch {}
+      }
     }
-    // Telegram alert with full payload
+
+    // Telegram alert (fires for both dino and A-tier)
     if (typeof Telegram !== 'undefined' && Telegram.isEnabled()) {
+      const tierLabel = isDino ? '🦖 DINO FIRE' : '🅰 A-TIER ALERT';
+      const tierShort = isDino ? 'DINO 🦖' : 'A-TIER';
       const dir = signals.pdDir.label.includes('BULL') ? 'LONG' : signals.pdDir.label.includes('BEAR') ? 'SHORT' : 'UNCLEAR';
       const px  = _ticker ? parseFloat(_ticker.lastPrice) : null;
-      const kz  = kzStatus().find(k => k.active)?.name || 'none';
-      // Compute simple entry/SL/TP from current price + recent swing
+      const kz  = activeKZ?.name || 'none';
       const c4 = _candles['4h'] || [];
       const recent = c4.slice(-25);
       const swingHi = recent.length ? Math.max(...recent.map(x=>x.high)) : null;
@@ -888,8 +898,9 @@ ${s.formations.slice(0, 5).map(f => `  · [${f.tier}] ${f.type}  (${f.tf})  ${f.
         entry = px; sl = swingHi * 1.002; tp = entry - (sl - entry) * 2;
       }
       const fmt = n => n != null ? n.toLocaleString('en-US', { maximumFractionDigits: dp(_pair) }) : '?';
-      const text = `🦖 *DINO FIRE — ICT DOJO*\n\n` +
+      const text = `${tierLabel} — *ICT DOJO*\n\n` +
         `*${_pair}* — *${dir}* setup\n` +
+        `Tier: *${tierShort}*\n` +
         `Direction: ${signals.pdDir.label}\n` +
         `PD ratio: ${signals.confluence.bulls}▲ / ${signals.confluence.bears}▼ (total ${signals.confluence.total})\n` +
         `Killzone: ${kz}\n` +

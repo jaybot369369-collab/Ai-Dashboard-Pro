@@ -1,0 +1,143 @@
+{
+  "generated": "2026-04-30T23:55:00Z",
+  "date": "2026-04-30",
+  "weekday": "Thursday",
+  "context": "BTC/USD trades at $75,653 (+0.30% 24h) as April closes with spot ETF inflows of $2.4B — the strongest institutional demand month of 2026. The FOMC held rates at 3.50-3.75% (Apr 29, 8-4 vote) with Powell's chairmanship ending May 15 and crypto-friendly Kevin Warsh set to assume the role. XRP leads alt sentiment as the CLARITY Act Senate Banking Committee markup window expires; 120+ firms formally urged passage. ETH consolidates post-Pectra hard fork at $2,268. Total crypto market cap sits at $2.6T (-1.5% 24h). BTC dominance 59.9%. NFP (May 1) and PCE (today) are the binary macro triggers for the week — inline/soft prints would extend the risk-on crypto rally into May.",
+  "tickers": [
+    {
+      "sym": "XRP", "name": "XRP / USD",
+      "price": "$1.373", "chg24": "-1.60%", "chg7": "+4.2%",
+      "vol": "$2.35B", "mcap": "$84.74B",
+      "bias": "LONG", "priority": "HIGH",
+      "thesis": "CLARITY Act Senate Banking Committee markup window closes end of April — binary catalyst for XRP's legal classification as a digital commodity. 120+ firms publicly urged Senate passage; SEC/CFTC Project Crypto infrastructure already built. Failure to floor-vote by May effectively shelves the bill for 2026. Price consolidating $1.35-$1.40 after week-long pullback; structure still bullish above $1.28.",
+      "levels": [
+        ["Resistance R4 (BSL)", "$1.72",  "November 2025 weekly high / old ATH liquidity"],
+        ["Resistance R3",       "$1.55",  "Q1 2026 swing high / CLARITY pump peak"],
+        ["Resistance R2",       "$1.48",  "0.5 fib of Dec-Feb swing; equal highs cluster"],
+        ["Resistance R1",       "$1.40",  "24h high / intraday FVG top"],
+        ["--- Spot ---",        "$1.373", "Current price (Apr 30)"],
+        ["Support S1",          "$1.35",  "24h low / 4h demand zone"],
+        ["Support S2 (OTE)",    "$1.28",  "OTE 70.5% retracement / structure low"],
+        ["Support S3",          "$1.18",  "Weekly demand OB / accumulated buy-stops"],
+        ["Support S4 (SSL)",    "$1.05",  "Q4 2025 swing low / major SSL"]
+      ],
+      "setup": {
+        "entry": "Long on London/NY killzone dip to $1.28-$1.35 OTE with bullish 15m structure",
+        "stop":  "$1.24 (1.5% below OTE, beneath structural low)",
+        "tp1":   "$1.40 (24h high BSL sweep, partial at 1.5R)",
+        "tp2":   "$1.55 (CLARITY pump peak / 3.0R full target)",
+        "invalidation": "Daily close below $1.18 negates bullish structure"
+      },
+      "catalysts": [
+        "CLARITY Act Senate Banking Committee markup expires end of April — binary headline risk",
+        "120+ firms publicly endorsed Senate passage in coordinated April lobbying push",
+        "SEC/CFTC Project Crypto infrastructure already built — execution risk minimal",
+        "Atkins (SEC) + Bessent (Treasury) + Armstrong (Coinbase) coordinated April endorsements",
+        "If bill floor-votes pre-May, XRP digital-commodity classification locked in federal law"
+      ],
+      "liq_above": [
+        ["1D", "$1.40", "Equal highs cluster / stop run target"],
+        ["1W", "$1.55", "Weekly BSL from Q1 CLARITY rally"]
+      ],
+      "liq_below": [
+        ["1D", "$1.35", "24h low / resting sell-stops below"],
+        ["1W", "$1.18", "Weekly demand OB / accumulated buy-stops"]
+      ]
+    },
+    {
+      "sym": "BTC", "name": "BTC / USD",
+      "price": "$75,653", "chg24": "+0.30%", "chg7": "+4.5%",
+      "vol": "$18.51B", "mcap": "$1,514.75B",
+      "bias": "LONG", "priority": "HIGH",
+      "thesis": "Spot ETF inflows $2.4B in April — strongest month of 2026. BlackRock IBIT holds ~812K BTC (~$62B AUM). FOMC held rates at 3.50-3.75% (Apr 29); Powell's final meeting amid growing dissent (8-4 vote). Incoming Chair Warsh viewed as crypto-friendly. BTC up ~12% MTD but cooling off $77.4K highs — watching $73.5K OTE retracement for continuation entry.",
+      "levels": [
+        ["Resistance R4 (BSL)",   "$80,000", "Round-number / psychological BSL cluster"],
+        ["Resistance R3",         "$78,500", "April swing high area / prior distribution"],
+        ["Resistance R2",         "$77,410", "24h high / FVG top / recent rejection"],
+        ["Resistance R1",         "$76,500", "Intraday supply zone / 1h FVG"],
+        ["--- Spot ---",          "$75,653", "Current price (Apr 30)"],
+        ["Support S1",            "$74,800", "4h demand / prior consolidation low"],
+        ["Support S2 (OTE 75%)",  "$73,500", "BTC OTE 75% fib retracement entry zone"],
+        ["Support S3",            "$71,200", "Weekly order block / March breakout level"],
+        ["Support S4 (SSL)",      "$68,500", "Q1 2026 swing low / major buy-side liquidity"]
+      ],
+      "setup": {
+        "entry": "Long on NY killzone dip into $73,500-$74,800 OTE (Tue/Wed session priority)",
+        "stop":  "$72,100 (1.5% below OTE, below $72K equal lows)",
+        "tp1":   "$77,410 (24h high sweep, 1.5R partial)",
+        "tp2":   "$80,000 (BSL round-number sweep, 3.0R full exit)",
+        "invalidation": "Daily close below $71,000 breaks bullish macro structure"
+      },
+      "catalysts": [
+        "April spot ETF inflows $2.4B — strongest institutional demand month of 2026",
+        "FOMC held 3.50-3.75%; Kevin Warsh (crypto-friendly) to chair in mid-May",
+        "US-Iran ceasefire extension reducing macro risk-off pressure",
+        "NFP Friday May 1: April payrolls estimate ~150K vs prior 178K; beats = risk-on",
+        "PCE inflation Apr 30: consensus 2.8% — inline print neutral, miss bullish BTC"
+      ],
+      "liq_above": [
+        ["1D", "$77,500", "24h high BSL / short-stop cluster"],
+        ["1W", "$80,000", "Round-number weekly BSL"]
+      ],
+      "liq_below": [
+        ["1D", "$74,500", "Equal lows / resting long-stops below"],
+        ["1W", "$71,000", "Weekly order block / major SSL"]
+      ]
+    },
+    {
+      "sym": "ETH", "name": "ETH / USD",
+      "price": "$2,268", "chg24": "-1.60%", "chg7": "+3.8%",
+      "vol": "$8.90B", "mcap": "$277.58B",
+      "bias": "NEUTRAL", "priority": "MEDIUM",
+      "thesis": "Post-Pectra upgrade consolidation — ETH jumped 20%+ on the hard fork but is now digesting gains. 32% of supply staked (up from 24% two years ago). Bitmine Immersion accumulating 5.08M ETH (~$13.3B) targeting 5% of total supply. Glamsterdam fork (H1 2026) approaching on roadmap. ETH/BTC ratio compressed; needs reclaim of 0.030 for meaningful outperformance. Bias neutral until clear breakout above $2,346 or retest of $2,150 OTE.",
+      "levels": [
+        ["Resistance R4 (BSL)",   "$2,700", "Pre-Pectra swing high / BSL cluster"],
+        ["Resistance R3",         "$2,500", "Q1 2026 supply zone / distribution area"],
+        ["Resistance R2",         "$2,346", "24h high / intraday FVG top"],
+        ["Resistance R1",         "$2,310", "4h supply / recent rejection zone"],
+        ["--- Spot ---",          "$2,268", "Current price (Apr 30)"],
+        ["Support S1",            "$2,221", "24h low / 1h demand zone"],
+        ["Support S2 (OTE 61.8%)","$2,150", "Fib 61.8% from Pectra swing; OTE entry"],
+        ["Support S3",            "$2,020", "Weekly order block / pre-Pectra base"],
+        ["Support S4 (SSL)",      "$1,850", "March 2026 major swing low / SSL"]
+      ],
+      "setup": {
+        "entry": "Long on London/NY killzone dip to $2,150-$2,220 OTE with bullish 15m structure",
+        "stop":  "$2,075 (1.5% below S2 OTE, below obvious equal lows)",
+        "tp1":   "$2,346 (24h high BSL sweep, partial at 1.5R)",
+        "tp2":   "$2,500 (Q1 supply / 3.0R target, scale out)",
+        "invalidation": "Daily close below $2,000 negates Pectra breakout structure"
+      },
+      "catalysts": [
+        "Pectra hard fork stabilised — EIP-7702 smart accounts + EIP-7251 validator consolidation live",
+        "Bitmine Immersion accumulating 5.08M ETH — largest corporate ETH holder",
+        "Glamsterdam fork H1 2026 on roadmap: native account abstraction + L1 throughput upgrades",
+        "ETH spot ETF flows recovering post-Pectra; potential staking yield enabled by SEC clarity",
+        "ETH/BTC ratio ~0.030 compressed — rotation catalyst if BTC dominance rolls over from 59.9%"
+      ],
+      "liq_above": [
+        ["1D", "$2,346", "24h high / BSL short-stop cluster"],
+        ["1W", "$2,500", "Weekly supply BSL zone"]
+      ],
+      "liq_below": [
+        ["1D", "$2,221", "24h low / resting long-stops below"],
+        ["1W", "$2,020", "Weekly order block SSL"]
+      ]
+    }
+  ],
+  "macro_today": [
+    { "date": "Thu Apr 30", "name": "GDP Growth Rate QoQ (Adv)", "impact": "RED",    "desc": "Q1 2026 advance estimate; consensus +1.5% vs prior +0.5%. Weak print = risk-off." },
+    { "date": "Thu Apr 30", "name": "PCE Price Index YoY",        "impact": "RED",    "desc": "Mar 2026; consensus 2.8% (prior 2.8%). Fed preferred gauge — above 2.9% = hawkish surprise." },
+    { "date": "Thu Apr 30", "name": "Core PCE YoY",               "impact": "RED",    "desc": "Mar 2026; consensus 3.0% (prior 3.0%). Inline = neutral; beat pressures crypto." },
+    { "date": "Thu Apr 30", "name": "Initial Jobless Claims",     "impact": "RED",    "desc": "Week ending Apr 25; est. 219K vs 214K. Spike above 230K = labor softening = risk-on." },
+    { "date": "Fri May 01", "name": "Non-Farm Payrolls (Apr)",    "impact": "RED",    "desc": "Est. ~150K vs prior 178K. Strongest single-session vol event of the week." },
+    { "date": "Fri May 01", "name": "Unemployment Rate (Apr)",    "impact": "RED",    "desc": "Consensus 4.2% (prior 4.1%). Rising rate = Fed cut pressure = crypto tailwind." },
+    { "date": "Fri May 01", "name": "ISM Manufacturing PMI (Apr)","impact": "ORANGE", "desc": "Est. 52.5 vs prior 52.7. Above 50 = expansion; miss could dent risk appetite." },
+    { "date": "Wed May 06", "name": "FOMC Minutes (Apr 29 Mtg)",  "impact": "RED",    "desc": "Dissent detail from 8-4 hold vote. Hawkish dissenter language = USD strength headwind." }
+  ],
+  "insights": [
+    { "title": "XRP: CLARITY Act is the binary trade", "body": "The Senate Banking Committee window closes end of April. Three coordinated endorsements (Armstrong/Coinbase, Treasury Sec. Bessent, SEC Chair Atkins) landed in early April, removing the primary industry obstacle. If the bill reaches the Senate floor before May, XRP digital-commodity classification is effectively locked in federal law — analysts forecast $5-10 by late 2026. Failure to advance kills the bill for 2026. Position: small long above $1.35 SSL; full size on confirmed markup headline." },
+    { "title": "BTC: ETF inflow momentum through May", "body": "April saw $2.4B in spot ETF inflows (strongest month of 2026); BlackRock IBIT now holds ~812K BTC worth ~$62B. Four consecutive weeks of net positive flows signal institutional accumulation. The OTE zone $73,500-$74,800 is the NY killzone entry target for Tuesday/Wednesday sessions. Watch $77,410 BSL sweep as first target — clean daily candle above re-opens $80K psychological BSL." },
+    { "title": "FOMC + PCE today: key binary for crypto direction", "body": "Fed held 3.50-3.75% yesterday (8-4 dissent); PCE and GDP print today at 07:30 ET. Markets pricing 2.8% PCE — inline is neutral. A soft GDP read (<1.0%) would increase rate-cut odds and pump crypto into NFP Friday." }
+  ]
+}

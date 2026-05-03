@@ -47,6 +47,7 @@ const DB = (() => {
   /* ── Tabs ────────────────────────────────────────────── */
   const DEFAULT_TABS = [
     { id: 'dashboard',  label: 'Dashboard',        icon: '📊', builtin: true },
+    { id: 'dailyreport',label: 'Daily Report',     icon: '📰', builtin: true },
     { id: 'dojo',       label: 'ICT Dojo',         icon: '🥋', builtin: true },
     { id: 'scanner',    label: 'Scanner',          icon: '🔭', builtin: true },
     { id: 'tradelog',   label: 'Trade Log',        icon: '📋', builtin: true },

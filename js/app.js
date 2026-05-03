@@ -23,6 +23,7 @@ const App = (() => {
   /* ── Tab renderers map ───────────────────────────────── */
   const RENDERERS = {
     dashboard:  () => DashboardTab.render(),
+    dailyreport:() => DailyReportTab.render(),
     dojo:       () => DojoTab.render(),
     scanner:    () => ScannerTab.render(),
     tradelog:   () => TradeLogTab.render(),

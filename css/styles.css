@@ -2612,3 +2612,46 @@ input.date-picker::-webkit-calendar-picker-indicator {
 .dr-insight:last-child { border-bottom: none; }
 .dr-insight-title { font-weight:700; font-size:.92rem; margin-bottom:4px; }
 .dr-insight-body { font-size:.85rem; color:var(--text-sub); line-height:1.55; }
+
+/* ── PIN Lock overlay ─────────────────────────────────── */
+#lockOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.92);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.lock-panel {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  padding: 40px 36px; border-radius: 18px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  min-width: 280px;
+}
+.lock-logo { font-size: 2.4rem; line-height: 1; }
+.lock-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.lock-dots { display: flex; gap: 14px; }
+.lock-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--text-sub); background: transparent;
+  transition: background .15s;
+}
+.lock-dot.filled { background: var(--accent); border-color: var(--accent); }
+.lock-err { min-height: 1.1em; font-size: .82rem; color: var(--red); font-weight: 600; }
+.lock-pad {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  width: 100%;
+}
+.lock-key {
+  padding: 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: 1.1rem; font-weight: 600;
+  cursor: pointer; transition: background .12s;
+}
+.lock-key:hover { background: var(--bg-hover, var(--border)); }
+.lock-key:active { transform: scale(.94); }
+
+/* Dashboard PnL chips */
+.dash-pnl-chips { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+
+/* Scanner TF group */
+.scan-tf-group { display: flex; gap: 4px; margin-right: 8px; }
+.scan-tfbtn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }

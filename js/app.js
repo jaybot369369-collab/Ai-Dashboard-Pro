@@ -489,6 +489,20 @@ const App = (() => {
   }
 
   async function init() {
+    // PIN lock — show before anything else if a PIN is set
+    if (typeof Lock !== 'undefined' && Lock.isSet()) {
+      Lock.show(() => {
+        // after unlock: finish booting
+        _finishInit();
+      });
+      return;
+    }
+    _finishInit();
+  }
+
+  async function _finishInit() {
+    if (typeof Lock !== 'undefined' && Lock.isSet()) Lock.startIdleWatch();
+
     // First-run: load seed data if localStorage is empty
     await autoSeedIfEmpty();
 

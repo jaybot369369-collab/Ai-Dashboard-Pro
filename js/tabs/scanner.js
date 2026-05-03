@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    SCANNER TAB — Multi-pair ICT setup radar
-   Top 30 USDT pairs by 24h volume · 4H candles · 60s poll
+   Top 30 USDT pairs by 24h volume · 4H/D/W candles · 60s poll
    Surfaces only A-tier 🦖 dino fires + B-tier confluence
 ════════════════════════════════════════════════════════════ */
 const ScannerTab = (() => {
@@ -17,6 +17,7 @@ const ScannerTab = (() => {
   let _view       = localStorage.getItem('jb_scan_view') || 'grid'; // grid | list
   let _mode       = localStorage.getItem('jb_scan_mode') || 'top'; // top | custom | both
   let _customPairs= JSON.parse(localStorage.getItem('jb_scan_custom') || '[]');
+  let _tf         = localStorage.getItem('jb_scan_tf') || '4h'; // 4h | 1d | 1w
 
   /* ── Utils ──────────────────────────────────────────── */
   const dp     = s => s.startsWith('BTC') ? 2 : (s.startsWith('ETH') ? 2 : 4);
@@ -197,7 +198,7 @@ const ScannerTab = (() => {
   async function scanPair(t) {
     const sym = t.symbol;
     try {
-      const c = await fetchKlines(sym, '4h', 100);
+      const c = await fetchKlines(sym, _tf, 100);
       const trend    = detectTrend(c);
       const premDisc = detectPremDisc(c);
       const pd       = detectPDConfluence(c);
@@ -443,6 +444,9 @@ const ScannerTab = (() => {
     const content = document.getElementById('content');
     content.innerHTML = `<div class="scan-wrap">
       <div class="scan-top-bar">
+        <div class="scan-tf-group">
+          ${[['4h','4H'],['1d','D'],['1w','W']].map(([val,label]) => `<button class="btn-ghost btn-sm scan-tfbtn${_tf===val?' active':''}" onclick="ScannerTab._setTF('${val}')">${label}</button>`).join('')}
+        </div>
         <div class="scan-filters">
           ${['all','dino','A','B','C','D'].map(f => `<button class="btn-ghost btn-sm scan-fbtn${_filter===f?' active':''}" onclick="ScannerTab._setFilter('${f}')">${f === 'all' ? 'All' : f === 'dino' ? '🦖 Dino' : f}</button>`).join('')}
         </div>
@@ -506,6 +510,7 @@ const ScannerTab = (() => {
   return {
     render,
     _refresh:    () => loadData(),
+    _setTF:      tf => { _tf = tf; localStorage.setItem('jb_scan_tf', tf); render(); loadData(); },
     _setFilter:  f => { _filter = f; localStorage.setItem('jb_scan_filter', f); render(); },
     _setTopN:    n => { _topN = parseInt(n); localStorage.setItem('jb_scan_topn', _topN); loadData(); },
     _setView:    v => { _view = v; localStorage.setItem('jb_scan_view', v); render(); },

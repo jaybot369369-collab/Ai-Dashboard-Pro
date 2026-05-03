@@ -6,25 +6,37 @@ const DashboardTab = (() => {
   let calMonth, calYear;
   let dragStart = null;     // 'YYYY-MM-DD' anchor
   let dragEnd   = null;     // 'YYYY-MM-DD' current end (for visual range)
+  let _pnlRange = localStorage.getItem('jb_dash_pnlrange') || '30'; // 1 | 7 | 30
 
   function render() {
     const content = document.getElementById('content');
     const { range, from, to } = App.getDateFilter();
     const allTrades = DB.getTrades();
     const trades    = DB.filterByRange(allTrades, range, from, to);
-    const stats     = DB.calcStats(trades);
     const dlMap     = DB.dailyPLMap(allTrades); // calendar uses full history
+
+    // PnL-range filtered stats (independent of global date filter)
+    const pnlTrades = DB.filterByRange(allTrades, _pnlRange);
+    const pnlStats  = DB.calcStats(pnlTrades);
 
     // Today's P&L
     const today  = new Date().toISOString().slice(0, 10);
     const todayPL = dlMap[today] || 0;
 
+    const pnlLabels = { '1': 'D', '7': 'W', '30': 'M' };
+
     content.innerHTML = `
+      <div class="dash-pnl-chips">
+        ${[['1','D'],['7','W'],['30','M']].map(([val, label]) =>
+          `<button class="chip${_pnlRange===val?' active':''}" onclick="DashboardTab._setPnlRange('${val}')">${label}</button>`
+        ).join('')}
+        <span class="text-dim" style="font-size:.78rem;margin-left:4px">showing ${pnlLabels[_pnlRange] === 'D' ? 'today' : 'last ' + (pnlLabels[_pnlRange] === 'W' ? '7 days' : '30 days')}</span>
+      </div>
       <div class="stat-cards">
         ${statCard('Daily P&L', fmt$(todayPL), todayPL >= 0 ? 'pos' : 'neg', 'Today')}
-        ${statCard('Win Rate', stats.closed ? stats.winRate.toFixed(1) + '%' : '—', '', `${stats.wins}W / ${stats.losses}L of ${stats.closed} closed`)}
-        ${statCard('Avg R:R', stats.closed ? stats.avgR.toFixed(2) + 'R' : '—', '', `${stats.closed} closed trades`)}
-        ${statCard('Max Drawdown', stats.maxDD ? '-$' + stats.maxDD.toFixed(2) : '—', stats.maxDD > 0 ? 'neg' : '', `Over selected period`)}
+        ${statCard('Win Rate', pnlStats.closed ? pnlStats.winRate.toFixed(1) + '%' : '—', '', `${pnlStats.wins}W / ${pnlStats.losses}L of ${pnlStats.closed} closed`)}
+        ${statCard('Avg R:R', pnlStats.closed ? pnlStats.avgR.toFixed(2) + 'R' : '—', '', `${pnlStats.closed} closed trades`)}
+        ${statCard('Max Drawdown', pnlStats.maxDD ? '-$' + pnlStats.maxDD.toFixed(2) : '—', pnlStats.maxDD > 0 ? 'neg' : '', `Over selected period`)}
       </div>
 
       <div class="dash-split" style="margin-top:18px">
@@ -357,6 +369,7 @@ const DashboardTab = (() => {
   /* ── Public ──────────────────────────────────────────── */
   return {
     render,
+    _setPnlRange: r => { _pnlRange = r; localStorage.setItem('jb_dash_pnlrange', r); render(); },
     _prevMonth: () => {
       calMonth--;
       if (calMonth < 0) { calMonth = 11; calYear--; }

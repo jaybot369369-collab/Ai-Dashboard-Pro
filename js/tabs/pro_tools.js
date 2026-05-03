@@ -540,6 +540,70 @@ const ProToolsTab = (() => {
     }
   }
 
+  /* ── PIN lock ───────────────────────────────────────── */
+  function renderPin() {
+    const pinSet = typeof Lock !== 'undefined' && Lock.isSet();
+    const idleMins = typeof Lock !== 'undefined' ? Lock.getIdleMins() : 15;
+    return `<div class="pro-section">
+      <h3 class="pro-section-hdr">🔐 PIN Lock</h3>
+      <p class="text-sub" style="font-size:.85rem;margin:0 0 14px">
+        Protect the dashboard with a 4-digit PIN. Lock screen appears on every page load and after idle timeout.
+        ${!pinSet ? '' : '<br><strong style="color:var(--green)">✅ PIN is active</strong>'}
+      </p>
+      <div class="ai-grid">
+        <div class="form-group">
+          <label>${pinSet ? 'Change PIN' : 'Set PIN'}</label>
+          <input type="password" id="pinA" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="New 4-digit PIN" style="letter-spacing:.3em;font-size:1.2rem" />
+        </div>
+        <div class="form-group">
+          <label>Confirm PIN</label>
+          <input type="password" id="pinB" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="Repeat PIN" style="letter-spacing:.3em;font-size:1.2rem" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn-primary" id="pinSetBtn">${pinSet ? '🔄 Change PIN' : '🔐 Set PIN'}</button>
+        ${pinSet ? `<button class="btn-ghost" id="pinRemoveBtn" style="color:var(--red)">🗑 Remove PIN</button>` : ''}
+        <span id="pinStatus" class="text-dim" style="font-size:.82rem;align-self:center"></span>
+      </div>
+      <div class="form-group" style="max-width:220px">
+        <label>Auto-lock after idle</label>
+        <select id="pinIdleSelect">
+          ${[5,10,15,30,60].map(m => `<option value="${m}"${m===idleMins?' selected':''}>${m} min</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn-ghost btn-sm" id="pinIdleSaveBtn" style="margin-top:6px">Save idle timeout</button>
+      <p class="text-sub" style="font-size:.75rem;margin-top:14px">
+        🔑 Forgot PIN? Open browser DevTools → Console → type <code>localStorage.removeItem('jb_pin')</code> → reload.
+      </p>
+    </div>`;
+  }
+
+  function wirePin() {
+    const status = document.getElementById('pinStatus');
+    document.getElementById('pinSetBtn')?.addEventListener('click', async () => {
+      const a = document.getElementById('pinA').value.trim();
+      const b = document.getElementById('pinB').value.trim();
+      if (!/^\d{4}$/.test(a)) { status.textContent = '⚠ PIN must be exactly 4 digits'; status.style.color = 'var(--red)'; return; }
+      if (a !== b) { status.textContent = '⚠ PINs do not match'; status.style.color = 'var(--red)'; return; }
+      await Lock.setup(a);
+      if (typeof toast === 'function') toast('PIN saved — active on next load', 'success');
+      Lock.startIdleWatch();
+      render();
+    });
+    document.getElementById('pinRemoveBtn')?.addEventListener('click', () => {
+      Lock.remove();
+      Lock.stopIdleWatch();
+      if (typeof toast === 'function') toast('PIN removed', 'success');
+      render();
+    });
+    document.getElementById('pinIdleSaveBtn')?.addEventListener('click', () => {
+      const v = parseInt(document.getElementById('pinIdleSelect').value);
+      Lock.setIdleMins(v);
+      Lock.startIdleWatch(); // restart with new timeout
+      if (typeof toast === 'function') toast(`Idle lock set to ${v} min`, 'success');
+    });
+  }
+
   /* ── Tab nav ────────────────────────────────────────── */
   function render() {
     const content = document.getElementById('content');
@@ -551,6 +615,7 @@ const ProToolsTab = (() => {
         <button class="pro-sub-btn${_sub==='corr'?' active':''}" data-sub="corr">📊 Correlation</button>
         <button class="pro-sub-btn${_sub==='telegram'?' active':''}" data-sub="telegram">🔔 Telegram</button>
         <button class="pro-sub-btn${_sub==='storage'?' active':''}" data-sub="storage">📦 Storage</button>
+        <button class="pro-sub-btn${_sub==='pin'?' active':''}" data-sub="pin">🔐 PIN Lock</button>
       </div>
       <div id="proBody">${
         _sub === 'sizer'   ? renderSizer() :
@@ -558,6 +623,7 @@ const ProToolsTab = (() => {
         _sub === 'replay'  ? renderReplay() :
         _sub === 'telegram'? renderTelegram() :
         _sub === 'storage' ? renderStorage() :
+        _sub === 'pin'     ? renderPin() :
         renderCorrelation()
       }</div>
     </div>`;
@@ -585,6 +651,8 @@ const ProToolsTab = (() => {
       wireTelegram();
     } else if (_sub === 'storage') {
       wireStorage();
+    } else if (_sub === 'pin') {
+      wirePin();
     } else if (_sub === 'replay') {
       document.getElementById('rpTrade')?.addEventListener('change', e => {
         if (e.target.value) runReplay(e.target.value);

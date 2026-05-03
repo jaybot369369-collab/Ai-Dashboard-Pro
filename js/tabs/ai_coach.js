@@ -1,8 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    AI COACH — Claude-powered trading coach
    Features:
-     1. Pre-trade grader (A/B/C/D + reasoning)
-     2. Screenshot auto-tag (vision → setup metadata)
+     1. Screenshot auto-tag (vision → setup metadata)
      3. Daily journal prompt (evening reflection)
      4. Weekly auto-review (Monday HTML report)
    API: Anthropic Messages API direct from browser
@@ -15,7 +14,6 @@ const AICoachTab = (() => {
     apiKey:   'jb_ai_key',
     model:    'jb_ai_model',
     spend:    'jb_ai_spend',     // { month: 'YYYY-MM', inTok, outTok, calls }
-    grades:   'jb_ai_grades',    // [ {time, prompt, grade, reasoning} ]
     prompts:  'jb_ai_prompts',   // { 'YYYY-MM-DD': { questions, answers } }
     reviews:  'jb_ai_reviews',   // [ {weekOf, html, summary} ]
   };
@@ -96,54 +94,7 @@ const AICoachTab = (() => {
   }
 
   /* ══════════════════════════════════════════════════════
-     FEATURE 1 — PRE-TRADE GRADER
-  ══════════════════════════════════════════════════════ */
-  function buildGraderContext() {
-    const trades  = (typeof DB !== 'undefined' && DB.getTrades) ? DB.getTrades().slice(-10) : [];
-    const rules   = (typeof DB !== 'undefined' && DB.getRules)  ? DB.getRules() : null;
-    const recent = trades.map(t => ({
-      symbol: t.symbol, dir: t.direction, setup: (t.setupTypes || [t.setupType]).join('/'),
-      session: t.session, preGrade: t.preGrade, postGrade: t.postGrade, r: t.rMultiple,
-    }));
-    return { recent, rules };
-  }
-
-  async function grade(planText) {
-    const ctx = buildGraderContext();
-    const system = `You are an ICT/SMC trading coach grading a trader's plan BEFORE they enter.
-Grade scale:
-  A — Textbook setup, all confluence aligned
-  B — Solid setup, minor concerns
-  C — Marginal, missing key confluence
-  D — Forced trade, multiple red flags / break of rules
-
-Use their recent trades and rules as context. Be direct and concise.
-
-Respond in JSON only: { "grade": "A|B|C|D", "reasoning": "2-3 sentence explanation", "key_risks": ["risk 1", "risk 2"] }`;
-
-    const user = `My plan: ${planText}
-
-Recent trades (last 10):
-${JSON.stringify(ctx.recent, null, 2)}
-
-My rules:
-${JSON.stringify(ctx.rules?.scalp?.slice(0,5) || [], null, 2)}`;
-
-    const { text } = await callClaude({ system, user, maxTokens: 600 });
-    let parsed;
-    try { parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || text); }
-    catch { parsed = { grade: '?', reasoning: text, key_risks: [] }; }
-
-    // Save to history
-    const hist = getJ(KEYS.grades, []);
-    hist.push({ time: Date.now(), prompt: planText, ...parsed });
-    setJ(KEYS.grades, hist.slice(-50));
-
-    return parsed;
-  }
-
-  /* ══════════════════════════════════════════════════════
-     FEATURE 2 — SCREENSHOT AUTO-TAG
+     FEATURE 1 — SCREENSHOT AUTO-TAG
   ══════════════════════════════════════════════════════ */
   async function autoTagImage(b64DataUrl) {
     // b64DataUrl is "data:image/jpeg;base64,XXXX"
@@ -172,7 +123,7 @@ Return JSON only: {
   }
 
   /* ══════════════════════════════════════════════════════
-     FEATURE 3 — DAILY JOURNAL PROMPT
+     FEATURE 2 — DAILY JOURNAL PROMPT
   ══════════════════════════════════════════════════════ */
   async function generateDailyPrompt() {
     const today = new Date().toISOString().slice(0,10);
@@ -209,7 +160,7 @@ ${JSON.stringify(trades.map(t => ({
   }
 
   /* ══════════════════════════════════════════════════════
-     FEATURE 4 — WEEKLY AUTO-REVIEW
+     FEATURE 3 — WEEKLY AUTO-REVIEW
   ══════════════════════════════════════════════════════ */
   function weekRange() {
     const now = new Date();
@@ -285,29 +236,6 @@ ${JSON.stringify(trades.map(t => ({
     </div>`;
   }
 
-  function renderGrader() {
-    const hist = getJ(KEYS.grades, []).slice(-3).reverse();
-    return `<div class="ai-section">
-      <h3 class="ai-section-hdr">🅰️ Pre-Trade Grader</h3>
-      <p class="text-sub" style="font-size:.85rem;margin:0 0 10px">Type your plan in plain English. Claude reads your last 10 trades + rules and grades it A/B/C/D.</p>
-      <textarea id="aiGradeIn" rows="3" placeholder="e.g. Long BTC at 95k OTE, SL 94.2k, target 96.8k. London KZ, 4H bullish bias, sweep of Asian low..."></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn-primary" id="aiGradeBtn">🧠 Grade my plan</button>
-        <span id="aiGradeStatus" class="text-dim" style="font-size:.8rem;align-self:center"></span>
-      </div>
-      <div id="aiGradeOut" style="margin-top:14px"></div>
-      ${hist.length ? `<details style="margin-top:14px"><summary class="text-sub" style="cursor:pointer;font-size:.82rem">Recent grades (${hist.length})</summary>
-        <div style="margin-top:10px">${hist.map(h => `
-          <div class="ai-hist-row">
-            <span class="ai-grade-pill ai-grade-${h.grade}">${h.grade}</span>
-            <span class="ai-hist-prompt">${(h.prompt||'').slice(0,80)}${h.prompt?.length>80?'…':''}</span>
-            <span class="text-dim" style="font-size:.7rem">${new Date(h.time).toLocaleString()}</span>
-          </div>
-        `).join('')}</div>
-      </details>` : ''}
-    </div>`;
-  }
-
   function renderDailyPrompt() {
     const today = new Date().toISOString().slice(0,10);
     const all = getJ(KEYS.prompts, {});
@@ -357,20 +285,6 @@ ${JSON.stringify(trades.map(t => ({
     </div>`;
   }
 
-  function renderGradeResult(parsed) {
-    const colors = { A: 'var(--green)', B: 'var(--accent)', C: 'var(--gold)', D: 'var(--red)' };
-    return `<div class="ai-grade-result">
-      <div class="ai-grade-big" style="background:${colors[parsed.grade]||'var(--text-sub)'}">${parsed.grade}</div>
-      <div class="ai-grade-body">
-        <div class="ai-grade-reasoning">${parsed.reasoning}</div>
-        ${parsed.key_risks?.length ? `<div class="ai-grade-risks">
-          <strong>⚠️ Key risks:</strong>
-          <ul>${parsed.key_risks.map(r => `<li>${r}</li>`).join('')}</ul>
-        </div>` : ''}
-      </div>
-    </div>`;
-  }
-
   /* ── Public render ──────────────────────────────────── */
   function render() {
     const content = document.getElementById('content');
@@ -378,7 +292,7 @@ ${JSON.stringify(trades.map(t => ({
     content.innerHTML = `<div class="ai-wrap">
       ${!apiKey ? `<div class="ai-banner">🔑 Set your Anthropic API key below to start using AI features.</div>` : ''}
       ${renderSettings()}
-      ${apiKey ? renderGrader() + renderDailyPrompt() + renderWeeklyReview() : ''}
+      ${apiKey ? renderDailyPrompt() + renderWeeklyReview() : ''}
     </div>`;
 
     // Wire settings
@@ -393,23 +307,6 @@ ${JSON.stringify(trades.map(t => ({
     });
 
     if (!apiKey) return;
-
-    // Wire grader
-    document.getElementById('aiGradeBtn')?.addEventListener('click', async () => {
-      const txt = document.getElementById('aiGradeIn').value.trim();
-      if (!txt) return;
-      const status = document.getElementById('aiGradeStatus');
-      const out = document.getElementById('aiGradeOut');
-      status.textContent = 'Thinking…'; status.style.color = 'var(--gold)';
-      out.innerHTML = '';
-      try {
-        const result = await grade(txt);
-        out.innerHTML = renderGradeResult(result);
-        status.textContent = 'Done ✓'; status.style.color = 'var(--green)';
-      } catch (e) {
-        status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)';
-      }
-    });
 
     // Wire daily prompt
     document.getElementById('aiNewPromptsBtn')?.addEventListener('click', async () => {
@@ -439,7 +336,6 @@ ${JSON.stringify(trades.map(t => ({
     render,
     // Public API for use from other tabs (e.g. trade form auto-tag button)
     autoTagImage,
-    grade,
     _showReview: (weekOf) => {
       const all = getJ(KEYS.reviews, []);
       const r = all.find(x => x.weekOf === weekOf);

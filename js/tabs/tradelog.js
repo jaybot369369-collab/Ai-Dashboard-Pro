@@ -5,8 +5,11 @@ const TradeLogTab = (() => {
 
   let sortCol = 'date', sortDir = 'desc', expandedId = null;
   let filterSymbol = '', filterSession = '', filterDirection = '', filterSetup = '';
+  let _userSorted = false; // true if user clicked a column header this session
 
   function render() {
+    // Reset to latest-first on every fresh tab render (unless user manually sorted)
+    if (!_userSorted) { sortCol = 'date'; sortDir = 'desc'; }
     const content = document.getElementById('content');
     const { range, from, to } = App.getDateFilter();
     const allTrades = DB.getTrades();
@@ -15,7 +18,9 @@ const TradeLogTab = (() => {
 
     content.innerHTML = `
       <div class="section-header">
-        <div class="section-title">Trade Log <span class="badge badge-dim">${trades.length}</span></div>
+        <div class="section-title">Trade Log <span class="badge badge-dim">${trades.length}</span>
+          ${sortCol === 'date' && sortDir === 'desc' ? '<span class="badge badge-dim" style="font-size:.72rem;font-weight:400;margin-left:6px">Latest first ↓</span>' : ''}
+        </div>
         <button class="btn-primary btn-sm" onclick="App.openTradeModal()">＋ New Trade</button>
       </div>
 
@@ -199,6 +204,7 @@ const TradeLogTab = (() => {
   return {
     render,
     _sort: col => {
+      _userSorted = true;
       if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
       else { sortCol = col; sortDir = 'desc'; }
       const { range, from, to } = App.getDateFilter();

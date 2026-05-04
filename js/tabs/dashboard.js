@@ -19,21 +19,27 @@ const DashboardTab = (() => {
     const pnlTrades = DB.filterByRange(allTrades, _pnlRange);
     const pnlStats  = DB.calcStats(pnlTrades);
 
-    // Today's P&L
     const today  = new Date().toISOString().slice(0, 10);
-    const todayPL = dlMap[today] || 0;
 
-    const pnlLabels = { '1': 'D', '7': 'W', '30': 'M' };
+    const pnlCardMeta = {
+      '1':  { title: 'Daily P&L',   sub: 'Today'      },
+      '7':  { title: 'Weekly P&L',  sub: 'This week'  },
+      '30': { title: 'Monthly P&L', sub: 'This month' },
+    };
+    const { title: pnlTitle, sub: pnlSub } = pnlCardMeta[_pnlRange] || pnlCardMeta['30'];
+    const periodPL = pnlStats.totalPL || 0;
+
+    const pnlChipLabels = { '1': 'today', '7': 'last 7 days', '30': 'last 30 days' };
 
     content.innerHTML = `
       <div class="dash-pnl-chips">
         ${[['1','D'],['7','W'],['30','M']].map(([val, label]) =>
           `<button class="chip${_pnlRange===val?' active':''}" onclick="DashboardTab._setPnlRange('${val}')">${label}</button>`
         ).join('')}
-        <span class="text-dim" style="font-size:.78rem;margin-left:4px">showing ${pnlLabels[_pnlRange] === 'D' ? 'today' : 'last ' + (pnlLabels[_pnlRange] === 'W' ? '7 days' : '30 days')}</span>
+        <span class="text-dim" style="font-size:.78rem;margin-left:4px">showing ${pnlChipLabels[_pnlRange]}</span>
       </div>
       <div class="stat-cards">
-        ${statCard('Daily P&L', fmt$(todayPL), todayPL >= 0 ? 'pos' : 'neg', 'Today')}
+        ${statCard(pnlTitle, fmt$(periodPL), periodPL >= 0 ? 'pos' : 'neg', pnlSub)}
         ${statCard('Win Rate', pnlStats.closed ? pnlStats.winRate.toFixed(1) + '%' : '—', '', `${pnlStats.wins}W / ${pnlStats.losses}L of ${pnlStats.closed} closed`)}
         ${statCard('Avg R:R', pnlStats.closed ? pnlStats.avgR.toFixed(2) + 'R' : '—', '', `${pnlStats.closed} closed trades`)}
         ${statCard('Max Drawdown', pnlStats.maxDD ? '-$' + pnlStats.maxDD.toFixed(2) : '—', pnlStats.maxDD > 0 ? 'neg' : '', `Over selected period`)}

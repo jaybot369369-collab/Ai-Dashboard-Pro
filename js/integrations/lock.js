@@ -77,6 +77,7 @@ const Lock = (() => {
   function _buildOverlay() {
     const el = document.createElement('div');
     el.id = 'lockOverlay';
+    el.tabIndex = -1; // focusable so it can capture key events
     el.innerHTML = `
       <div class="lock-panel">
         <div class="lock-logo">🔒</div>
@@ -158,16 +159,20 @@ const Lock = (() => {
     _entry = '';
     _onUnlock = onUnlock || null;
     if (document.getElementById('lockOverlay')) return; // already shown
-    document.body.appendChild(_buildOverlay());
+    const overlay = _buildOverlay();
+    document.body.appendChild(overlay);
     _updateDots();
-    document.addEventListener('keydown', _onKeydown);
+    // Capture-phase listener on window so we win against any other handler
+    window.addEventListener('keydown', _onKeydown, true);
+    // Focus the overlay so the browser routes key events here
+    setTimeout(() => overlay.focus(), 0);
   }
 
   function hide() {
     const el = document.getElementById('lockOverlay');
     if (el) el.remove();
     _entry = '';
-    document.removeEventListener('keydown', _onKeydown);
+    window.removeEventListener('keydown', _onKeydown, true);
   }
 
   return { isSet, setup, verify, remove, show, hide, startIdleWatch, stopIdleWatch, getIdleMins, setIdleMins, _key };

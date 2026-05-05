@@ -135,6 +135,24 @@ const Lock = (() => {
     }
   }
 
+  function _onKeydown(e) {
+    // Only react while the lock overlay is visible
+    if (!document.getElementById('lockOverlay')) return;
+    if (e.key >= '0' && e.key <= '9') {
+      e.preventDefault();
+      _key(e.key);
+    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+      e.preventDefault();
+      _key('⌫');
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      _entry = '';
+      _updateDots();
+      const err = document.getElementById('lockErr');
+      if (err) err.textContent = '';
+    }
+  }
+
   function show(onUnlock) {
     stopIdleWatch();
     _entry = '';
@@ -142,12 +160,14 @@ const Lock = (() => {
     if (document.getElementById('lockOverlay')) return; // already shown
     document.body.appendChild(_buildOverlay());
     _updateDots();
+    document.addEventListener('keydown', _onKeydown);
   }
 
   function hide() {
     const el = document.getElementById('lockOverlay');
     if (el) el.remove();
     _entry = '';
+    document.removeEventListener('keydown', _onKeydown);
   }
 
   return { isSet, setup, verify, remove, show, hide, startIdleWatch, stopIdleWatch, getIdleMins, setIdleMins, _key };

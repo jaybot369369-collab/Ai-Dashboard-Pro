@@ -604,6 +604,159 @@ const ProToolsTab = (() => {
     });
   }
 
+  /* ── Backup & Export ─────────────────────────────────── */
+  const TRADE_COLS = [
+    'id','date','dateEnd','symbol','direction','session','htfBias','setupType',
+    'entry','sl','tp','exitPrice','size','result','rMultiple',
+    'preGrade','preGradeNotes','postGrade','postGradeNotes','notes',
+    'source','createdAt'
+  ];
+
+  function _csvEscape(v) {
+    if (v === null || v === undefined) return '';
+    const s = String(v);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function _tradesToRows() {
+    const trades = DB.getTrades();
+    const header = TRADE_COLS;
+    const rows   = trades.map(t => TRADE_COLS.map(c => t[c] !== undefined ? t[c] : ''));
+    return { header, rows, count: trades.length };
+  }
+
+  function _download(filename, blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function _todayStamp() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function exportTradesCSV() {
+    const { header, rows, count } = _tradesToRows();
+    if (!count) { if (typeof toast === 'function') toast('No trades to export', 'warn'); return; }
+    const lines = [header.map(_csvEscape).join(',')]
+      .concat(rows.map(r => r.map(_csvEscape).join(',')));
+    const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    _download(`trades_${_todayStamp()}.csv`, blob);
+    if (typeof toast === 'function') toast(`Exported ${count} trades → CSV`, 'success');
+  }
+
+  function _loadSheetJS() {
+    return new Promise((resolve, reject) => {
+      if (typeof XLSX !== 'undefined') return resolve(XLSX);
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      s.onload  = () => resolve(window.XLSX);
+      s.onerror = () => reject(new Error('Failed to load SheetJS'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function exportTradesXLSX() {
+    const { header, rows, count } = _tradesToRows();
+    if (!count) { if (typeof toast === 'function') toast('No trades to export', 'warn'); return; }
+    try {
+      const X = await _loadSheetJS();
+      const aoa = [header, ...rows];
+      const ws  = X.utils.aoa_to_sheet(aoa);
+      const wb  = X.utils.book_new();
+      X.utils.book_append_sheet(wb, ws, 'Trades');
+      X.writeFile(wb, `trades_${_todayStamp()}.xlsx`);
+      if (typeof toast === 'function') toast(`Exported ${count} trades → Excel`, 'success');
+    } catch (e) {
+      if (typeof toast === 'function') toast('Excel export failed: ' + e.message, 'error');
+    }
+  }
+
+  function exportFullBackupJSON() {
+    const dump = { _meta: { exported: new Date().toISOString(), app: 'AI Dashboard Pro' }, data: {} };
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('jb_')) dump.data[k] = localStorage.getItem(k);
+    }
+    const keyCount = Object.keys(dump.data).length;
+    const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+    _download(`dashboard_backup_${_todayStamp()}.json`, blob);
+    if (typeof toast === 'function') toast(`Backed up ${keyCount} keys → JSON`, 'success');
+  }
+
+  function restoreBackupJSON(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (!parsed.data || typeof parsed.data !== 'object') throw new Error('Invalid backup file');
+        const keys = Object.keys(parsed.data);
+        if (!keys.length) throw new Error('Backup contains no data');
+        if (!confirm(`Restore ${keys.length} keys from backup?\n\nThis will OVERWRITE matching keys in your current dashboard. Continue?`)) return;
+        keys.forEach(k => {
+          if (k.startsWith('jb_')) localStorage.setItem(k, parsed.data[k]);
+        });
+        if (typeof toast === 'function') toast(`Restored ${keys.length} keys — reloading...`, 'success');
+        setTimeout(() => location.reload(), 800);
+      } catch (err) {
+        if (typeof toast === 'function') toast('Restore failed: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function renderBackup() {
+    const tradeCount = DB.getTrades().length;
+    let totalKeys = 0, totalBytes = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('jb_')) {
+        totalKeys++;
+        totalBytes += (localStorage.getItem(k) || '').length;
+      }
+    }
+    const sizeKB = (totalBytes / 1024).toFixed(1);
+
+    return `<div class="pro-section">
+      <h3 class="pro-section-hdr">💾 Backup & Export</h3>
+      <p class="text-sub" style="font-size:.85rem;margin:0 0 14px">
+        Your data lives in this browser only. Export it for safekeeping or to move to another device.<br>
+        <strong>Local store:</strong> ${tradeCount} trades · ${totalKeys} keys · ${sizeKB} KB
+      </p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:20px">
+        <button class="btn-primary" id="bkCsvBtn">📥 Trades → CSV</button>
+        <button class="btn-primary" id="bkXlsxBtn">📥 Trades → Excel (.xlsx)</button>
+        <button class="btn-primary" id="bkJsonBtn">📥 Full Backup → JSON</button>
+      </div>
+
+      <h4 style="margin:18px 0 8px;font-size:.95rem">📤 Restore from JSON backup</h4>
+      <p class="text-sub" style="font-size:.78rem;margin:0 0 10px">
+        Select a previously-downloaded <code>dashboard_backup_*.json</code>. Matching keys will be overwritten.
+      </p>
+      <input type="file" id="bkRestoreFile" accept="application/json,.json" style="font-size:.85rem" />
+
+      <h4 style="margin:24px 0 8px;font-size:.95rem">☁️ Cloud sync</h4>
+      <p class="text-sub" style="font-size:.78rem;margin:0">
+        Not yet enabled. For now, save the JSON backup to Dropbox / iCloud / Google Drive — it auto-syncs to all your devices.<br>
+        <em>Tip:</em> set a phone reminder to download a fresh backup once a week.
+      </p>
+    </div>`;
+  }
+
+  function wireBackup() {
+    document.getElementById('bkCsvBtn')?.addEventListener('click', exportTradesCSV);
+    document.getElementById('bkXlsxBtn')?.addEventListener('click', exportTradesXLSX);
+    document.getElementById('bkJsonBtn')?.addEventListener('click', exportFullBackupJSON);
+    document.getElementById('bkRestoreFile')?.addEventListener('change', e => {
+      const f = e.target.files?.[0];
+      if (f) restoreBackupJSON(f);
+    });
+  }
+
   /* ── Tab nav ────────────────────────────────────────── */
   function render() {
     const content = document.getElementById('content');
@@ -616,6 +769,7 @@ const ProToolsTab = (() => {
         <button class="pro-sub-btn${_sub==='telegram'?' active':''}" data-sub="telegram">🔔 Telegram</button>
         <button class="pro-sub-btn${_sub==='storage'?' active':''}" data-sub="storage">📦 Storage</button>
         <button class="pro-sub-btn${_sub==='pin'?' active':''}" data-sub="pin">🔐 PIN Lock</button>
+        <button class="pro-sub-btn${_sub==='backup'?' active':''}" data-sub="backup">💾 Backup</button>
       </div>
       <div id="proBody">${
         _sub === 'sizer'   ? renderSizer() :
@@ -624,6 +778,7 @@ const ProToolsTab = (() => {
         _sub === 'telegram'? renderTelegram() :
         _sub === 'storage' ? renderStorage() :
         _sub === 'pin'     ? renderPin() :
+        _sub === 'backup'  ? renderBackup() :
         renderCorrelation()
       }</div>
     </div>`;
@@ -653,6 +808,8 @@ const ProToolsTab = (() => {
       wireStorage();
     } else if (_sub === 'pin') {
       wirePin();
+    } else if (_sub === 'backup') {
+      wireBackup();
     } else if (_sub === 'replay') {
       document.getElementById('rpTrade')?.addEventListener('change', e => {
         if (e.target.value) runReplay(e.target.value);

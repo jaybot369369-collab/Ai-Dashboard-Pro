@@ -57,7 +57,88 @@ const SBWatcherTab = (() => {
                      desc: 'OTE — broken-structure + Fib retrace' },
     smr:           { label: 'SMR',   color: '#5ad48a',
                      desc: 'Smart Money Reversal — sweep + MSS + FVG retest' },
+    sb_1m:         { label: 'SB-1m', color: '#7ab8d4',
+                     desc: 'Silver Bullet — 1m FVG entry refinement' },
+    ifvg:          { label: 'iFVG',  color: '#d45a8a',
+                     desc: 'Inversion FVG — failed gap flip retest' },
+    smr_1m:        { label: 'SMR-1m',color: '#7ad4a8',
+                     desc: 'Smart Money Reversal on 1m bars' },
   };
+
+  /* ── Custom-tickers state ─────────────────────────────────
+   * Persists in localStorage; mirrors to dashboard repo via
+   * RepoWriter when user clicks Save.
+   */
+  const CUSTOM_KEY = 'jb_custom_symbols';
+  const CUSTOM_PATH = 'js/data/custom_symbols.json';
+
+  function loadCustomSymbols() {
+    const raw = localStorage.getItem(CUSTOM_KEY);
+    if (raw) {
+      try { return JSON.parse(raw); } catch (_) { /* fall through */ }
+    }
+    return ['SUIUSDT'];
+  }
+
+  function saveCustomLocal(list) {
+    localStorage.setItem(CUSTOM_KEY, JSON.stringify(list));
+  }
+
+  async function pushCustomToRepo(list) {
+    if (!window.RepoWriter || !RepoWriter.hasPat()) {
+      throw new Error('No GitHub PAT set. Click "Save PAT" in the section header.');
+    }
+    const writer = RepoWriter.create({
+      owner: 'jaybot369369-collab',
+      repo:  'Ai-Dashboard-Pro',
+      branch: 'main',
+    });
+    const payload = {
+      symbols: list,
+      updated: new Date().toISOString(),
+      note: 'Custom watchlist symbols added via dashboard SB Watcher tab.',
+    };
+    return writer.writeFile(CUSTOM_PATH,
+                             JSON.stringify(payload, null, 2),
+                             `Custom symbols updated: ${list.join(', ')}`);
+  }
+
+  function renderCustomTickersSection() {
+    const list = loadCustomSymbols();
+    const hasPat = (window.RepoWriter && RepoWriter.hasPat());
+    const status = hasPat
+      ? `<span style="color:#3aa260">● PAT set — changes auto-sync to repo</span>`
+      : `<span style="color:#d4a55a">● No PAT — local-only. <a href="javascript:SBWatcherTab._setPat()">Save PAT</a></span>`;
+
+    const rows = list.map(sym => `
+      <span class="sbw-pill" style="margin-right:6px;display:inline-flex;align-items:center;gap:6px">
+        <code>${sym}</code>
+        <button class="btn-ghost btn-sm" onclick="SBWatcherTab._removeSymbol('${sym}')" style="padding:0 6px;font-size:.75rem">✕</button>
+      </span>
+    `).join('');
+
+    return `
+      <div class="sbw-section">
+        <div class="sbw-sec-hdr">
+          ➕ Custom Tickers
+          <span class="sbw-count">${list.length}</span>
+        </div>
+        <div style="padding:10px 14px;border:1px solid var(--border, #2a2a2a);border-radius:8px;background:var(--bg-soft, rgba(255,255,255,.02))">
+          <div style="margin-bottom:8px">${status}</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+            <input id="sbw-new-symbol" placeholder="e.g. SUIUSDT" style="padding:6px 10px;border:1px solid var(--border, #2a2a2a);background:var(--bg, #0b0f17);color:inherit;border-radius:4px;flex:1;text-transform:uppercase">
+            <button class="btn-ghost btn-sm" onclick="SBWatcherTab._addSymbol()">Add</button>
+          </div>
+          <div>${rows || '<span style="opacity:.6">No custom tickers yet.</span>'}</div>
+          <div style="margin-top:10px;font-size:.78rem;opacity:.6">
+            Tickers added here are scanned by the watcher in addition to BTC/ETH/XRP/SOL.
+            They must be available on Bybit testnet (linear perpetual) and Kraken.
+            Lot specs auto-fetched from Bybit on first execution.
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   function fmtAge(iso) {
     if (!iso) return '—';
@@ -219,6 +300,8 @@ const SBWatcherTab = (() => {
         ${Object.keys(symbols).map(s => renderSymbolHeader(s, symbols[s])).join('')}
       </div>
 
+      ${renderCustomTickersSection()}
+
       <div class="sbw-section">
         <div class="sbw-sec-hdr">
           🎯 Active Setups
@@ -305,8 +388,68 @@ const SBWatcherTab = (() => {
     }, CHECK_MS);
   }
 
+  /* ── Custom-tickers public API ───────────────────────── */
+
+  async function _addSymbol() {
+    const input = document.getElementById('sbw-new-symbol');
+    if (!input) return;
+    let sym = (input.value || '').trim().toUpperCase();
+    if (!sym) return;
+    if (!/^[A-Z0-9]+USDT?$/.test(sym)) {
+      alert('Symbol must end in USDT or USD (e.g. SUIUSDT)');
+      return;
+    }
+    const list = loadCustomSymbols();
+    if (list.includes(sym)) {
+      alert(`${sym} already in list.`);
+      return;
+    }
+    list.push(sym);
+    saveCustomLocal(list);
+    if (window.RepoWriter && RepoWriter.hasPat()) {
+      try {
+        await pushCustomToRepo(list);
+        alert(`✅ Added ${sym} and synced to repo. Watcher picks it up next cron tick (≤5 min).`);
+      } catch (e) {
+        alert(`Saved locally but repo sync failed: ${e.message}`);
+      }
+    } else {
+      alert(`Saved ${sym} locally. Set a GitHub PAT to sync to the watcher.`);
+    }
+    input.value = '';
+    render();
+  }
+
+  async function _removeSymbol(sym) {
+    if (!confirm(`Remove ${sym} from custom watchlist?`)) return;
+    let list = loadCustomSymbols().filter(s => s !== sym);
+    saveCustomLocal(list);
+    if (window.RepoWriter && RepoWriter.hasPat()) {
+      try {
+        await pushCustomToRepo(list);
+      } catch (e) {
+        alert(`Removed locally but repo sync failed: ${e.message}`);
+      }
+    }
+    render();
+  }
+
+  function _setPat() {
+    const cur = (window.RepoWriter && RepoWriter.hasPat()) ? '(set)' : '(none)';
+    const pat = prompt(
+      `Paste your GitHub fine-grained PAT.\n\nNeeds Contents:write on jaybot369369-collab/Ai-Dashboard-Pro.\nCurrent: ${cur}`
+    );
+    if (!pat) return;
+    RepoWriter.setPat(pat.trim());
+    alert('PAT saved to localStorage. Add/remove tickers will now sync to the repo.');
+    render();
+  }
+
   return {
     render,
     _refresh: async () => { await load(); render(); },
+    _addSymbol,
+    _removeSymbol,
+    _setPat,
   };
 })();

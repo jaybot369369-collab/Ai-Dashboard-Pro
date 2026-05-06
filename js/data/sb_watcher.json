@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-06T05:12:51.944211+00:00",
+  "generated": "2026-05-06T05:14:59.370469+00:00",
   "config": {
     "tf": "5m",
     "symbols": [
@@ -15,6 +15,71 @@
     "require_sweep_anchor": true,
     "require_amd_alignment": true
   },
-  "symbols": {},
+  "symbols": {
+    "BTCUSDT": {
+      "display": "BTC/USDT",
+      "price": 81315.0,
+      "latest_bar_ny": "2026-05-06 01:05",
+      "amd": {
+        "date": "2026-05-06",
+        "dist_direction": null,
+        "manip_direction": null,
+        "profile": "no_sweep"
+      },
+      "next_window": {
+        "name": "SB_LDN",
+        "minutes_until": 106
+      },
+      "active_setups": []
+    },
+    "ETHUSDT": {
+      "display": "ETH/USDT",
+      "price": 2364.51,
+      "latest_bar_ny": "2026-05-06 01:05",
+      "amd": {
+        "date": "2026-05-06",
+        "dist_direction": null,
+        "manip_direction": null,
+        "profile": "no_sweep"
+      },
+      "next_window": {
+        "name": "SB_LDN",
+        "minutes_until": 106
+      },
+      "active_setups": []
+    },
+    "XRPUSDT": {
+      "display": "XRP/USDT",
+      "price": 1.41817,
+      "latest_bar_ny": "2026-05-06 01:05",
+      "amd": {
+        "date": "2026-05-06",
+        "dist_direction": null,
+        "manip_direction": null,
+        "profile": "no_sweep"
+      },
+      "next_window": {
+        "name": "SB_LDN",
+        "minutes_until": 106
+      },
+      "active_setups": []
+    },
+    "SOLUSDT": {
+      "display": "SOL/USDT",
+      "price": 86.89,
+      "latest_bar_ny": "2026-05-06 01:05",
+      "amd": {
+        "date": "2026-05-06",
+        "dist_direction": null,
+        "manip_direction": null,
+        "profile": "no_sweep"
+      },
+      "next_window": {
+        "name": "SB_LDN",
+        "minutes_until": 106
+      },
+      "active_setups": []
+    }
+  },
   "recent_alerts": []
 }

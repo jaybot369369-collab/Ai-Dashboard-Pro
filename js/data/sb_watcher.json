@@ -1,0 +1,15 @@
+{
+  "generated": "1970-01-01T00:00:00+00:00",
+  "config": {
+    "tf": "5m",
+    "symbols": ["BTCUSDT", "ETHUSDT", "XRPUSDT", "SOLUSDT"],
+    "primary_window": "SB_NY_AM",
+    "primary_min_conf": 2,
+    "secondary_min_conf": 3,
+    "max_rr": 10.0,
+    "require_sweep_anchor": true,
+    "require_amd_alignment": true
+  },
+  "symbols": {},
+  "recent_alerts": []
+}

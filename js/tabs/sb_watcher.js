@@ -47,7 +47,7 @@ const SBWatcherTab = (() => {
     null:       { icon: '⚫', label: 'NO BIAS',   cls: 'sbw-amd-none' },
   };
 
-  // Multi-strategy badge styling (Phase 4a)
+  // Multi-strategy badge styling (Phase 4a + 4d)
   const STRATEGY_META = {
     silver_bullet: { label: 'SB',    color: '#5a9fd4',
                      desc: 'Silver Bullet — FVG-in-window + sweep' },
@@ -55,6 +55,8 @@ const SBWatcherTab = (() => {
                      desc: 'Judas Swing — Asian sweep → midnight cross' },
     ote:           { label: 'OTE',   color: '#d4a55a',
                      desc: 'OTE — broken-structure + Fib retrace' },
+    smr:           { label: 'SMR',   color: '#5ad48a',
+                     desc: 'Smart Money Reversal — sweep + MSS + FVG retest' },
   };
 
   function fmtAge(iso) {

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-06T05:49:25.641123+00:00",
+  "generated": "2026-05-06T11:31:22.524125+00:00",
   "config": {
     "tf": "5m",
     "symbols": [
@@ -18,65 +18,65 @@
   "symbols": {
     "BTCUSDT": {
       "display": "BTC/USDT",
-      "price": 81181.1,
-      "latest_bar_ny": "2026-05-06 01:40",
+      "price": 82679.4,
+      "latest_bar_ny": "2026-05-06 07:25",
       "amd": {
         "date": "2026-05-06",
         "dist_direction": null,
-        "manip_direction": null,
-        "profile": "no_sweep"
+        "manip_direction": "bullish",
+        "profile": "bear_amd"
       },
       "next_window": {
-        "name": "SB_LDN",
-        "minutes_until": 71
+        "name": "SB_NY_AM",
+        "minutes_until": 149
       },
       "active_setups": []
     },
     "ETHUSDT": {
       "display": "ETH/USDT",
-      "price": 2361.29,
-      "latest_bar_ny": "2026-05-06 01:40",
+      "price": 2415.36,
+      "latest_bar_ny": "2026-05-06 07:25",
       "amd": {
         "date": "2026-05-06",
         "dist_direction": null,
-        "manip_direction": null,
-        "profile": "no_sweep"
+        "manip_direction": "bullish",
+        "profile": "bear_amd"
       },
       "next_window": {
-        "name": "SB_LDN",
-        "minutes_until": 71
+        "name": "SB_NY_AM",
+        "minutes_until": 149
       },
       "active_setups": []
     },
     "XRPUSDT": {
       "display": "XRP/USDT",
-      "price": 1.41824,
-      "latest_bar_ny": "2026-05-06 01:40",
+      "price": 1.45406,
+      "latest_bar_ny": "2026-05-06 07:25",
       "amd": {
         "date": "2026-05-06",
         "dist_direction": null,
-        "manip_direction": null,
-        "profile": "no_sweep"
+        "manip_direction": "bullish",
+        "profile": "bear_amd"
       },
       "next_window": {
-        "name": "SB_LDN",
-        "minutes_until": 71
+        "name": "SB_NY_AM",
+        "minutes_until": 149
       },
       "active_setups": []
     },
     "SOLUSDT": {
       "display": "SOL/USDT",
-      "price": 87.16,
-      "latest_bar_ny": "2026-05-06 01:40",
+      "price": 89.6,
+      "latest_bar_ny": "2026-05-06 07:25",
       "amd": {
         "date": "2026-05-06",
         "dist_direction": null,
-        "manip_direction": null,
-        "profile": "no_sweep"
+        "manip_direction": "bullish",
+        "profile": "bear_amd"
       },
       "next_window": {
-        "name": "SB_LDN",
-        "minutes_until": 71
+        "name": "SB_NY_AM",
+        "minutes_until": 149
       },
       "active_setups": []
     }

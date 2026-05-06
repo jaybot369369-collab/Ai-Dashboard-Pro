@@ -772,9 +772,9 @@ const ProToolsTab = (() => {
           Restore on any device by pasting the same token.
         </p>
         <ol style="font-size:.78rem;color:var(--text-sub);margin:0 0 12px 18px;padding:0">
-          <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> → Fine-grained tokens → Generate new</li>
-          <li>Account permissions → <strong>Gists: Read and write</strong> (no repo access needed)</li>
-          <li>Copy the token (starts with <code>github_pat_…</code>) and paste below</li>
+          <li>Go to <a href="https://github.com/settings/tokens/new?scopes=gist&description=AI%20Dashboard%20Pro%20cloud%20sync" target="_blank">github.com/settings/tokens/new</a> (this is the <strong>classic</strong> token page — fine-grained tokens don't support gists yet)</li>
+          <li>The <strong>gist</strong> scope checkbox is already ticked via the link above. Set expiration if you want, then click <strong>Generate token</strong></li>
+          <li>Copy the token (starts with <code>ghp_…</code>) and paste below</li>
         </ol>
         <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
           <div class="form-group" style="flex:1;min-width:280px;margin:0">
@@ -794,6 +794,12 @@ const ProToolsTab = (() => {
         <div><span class="text-dim">Gist:</span> ${gistLink}</div>
         <div><span class="text-dim">Last sync:</span> ${_fmtAge(inf.lastSync)}</div>
       </div>
+      ${inf.lastError ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(220,60,60,0.08);border:1px solid rgba(220,60,60,0.3);border-radius:6px;font-size:.8rem;color:var(--red);word-break:break-word">
+        <strong>Error:</strong> ${inf.lastError}
+        ${/Resource not accessible by personal access token|403/i.test(inf.lastError) ? `<div style="color:var(--text-sub);margin-top:6px;font-size:.75rem">→ Most likely cause: you used a <strong>fine-grained</strong> token (<code>github_pat_…</code>). GitHub's Gist API only accepts <strong>classic</strong> tokens (<code>ghp_…</code>). Click <strong>Disable cloud sync</strong>, then create a classic token at <a href="https://github.com/settings/tokens/new?scopes=gist&description=AI%20Dashboard%20Pro%20cloud%20sync" target="_blank">github.com/settings/tokens/new</a> with the <strong>gist</strong> scope ticked.</div>` : ''}
+        ${/401|Bad credentials/i.test(inf.lastError) ? `<div style="color:var(--text-sub);margin-top:6px;font-size:.75rem">→ The token is invalid or expired. Regenerate a classic token at <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank">github.com/settings/tokens/new</a>.</div>` : ''}
+        ${/404|Not Found/i.test(inf.lastError) ? `<div style="color:var(--text-sub);margin-top:6px;font-size:.75rem">→ The gist may have been deleted on GitHub. Click <strong>Disable cloud sync</strong> and re-enable to create a fresh one.</div>` : ''}
+      </div>` : ''}
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="btn-primary" id="csSyncBtn">⟳ Sync now</button>
@@ -809,8 +815,8 @@ const ProToolsTab = (() => {
 
     document.getElementById('csEnableBtn')?.addEventListener('click', async () => {
       const tok = document.getElementById('csTokenInput').value.trim();
-      if (!tok.startsWith('github_pat_') && !tok.startsWith('ghp_')) {
-        if (typeof toast === 'function') toast('Token must start with github_pat_ or ghp_', 'error');
+      if (!tok.startsWith('ghp_')) {
+        if (typeof toast === 'function') toast('Token must be a CLASSIC token (starts with ghp_). Fine-grained tokens are not yet supported by the Gist API.', 'error');
         return;
       }
       CloudSync.setToken(tok);

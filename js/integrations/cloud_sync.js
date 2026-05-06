@@ -23,10 +23,11 @@ const CloudSync = (() => {
   const GIST_KEY   = 'jb_gist_id';
   const LAST_KEY   = 'jb_gist_lastsync';
   const STATUS_KEY = 'jb_gist_status';
+  const ERROR_KEY  = 'jb_gist_lasterror';
   const FILE_NAME  = 'ai_dashboard_pro_backup.json';
   const DEBOUNCE_MS = 5000;
   // Keys we never want to sync (the sync metadata itself + transient UI state)
-  const SKIP_KEYS = new Set([TOKEN_KEY, GIST_KEY, LAST_KEY, STATUS_KEY]);
+  const SKIP_KEYS = new Set([TOKEN_KEY, GIST_KEY, LAST_KEY, STATUS_KEY, ERROR_KEY]);
 
   let _timer = null;
   let _origSet = null;
@@ -44,7 +45,8 @@ const CloudSync = (() => {
       enabled:  isEnabled(),
       gistId:   gistId() || null,
       lastSync: get(LAST_KEY) || null,
-      status:   get(STATUS_KEY) || (isEnabled() ? 'idle' : 'off')
+      status:   get(STATUS_KEY) || (isEnabled() ? 'idle' : 'off'),
+      lastError: get(ERROR_KEY) || null
     };
   }
 
@@ -130,6 +132,7 @@ const CloudSync = (() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(GIST_KEY);
     localStorage.removeItem(LAST_KEY);
+    localStorage.removeItem(ERROR_KEY);
     setStatus('off');
   }
 
@@ -152,10 +155,12 @@ const CloudSync = (() => {
         id = await _createGist(payload);
       }
       localStorage.setItem(LAST_KEY, new Date().toISOString());
+      localStorage.removeItem(ERROR_KEY);
       setStatus('ok');
       return { ok: true, msg: `Synced ${payload._meta.keyCount} keys`, gistId: id };
     } catch (e) {
       setStatus('error');
+      localStorage.setItem(ERROR_KEY, e.message || String(e));
       console.error('[CloudSync] sync failed:', e);
       return { ok: false, msg: e.message };
     }
@@ -185,6 +190,7 @@ const CloudSync = (() => {
       return { ok: true, msg: `Restored ${keys.length} keys from cloud`, count: keys.length };
     } catch (e) {
       setStatus('error');
+      localStorage.setItem(ERROR_KEY, e.message || String(e));
       console.error('[CloudSync] restore failed:', e);
       return { ok: false, msg: e.message };
     }

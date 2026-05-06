@@ -47,6 +47,16 @@ const SBWatcherTab = (() => {
     null:       { icon: '⚫', label: 'NO BIAS',   cls: 'sbw-amd-none' },
   };
 
+  // Multi-strategy badge styling (Phase 4a)
+  const STRATEGY_META = {
+    silver_bullet: { label: 'SB',    color: '#5a9fd4',
+                     desc: 'Silver Bullet — FVG-in-window + sweep' },
+    judas_swing:   { label: 'JUDAS', color: '#a07ad4',
+                     desc: 'Judas Swing — Asian sweep → midnight cross' },
+    ote:           { label: 'OTE',   color: '#d4a55a',
+                     desc: 'OTE — broken-structure + Fib retrace' },
+  };
+
   function fmtAge(iso) {
     if (!iso) return '—';
     const ms = Date.now() - new Date(iso).getTime();
@@ -101,10 +111,13 @@ const SBWatcherTab = (() => {
 
   function renderSetupCard(sym, display, s) {
     const t = TIER_META[s.tier] || TIER_META.ARMED;
+    const strat = STRATEGY_META[s.strategy] || STRATEGY_META.silver_bullet;
     const arrow = s.direction === 'bull' ? '📈' : '📉';
     const dirLabel = (s.direction || '').toUpperCase();
     return `<div class="sbw-setup" style="border-left:4px solid ${t.color}">
       <div class="sbw-setup-hdr">
+        <span class="sbw-strat" style="background:${strat.color}22;color:${strat.color};border:1px solid ${strat.color}55"
+              title="${strat.desc}">${strat.label}</span>
         <span class="sbw-tier">${t.icon} ${t.label}</span>
         <span class="sbw-setup-sym">${display || sym}</span>
         <span class="sbw-arrow">${arrow} ${dirLabel}</span>
@@ -121,7 +134,7 @@ const SBWatcherTab = (() => {
         <tr><td>TP1</td><td style="color:#3aa260">${fmtPrice(s.tp1)}</td></tr>
         <tr><td>R:R</td><td><b>${(s.rr || 0).toFixed(2)}</b></td></tr>
       </table>
-      <div class="sbw-setup-foot">b2: ${s.b2_date} ${s.b2_ts_ny} NY</div>
+      ${s.b2_date ? `<div class="sbw-setup-foot">b2: ${s.b2_date} ${s.b2_ts_ny || ''} NY</div>` : ''}
       <div class="sbw-setup-desc">${t.desc}</div>
     </div>`;
   }
@@ -132,18 +145,20 @@ const SBWatcherTab = (() => {
     }
     const rows = alerts.slice().reverse().map(a => {
       const t = TIER_META[a.tier] || {};
+      const strat = STRATEGY_META[a.strategy] || STRATEGY_META.silver_bullet;
       const ts = a.ts ? new Date(a.ts).toLocaleString(undefined,
         {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '—';
       return `<tr>
         <td class="sbw-al-ts">${ts}</td>
         <td class="sbw-al-sym">${a.symbol || '—'}</td>
+        <td><span class="sbw-strat-sm" style="background:${strat.color}22;color:${strat.color}">${strat.label}</span></td>
         <td class="sbw-al-tier">${t.icon || ''} ${a.tier || ''}</td>
         <td>${a.score ?? '—'}/5</td>
         <td>R:R ${(a.rr || 0).toFixed(2)}</td>
       </tr>`;
     }).join('');
     return `<table class="sbw-alerts-tbl">
-      <thead><tr><th>When</th><th>Sym</th><th>Tier</th><th>Conf</th><th>R:R</th></tr></thead>
+      <thead><tr><th>When</th><th>Sym</th><th>Strategy</th><th>Tier</th><th>Conf</th><th>R:R</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
   }
@@ -186,9 +201,12 @@ const SBWatcherTab = (() => {
     content.innerHTML = `<div class="sbw-wrap">
       <div class="sbw-hdr">
         <div>
-          <h1 class="sbw-title">👀 SB Watcher</h1>
+          <h1 class="sbw-title">👀 ICT Multi-Strategy Watcher</h1>
           <div class="sbw-subtitle">
-            ICT Silver Bullet · 5m · ${(d.config?.symbols || []).join(' · ')}
+            <span style="color:#5a9fd4">SB</span> ·
+            <span style="color:#a07ad4">JUDAS</span> ·
+            <span style="color:#d4a55a">OTE</span>
+            · 5m · ${(d.config?.symbols || []).join(' · ')}
             · refreshed ${fmtAge(d.generated)}
           </div>
         </div>
@@ -250,6 +268,8 @@ const SBWatcherTab = (() => {
       .sbw-setups { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
       .sbw-setup { background: var(--card, #1a1d24); border: 1px solid var(--border, #2a2d35); border-radius: 8px; padding: 10px 12px; }
       .sbw-setup-hdr { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+      .sbw-strat { font-weight: 700; font-size: .7rem; padding: 2px 7px; border-radius: 4px; letter-spacing: .5px; }
+      .sbw-strat-sm { font-weight: 600; font-size: .68rem; padding: 1px 6px; border-radius: 3px; }
       .sbw-tier { font-weight: 600; font-size: .9rem; }
       .sbw-setup-sym { font-weight: 500; }
       .sbw-arrow { font-size: .85rem; color: var(--text-dim, #aaa); }

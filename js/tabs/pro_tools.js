@@ -739,12 +739,107 @@ const ProToolsTab = (() => {
       </p>
       <input type="file" id="bkRestoreFile" accept="application/json,.json" style="font-size:.85rem" />
 
-      <h4 style="margin:24px 0 8px;font-size:.95rem">☁️ Cloud sync</h4>
-      <p class="text-sub" style="font-size:.78rem;margin:0">
-        Not yet enabled. For now, save the JSON backup to Dropbox / iCloud / Google Drive — it auto-syncs to all your devices.<br>
-        <em>Tip:</em> set a phone reminder to download a fresh backup once a week.
-      </p>
+      <h4 style="margin:24px 0 8px;font-size:.95rem">☁️ Cloud sync (private GitHub Gist)</h4>
+      ${renderCloudSection()}
     </div>`;
+  }
+
+  function _fmtAge(iso) {
+    if (!iso) return 'never';
+    const ms = Date.now() - new Date(iso).getTime();
+    const m = Math.round(ms / 60000);
+    if (m < 1)   return 'just now';
+    if (m < 60)  return `${m}m ago`;
+    const h = Math.round(m / 60);
+    if (h < 48)  return `${h}h ago`;
+    return `${Math.round(h / 24)}d ago`;
+  }
+
+  function renderCloudSection() {
+    if (typeof CloudSync === 'undefined') {
+      return `<p class="text-sub" style="font-size:.8rem">CloudSync module not loaded.</p>`;
+    }
+    const inf = CloudSync.info();
+    const statusColors = { ok: 'var(--green)', error: 'var(--red)', dirty: 'var(--accent)', syncing: 'var(--accent)', restoring: 'var(--accent)', off: 'var(--text-dim)', idle: 'var(--text-dim)' };
+    const statusLabel = { ok: '✅ Synced', error: '⚠ Error', dirty: '⏳ Pending sync', syncing: '⟳ Syncing…', restoring: '⟳ Restoring…', off: '○ Off', idle: '○ Idle' };
+    const sc = statusColors[inf.status] || 'var(--text-dim)';
+    const sl = statusLabel[inf.status]  || inf.status;
+    const gistLink = inf.gistId ? `<a href="https://gist.github.com/${inf.gistId}" target="_blank" rel="noopener">${inf.gistId.slice(0, 12)}…</a>` : '—';
+
+    if (!inf.enabled) {
+      return `<p class="text-sub" style="font-size:.8rem;margin:0 0 10px">
+          Auto-syncs every change (debounced 5s) to a <strong>private gist</strong> on your GitHub.
+          Restore on any device by pasting the same token.
+        </p>
+        <ol style="font-size:.78rem;color:var(--text-sub);margin:0 0 12px 18px;padding:0">
+          <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> → Fine-grained tokens → Generate new</li>
+          <li>Account permissions → <strong>Gists: Read and write</strong> (no repo access needed)</li>
+          <li>Copy the token (starts with <code>github_pat_…</code>) and paste below</li>
+        </ol>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:280px;margin:0">
+            <label>GitHub PAT (gist scope)</label>
+            <input type="password" id="csTokenInput" placeholder="github_pat_…" autocomplete="off" />
+          </div>
+          <button class="btn-primary" id="csEnableBtn">Enable cloud sync</button>
+        </div>
+        <p class="text-sub" style="font-size:.72rem;margin-top:8px">
+          ⚠ The token is stored in this browser's localStorage. Treat it like a password.
+        </p>`;
+    }
+
+    return `<div style="background:var(--bg-mid);padding:12px 14px;border-radius:8px;margin-bottom:12px">
+      <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:.85rem">
+        <div><span class="text-dim">Status:</span> <strong style="color:${sc}">${sl}</strong></div>
+        <div><span class="text-dim">Gist:</span> ${gistLink}</div>
+        <div><span class="text-dim">Last sync:</span> ${_fmtAge(inf.lastSync)}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn-primary" id="csSyncBtn">⟳ Sync now</button>
+      <button class="btn-ghost" id="csRestoreBtn">↓ Restore from cloud</button>
+      <button class="btn-ghost" id="csDisableBtn" style="color:var(--red);margin-left:auto">Disable cloud sync</button>
+    </div>
+    <p id="csMsg" class="text-sub" style="font-size:.78rem;margin:0;min-height:1.2em"></p>`;
+  }
+
+  function wireCloud() {
+    const msg = document.getElementById('csMsg');
+    const showMsg = (text, isErr) => { if (msg) { msg.textContent = text; msg.style.color = isErr ? 'var(--red)' : 'var(--green)'; } };
+
+    document.getElementById('csEnableBtn')?.addEventListener('click', async () => {
+      const tok = document.getElementById('csTokenInput').value.trim();
+      if (!tok.startsWith('github_pat_') && !tok.startsWith('ghp_')) {
+        if (typeof toast === 'function') toast('Token must start with github_pat_ or ghp_', 'error');
+        return;
+      }
+      CloudSync.setToken(tok);
+      const r = await CloudSync.syncNow();
+      if (typeof toast === 'function') toast(r.ok ? 'Cloud sync enabled — first backup uploaded' : 'Failed: ' + r.msg, r.ok ? 'success' : 'error');
+      render();
+    });
+
+    document.getElementById('csSyncBtn')?.addEventListener('click', async () => {
+      showMsg('Syncing…', false);
+      const r = await CloudSync.syncNow();
+      showMsg(r.ok ? `✓ ${r.msg}` : `⚠ ${r.msg}`, !r.ok);
+      render();
+    });
+
+    document.getElementById('csRestoreBtn')?.addEventListener('click', async () => {
+      if (!confirm('Restore from cloud will OVERWRITE matching keys in this browser with the version stored in your gist. Continue?')) return;
+      showMsg('Restoring…', false);
+      const r = await CloudSync.restoreFromCloud();
+      showMsg(r.ok ? `✓ ${r.msg} — reloading…` : `⚠ ${r.msg}`, !r.ok);
+      if (r.ok) setTimeout(() => location.reload(), 800);
+    });
+
+    document.getElementById('csDisableBtn')?.addEventListener('click', () => {
+      if (!confirm('Disable cloud sync? Your gist will remain on GitHub but auto-sync will stop and the token will be removed from this browser.')) return;
+      CloudSync.clearToken();
+      if (typeof toast === 'function') toast('Cloud sync disabled', 'success');
+      render();
+    });
   }
 
   function wireBackup() {
@@ -755,6 +850,7 @@ const ProToolsTab = (() => {
       const f = e.target.files?.[0];
       if (f) restoreBackupJSON(f);
     });
+    wireCloud();
   }
 
   /* ── Tab nav ────────────────────────────────────────── */

@@ -268,7 +268,26 @@ const App = (() => {
     };
     Object.entries(fields).forEach(([id, val]) => {
       const el = $(id);
-      if (el && val !== undefined && val !== null) el.value = val;
+      if (!el || val === undefined || val === null) return;
+      // For <select>, if the value isn't an existing option, fall back to
+      // "custom" and stash the original value in the matching custom input.
+      // Without this, edits to imported trades (e.g. XRP/USDC) silently
+      // wipe the symbol because the select stays empty on save.
+      if (el.tagName === 'SELECT') {
+        const opts = Array.from(el.options).map(o => o.value);
+        if (!opts.includes(String(val))) {
+          if (opts.includes('custom')) {
+            el.value = 'custom';
+            const customId = id + 'Custom';
+            const customEl = $(customId);
+            const customGroup = $(customId + 'Group');
+            if (customEl) customEl.value = val;
+            if (customGroup) customGroup.classList.remove('hidden');
+          }
+          return;
+        }
+      }
+      el.value = val;
     });
     // Load setup chips
     _pendingSetups = t.setupTypes || (t.setupType ? [t.setupType] : []);

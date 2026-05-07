@@ -73,13 +73,18 @@ const TradeLogTab = (() => {
       return true;
     });
 
-    // Sort
+    // Sort — for date column, break ties using createdAt so newly added
+    // trades on the same day always appear at the top of that day's group
     filtered = filtered.sort((a, b) => {
       let va = a[sortCol] ?? '', vb = b[sortCol] ?? '';
       if (sortCol === 'date') { va = new Date(va); vb = new Date(vb); }
       else if (sortCol === 'result' || sortCol === 'rMultiple') { va = parseFloat(va) || 0; vb = parseFloat(vb) || 0; }
       if (va < vb) return sortDir === 'asc' ? -1 : 1;
       if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      // Tiebreaker: createdAt — newest first when sortDir is desc
+      const ca = new Date(a.createdAt || 0), cb = new Date(b.createdAt || 0);
+      if (ca < cb) return sortDir === 'asc' ? -1 : 1;
+      if (ca > cb) return sortDir === 'asc' ? 1 : -1;
       return 0;
     });
 

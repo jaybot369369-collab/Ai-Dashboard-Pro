@@ -1,102 +1,97 @@
 {
-  "generated": "2026-05-07T11:27:47.902533Z",
+  "generated": "2026-05-07T11:44:49.208615Z",
   "date": "2026-05-07",
   "weekday": "Thursday",
-  "context": "Bitcoin and altcoins retreated 2\u20133% over 24h as markets digest CLARITY Act progress toward July 4 passage target. Regulatory clarity and stablecoin agreement removal of legislative obstacles have boosted sentiment, but near-term consolidation and profit-taking dominate price action. XRP leverage flush signals wide-open next move.",
+  "context": "Bitcoin and altcoins face mild pullback as the CLARITY Act gains momentum toward July 4 passage, with regulatory clarity supporting longer-term institutional adoption. XRP leverage flush signals capitulation while macro remains constructive; watch for stablecoin framework finalization to unlock next leg.",
   "tickers": [
     {
       "sym": "BTC",
-      "price": "$80,925",
-      "chg24": "-2.10%",
-      "chg7": "-1.85%",
-      "vol": "$37.3Bn",
+      "price": "$80,967",
+      "chg24": "-1.84%",
+      "chg7": "-2.15%",
+      "vol": "$36.44Bn",
       "mcap": "$1.62Tn",
-      "bias": "NEUTRAL",
+      "bias": "LONG",
       "priority": "HIGH",
-      "thesis": "BTC consolidated below $81k after strong rally on CLARITY Act breakthrough; awaiting Senate markup and July 4 deadline. Liquidation flush at multiple levels suggests range-bound consolidation before next directional impulse.",
+      "thesis": "ICT Order Block structure intact at $79.5k support; micro HTF retest brewing into CLARITY Act passage catalyst. Expect liquidity raid below $80k to absorb stops before breakout into $85k+ resistance cluster.",
       "levels": [
         [
-          "Resistance (4h MA200)",
-          "$82,400",
-          "Local key level"
+          "Weekly Breaker (Fair Value Gap)",
+          "$85,200",
+          "Major resistance into summer"
+        ],
+        [
+          "Supply Zone / D/C Squeeze",
+          "$83,400",
+          "Institutional distribution zone"
         ],
         [
           "Spot Price",
-          "$80,925",
-          "Current entry zone"
+          "$80,967",
+          "Current 4h MA cluster"
         ],
         [
-          "Support (Daily Pivot)",
-          "$79,650",
-          "First support zone"
+          "Support Order Block",
+          "$79,500",
+          "ICT key level; 4h weekly OB"
         ],
         [
-          "Major Support (Weekly low)",
-          "$77,500",
-          "ICT OTE invalidation"
+          "Liquidation Cascade Level",
+          "$77,800",
+          "Leveraged longs at risk"
         ],
         [
-          "Swing Low (Apr 21)",
-          "$76,200",
-          "Psychological floor"
-        ],
-        [
-          "Fib 0.618 (2024 range)",
-          "$74,800",
-          "Deep structural support"
-        ],
-        [
-          "Fib 0.786 (2024 range)",
-          "$70,500",
-          "Extended invalidation"
+          "Range Low (Weekly)",
+          "$75,300",
+          "Rejection candle low; macro support"
         ]
       ],
       "setup": {
-        "entry": "$79,800\u2013$81,200 (retest of daily pivot + 4h res)",
-        "stop": "$77,300 (below weekly swing low)",
-        "tp1": "$83,600 (resistance cluster)",
-        "tp2": "$86,200 (pre-CLARITY rally breakout)",
-        "invalidation": "Daily close below $77,500"
+        "entry": "$79,800\u2013$80,100 (OTE on 4h retest of OB)",
+        "stop": "$79,100 (MM-safe below OB)",
+        "tp1": "$83,400 (Supply Zone limit order)",
+        "tp2": "$85,200 (Weekly breaker HTF target)",
+        "invalidation": "Close below $78,500 weekly invalidates macro long bias"
       },
       "catalysts": [
-        "CLARITY Act Senate markup scheduled within days",
-        "White House targets July 4 passage completion",
-        "Stablecoin deal removes key legislative obstacle",
-        "CME open interest and funding rate normalization",
-        "Monthly close positioning into month-end"
+        "CLARITY Act Senate markup finalized (expected late May)",
+        "July 4 target passage reduces regulatory overhang",
+        "Monthly close above $82k confirms higher-low structure",
+        "Spot ETF flows reaccelerate on headline confirmation",
+        "Stablecoin framework breakthrough unlocks DeFi collateral demand"
       ],
       "liq_above": [
         [
-          "4H",
-          "$82,850",
-          "Seller stop-loss cluster"
-        ],
-        [
           "Daily",
-          "$84,100",
-          "Session resistance liquidation"
+          "$82,850",
+          "Liquidation cluster from leveraged shorts"
         ],
         [
-          "Weekly",
-          "$86,500",
-          "Multi-week resistance flush"
+          "4H",
+          "$83,600",
+          "Limit-order cascade above supply"
+        ],
+        [
+          "1H",
+          "$85,200",
+          "Weekly breaker confluence zone"
         ]
       ],
       "liq_below": [
         [
           "4H",
           "$79,200",
-          "Buyer stop-cluster"
+          "OB invalidation triggers sell-stop cascade"
         ],
         [
           "Daily",
           "$77,800",
-          "Weekly open liquidity"
+          "Macro support breakdown liquidity event"
         ],
         [
           "Weekly",
-          "$75,600",
-          "Monthly support cluster"
+          "$75,000",
+          "Range-low invalidation draw lows"
         ]
       ],
       "charts": {
@@ -107,97 +102,87 @@
     },
     {
       "sym": "ETH",
-      "price": "$2,329",
-      "chg24": "-3.55%",
-      "chg7": "-2.40%",
-      "vol": "$20.3Bn",
-      "mcap": "$281.2Bn",
+      "price": "$2,330",
+      "chg24": "-3.34%",
+      "chg7": "-5.22%",
+      "vol": "$20.03Bn",
+      "mcap": "$281.27Bn",
       "bias": "NEUTRAL",
       "priority": "MEDIUM",
-      "thesis": "ETH underperforming BTC (-3.55% vs -2.10%) signals weakness in alts despite regulatory tailwinds. Daily consolidation near 4H support suggests imminent directional break; watch for liquidity flush into key levels.",
+      "thesis": "ETH correction deeper than BTC suggests macro ETF rotation; DeFi sentiment fragile ahead of stablecoin framework. Watch for liquidity probe into $2,250 support before confirmation of higher-low structure.",
       "levels": [
         [
-          "Resistance (Daily MA200)",
-          "$2,455",
-          "Key MA level"
+          "Weekly Resistance Cluster",
+          "$2,550",
+          "Institutional seller zone"
+        ],
+        [
+          "Supply Zone",
+          "$2,410",
+          "D/C range midpoint rejection"
         ],
         [
           "Spot Price",
-          "$2,329",
-          "Current price"
+          "$2,330",
+          "Current 1H support test"
         ],
         [
-          "Support (4H pivot)",
-          "$2,285",
-          "Immediate support"
+          "Order Block Support",
+          "$2,250",
+          "Weekly OB; critical hold"
         ],
         [
-          "Major Support (Weekly open)",
-          "$2,198",
-          "Weekly structure"
+          "Liquidation Zone",
+          "$2,100",
+          "Leveraged long cascade trigger"
         ],
         [
-          "Swing Low (May 1)",
-          "$2,080",
-          "Recent low"
-        ],
-        [
-          "Fib 0.618 (2024 range)",
-          "$1,920",
-          "Deep support"
-        ],
-        [
-          "Fib 0.786 (2024 range)",
-          "$1,650",
-          "Extended invalidation"
+          "Weekly Low",
+          "$1,980",
+          "Macro support (if breached, deeper pullback)"
         ]
       ],
       "setup": {
-        "entry": "$2,250\u2013$2,310 (4H support retest)",
-        "stop": "$2,050 (below May 1 swing low)",
-        "tp1": "$2,450 (daily MA200 + resistance)",
-        "tp2": "$2,680 (Feb high breakout)",
-        "invalidation": "Daily close below $2,080"
+        "entry": "$2,250\u2013$2,280 (OTE on OB retest, 4h close confirmation)",
+        "stop": "$2,180 (MM-safe below OB)",
+        "tp1": "$2,410 (Supply Zone limit order)",
+        "tp2": "$2,550 (Weekly resistance breakout target)",
+        "invalidation": "Weekly close below $2,100 breaks longer-term uptrend; consider SHORT bias if breached"
       },
       "catalysts": [
-        "Ethereum Shanghai upgrade aftermath sentiment shifts",
-        "Staking yield competitiveness vs. traditional rates",
-        "Layer 2 scaling protocol adoption milestones",
-        "Institutional custody inflows on CLARITY framework",
-        "Smart contract volume recovery into Q3 2026"
+        "DeFi collateral demand surge from stablecoin framework passage",
+        "Ethereum Shanghai upgrade effects on staking yield curves",
+        "Layer 2 scaling adoption (Arbitrum, Optimism volume growth)",
+        "Institutional DeFi flows respond to CLARITY Act clarity",
+        "Spot ETH ETF rebalancing into summer rally"
       ],
       "liq_above": [
         [
-          "4H",
-          "$2,380",
-          "Seller stop-loss flush"
-        ],
-        [
           "Daily",
-          "$2,520",
-          "Session resistance liquidation"
+          "$2,480",
+          "Short-squeeze liquidity above supply"
         ],
         [
-          "Weekly",
-          "$2,750",
-          "Monthly resistance cluster"
+          "4H",
+          "$2,550",
+          "Limit-order cascade into resistance"
         ]
       ],
       "liq_below": [
         [
           "4H",
-          "$2,265",
-          "Buyer stop-cluster"
+          "$2,240",
+          "OB invalidation sell-stop event"
         ],
         [
           "Daily",
-          "$2,155",
-          "Weekly open liquidity"
+          "$2,100",
+          "Macro support breakdown liquidity probe"
         ],
         [
           "Weekly",
-          "$2,000",
-          "Monthly support zone"
+          "$1,980",
+          "Range-low invalidation panic selling"
         ]
       ],
       "charts": {
@@ -209,96 +194,86 @@
     {
       "sym": "XRP",
       "price": "$1.41",
-      "chg24": "-2.97%",
-      "chg7": "-1.62%",
-      "vol": "$2.4Bn",
-      "mcap": "$87.3Bn",
+      "chg24": "-2.68%",
+      "chg7": "-4.15%",
+      "vol": "$2.32Bn",
+      "mcap": "$87.22Bn",
       "bias": "LONG",
       "priority": "HIGH",
-      "thesis": "XRP leverage flushed clean while price holds; next move wide open per CryptoSlate signal. CLARITY Act clarity + 90M token whale accumulation into Coinbase suggest institutional positioning for breakout; watch for OTE entry into $1.32\u2013$1.38 zone.",
+      "thesis": "XRP leverage flush (per CryptoSlate, May 3) signals exhaustion; CME OI reduction combined with price hold confirms institutional accumulation. CLARITY Act passage is directional catalyst for Ripple; OB structure intact for breakout.",
       "levels": [
         [
-          "Resistance (Daily MA50)",
-          "$1.53",
-          "Intermediate resistance"
+          "Weekly Resistance Breaker",
+          "$1.72",
+          "Major breakout target into Q3"
+        ],
+        [
+          "Supply Zone / Range High",
+          "$1.58",
+          "D/C rejection candle cluster"
         ],
         [
           "Spot Price",
           "$1.41",
-          "Current entry zone"
+          "Current 1H support retest"
         ],
         [
-          "Support (Daily Pivot)",
-          "$1.38",
-          "Key OTE level"
+          "Order Block Support",
+          "$1.35",
+          "Weekly OB; leverage flush low"
         ],
         [
-          "Major Support (Swing low May 2)",
-          "$1.32",
-          "ICT OTE entry cluster"
+          "Liquidation Cascade Level",
+          "$1.28",
+          "Stop-run zone below OB"
         ],
         [
-          "Weekly Support",
-          "$1.22",
-          "Weekly structure"
-        ],
-        [
-          "Fib 0.618 (2024 range)",
-          "$1.08",
-          "Deep support"
-        ],
-        [
-          "Fib 0.786 (2024 range)",
-          "$0.92",
-          "Extended invalidation"
+          "Macro Support",
+          "$1.15",
+          "Yearly support (if breached, deeper pain)"
         ]
       ],
       "setup": {
-        "entry": "$1.32\u2013$1.38 (OTE retest + whale accumulation zone)",
-        "stop": "$1.28 (below May 2 swing low)",
-        "tp1": "$1.58 (daily MA50 + resistance)",
-        "tp2": "$1.78 (Feb high breakout)",
-        "invalidation": "Daily close below $1.28"
+        "entry": "$1.35\u2013$1.38 (OTE on OB retest; 4h close confirmation post-leverage flush)",
+        "stop": "$1.33 (MM-safe below OB)",
+        "tp1": "$1.58 (Supply Zone breakout target)",
+        "tp2": "$1.72 (Weekly breaker HTF accumulation target)",
+        "invalidation": "Weekly close below $1.28 suggests further capitulation; invalidates LONG bias"
       },
       "catalysts": [
-        "Institutional whale accumulation signal (90M tokens \u2192 Coinbase)",
-        "CLARITY Act regulatory clarity on XRP settlement use case",
-        "CME XRP OI leverage flush confirms smart money positioning",
-        "Cross-border payment adoption uptick into Q3 2026",
-        "Potential SEC clarity resolution timeline acceleration"
+        "CLARITY Act passage removes regulatory overhang for Ripple ODL (On-Demand Liquidity)",
+        "Stablecoin framework breakthrough enables cross-border payment settlement demand",
+        "Whale accumulation signal: 90M XRP moved to Coinbase (April 13 signal)",
+        "CME XRP OI recovery as shorts cover post-flush",
+        "Institutional DeFi platform adoption for XRP liquidity corridors"
       ],
       "liq_above": [
         [
-          "4H",
-          "$1.48",
-          "Seller stop-loss cluster"
-        ],
-        [
           "Daily",
-          "$1.62",
-          "Session resistance liquidation"
+          "$1.55",
+          "Short-squeeze liquidity above supply zone"
         ],
         [
-          "Weekly",
-          "$1.85",
-          "Monthly resistance flush"
+          "4H",
+          "$1.70",
+          "Limit-order cascade into weekly resistance breaker"
         ]
       ],
       "liq_below": [
         [
           "4H",
-          "$1.36",
-          "Buyer stop-cluster"
+          "$1.32",
+          "OB invalidation sell-stop cascade trigger"
         ],
         [
           "Daily",
-          "$1.20",
-          "Weekly open liquidity"
+          "$1.25",
+          "Macro support breakdown liquidity event"
         ],
         [
           "Weekly",
-          "$1.05",
-          "Monthly support zone"
+          "$1.15",
+          "Yearly support flush if breached"
         ]
       ],
       "charts": {
@@ -308,32 +283,19 @@
       }
     }
   ],
-  "macro_today": [
-    {
-      "date": "05-07 14:00 ET",
-      "name": "Senate CLARITY Act Markup Session",
-      "impact": "RED",
-      "desc": "Expected final amendments and committee vote on comprehensive crypto legislation; targets July 4 passage."
-    },
-    {
-      "date": "05-07 09:30 ET",
-      "name": "Initial Jobless Claims (Weekly)",
-      "impact": "YELLOW",
-      "desc": "Labor market health indicator; market focus remains on Fed policy pivot signals."
-    }
-  ],
+  "macro_today": [],
   "insights": [
     {
-      "title": "CLARITY Act Breakthrough Removes Stablecoin Impasse",
-      "body": "Legislative deal between Democrats and Republicans on stablecoin regulation clears path for July 4 passage target. This removes the last major obstacle to comprehensive U.S. crypto framework, potentially unlocking institutional inflows and clarity on XRP, ETH settlement use cases."
+      "title": "CLARITY Act Momentum Reduces Regulatory Tail Risk",
+      "body": "White House targeting July 4 passage and stablecoin impasse breakthrough (per CoinDesk, May 6) removes major overhang. Expect institutional re-entry flows into all three majors as framework certainty increases; BTC and XRP likely biggest beneficiaries given regulatory clarity dependency."
     },
     {
-      "title": "XRP Leverage Flush Signals Accumulation Phase",
-      "body": "CME XRP open interest deleveraged while price held $1.32\u2013$1.41, followed by 90M token whale movement to Coinbase. Combined with CLARITY momentum, this suggests smart money long accumulation into regulatory clarity catalyst."
+      "title": "XRP Leverage Flush = Accumulation Signal",
+      "body": "CME OI reduction while price holds $1.35\u2013$1.41 indicates smart-money buyers absorbing leveraged long liquidation. Combined with whale movement to Coinbase (Apr 13), setup mirrors classic capitulation pattern; OB retest into $1.58 is high-probability target."
     },
     {
-      "title": "ETH Underperformance vs. BTC\u2014Alt Season Timing",
-      "body": "Ethereum lagging Bitcoin (-3.55% vs -2.10%) despite stronger regulatory tailwinds suggests profit-taking in alts before next impulse. Watch for alt ratio reversal if BTC holds $79.5k support and Senate markup passes without setback."
+      "title": "ETH Underperformance vs BTC: Macro Rotation or DeFi Anxiety?",
+      "body": "ETH -3.34% vs BTC -1.84% suggests institutional ETF rebalancing away from smart-contract risk pending stablecoin framework finalization. DeFi collateral demand unlocks post-CLARITY; watch $2.25 OB hold for confirmation of higher-low structure into summer."
     }
   ]
 }

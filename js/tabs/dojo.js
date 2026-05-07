@@ -112,6 +112,10 @@ const DojoTab = (() => {
     } finally {
       _loading = false;
       updateBody();
+      // Top bar shows live price + last-updated stamp; refresh it too so a
+      // pair switch doesn't leave the previous pair's price visible.
+      const tb = document.getElementById('dojoTopBar');
+      if (tb) tb.innerHTML = renderTopBar();
     }
   }
 
@@ -393,12 +397,23 @@ const DojoTab = (() => {
 
   async function fetchTDCandles(sym) {
     const out = {};
+    let lastErr = null;
     await Promise.all(TD_TFS.map(async ({ tf, interval, limit }) => {
       try {
         const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=${limit}`);
-        if (!r.ok) { out[tf] = null; return; }
+        if (!r.ok) {
+          // Surface useful detail (Binance returns a JSON body for invalid
+          // symbols: {"code":-1121,"msg":"Invalid symbol."})
+          let detail = `HTTP ${r.status}`;
+          try {
+            const j = await r.json();
+            if (j && j.msg) detail = `${j.msg} (${j.code || r.status})`;
+          } catch (_) {}
+          lastErr = `${tf}: ${detail}`;
+          out[tf] = null;
+          return;
+        }
         const k = await r.json();
-        // Compact: [openTimeIso, o, h, l, c]
         out[tf] = k.map(x => [
           new Date(x[0]).toISOString().slice(0, 16),
           +parseFloat(x[1]).toPrecision(8),
@@ -406,9 +421,12 @@ const DojoTab = (() => {
           +parseFloat(x[3]).toPrecision(8),
           +parseFloat(x[4]).toPrecision(8),
         ]);
-      } catch (_) { out[tf] = null; }
+      } catch (e) {
+        lastErr = `${tf}: ${e.message}`;
+        out[tf] = null;
+      }
     }));
-    return out;
+    return { candles: out, lastErr };
   }
 
   const TD_SYSTEM = `You are an ICT (Inner Circle Trader) analyst running a top-down cascade on a crypto pair.
@@ -471,7 +489,11 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
     if (!hasApiKey()) {
       throw new Error('No API key set. Paste your sk-ant-… key in the Top Down section.');
     }
-    const candles = await fetchTDCandles(sym);
+    const { candles, lastErr } = await fetchTDCandles(sym);
+    const got = Object.values(candles).filter(c => c && c.length).length;
+    if (got === 0) {
+      throw new Error(`Binance returned no data for ${sym}. ${lastErr || 'Symbol may be invalid or geo-blocked.'} Verify the pair exists on Binance (try ${sym.replace(/USDT$/, '')}USDT or ${sym.replace(/USDC$/, '')}USDT).`);
+    }
     const userMsg = `Pair: ${sym}\n\nOHLC data (rows: [openTime, o, h, l, c]):\n` +
       Object.entries(candles).map(([tf, rows]) => `\n=== ${tf} ===\n${rows ? JSON.stringify(rows) : 'unavailable'}`).join('\n');
     // Prefer AICoachTab.callClaude if available (gives shared spend tracking),
@@ -734,7 +756,12 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
     _addPair: raw => {
       const sym = String(raw || '').trim().toUpperCase().replace('/', '');
       if (!sym) return;
-      const full = sym.endsWith('USDT') ? sym : sym + 'USDT';
+      // Recognize known quote currencies — don't double-suffix things like
+      // XLMUSDC (which would become invalid XLMUSDCUSDT). Order matters:
+      // longest known suffixes first so USDT/USDC/FDUSD don't lose chars.
+      const QUOTES = ['USDT', 'USDC', 'FDUSD', 'TUSD', 'BUSD', 'USD', 'BTC', 'ETH', 'BNB', 'EUR', 'GBP'];
+      const hasQuote = QUOTES.some(q => sym.endsWith(q) && sym.length > q.length);
+      const full = hasQuote ? sym : sym + 'USDT';
       if (!PROTECTED.includes(full) && !_custom.includes(full)) {
         _custom.push(full);
         saveCustomSymbols(_custom);

@@ -1,8 +1,9 @@
 {
   "symbols": [
     "XLMUSDC",
-    "SUIUSDC"
+    "SUIUSDC",
+    "KITEUSDT"
   ],
-  "updated": "2026-05-07T16:29:58.630Z",
+  "updated": "2026-05-07T17:31:02.109Z",
   "note": "Custom watchlist symbols added via dashboard ICT Dojo tab."
 }

@@ -73,16 +73,15 @@
       return { sha: j.sha, content: b64dec(j.content || '') };
     }
 
-    async function writeFile(path, content, message) {
-      const existing = await getFileSha(path);
+    async function _putWithSha(path, content, message, sha) {
       const body = {
         message: message || `Update ${path}`,
         content: b64enc(content),
         branch: branch,
       };
-      if (existing && existing.sha) body.sha = existing.sha;
+      if (sha) body.sha = sha;
       const url = `${apiBase}/contents/${encodeURIComponent(path)}`;
-      const r = await fetch(url, {
+      return fetch(url, {
         method: 'PUT',
         headers: {
           'Accept': 'application/vnd.github+json',
@@ -92,6 +91,19 @@
         },
         body: JSON.stringify(body),
       });
+    }
+
+    async function writeFile(path, content, message) {
+      // First attempt with current SHA
+      let existing = await getFileSha(path);
+      let r = await _putWithSha(path, content, message, existing && existing.sha);
+      // 409 = SHA stale (someone else wrote between our fetch and our PUT —
+      // common when the cron pushes during user interaction). Re-fetch the
+      // fresh SHA and retry exactly once.
+      if (r.status === 409) {
+        existing = await getFileSha(path);
+        r = await _putWithSha(path, content, message, existing && existing.sha);
+      }
       if (!r.ok) {
         throw new Error(`writeFile ${r.status}: ${await r.text()}`);
       }

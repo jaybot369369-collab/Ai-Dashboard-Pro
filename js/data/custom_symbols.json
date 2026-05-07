@@ -1,5 +1,7 @@
 {
-  "symbols": ["SUIUSDT"],
-  "updated": "2026-05-06T00:00:00Z",
-  "note": "Custom watchlist symbols added via dashboard SB Watcher tab. Watcher pulls this on every cron run."
+  "symbols": [
+    "HBARUSDT"
+  ],
+  "updated": "2026-05-07T15:25:25.452Z",
+  "note": "Custom watchlist symbols added via dashboard ICT Dojo tab."
 }

@@ -519,20 +519,27 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
       const r = cache.result;
       const tfRow = (label, k) => {
         const x = r[k] || {};
-        const lvls = (x.key_levels || []).map(l => `<code style="font-size:.72rem;background:var(--bg-mid);padding:1px 5px;border-radius:3px;margin-right:3px">${esc(l)}</code>`).join('');
+        const lvls = (x.key_levels || []).map(l => `<code style="display:inline-block;font-size:.72rem;background:var(--bg-mid);padding:1px 5px;border-radius:3px;margin:1px 3px 1px 0;white-space:nowrap">${esc(l)}</code>`).join('');
         return `<tr>
-          <td style="font-weight:700;width:60px">${label}</td>
+          <td style="font-weight:700">${label}</td>
           <td>${biasIcon(x.bias)}</td>
-          <td style="max-width:0">${lvls}</td>
-          <td style="color:var(--text-sub);font-size:.78rem">${esc(x.invalidation || '—')}</td>
-          <td style="color:var(--text-sub);font-size:.78rem;font-style:italic">${esc(x.rationale || '')}</td>
+          <td style="word-break:break-word">${lvls || '<span class="text-dim">—</span>'}</td>
+          <td style="color:var(--text-sub);font-size:.78rem;word-break:break-word">${esc(x.invalidation || '—')}</td>
+          <td style="color:var(--text-sub);font-size:.78rem;font-style:italic;word-break:break-word">${esc(x.rationale || '')}</td>
         </tr>`;
       };
       const v = r.verdict || {};
       const verdictColor = v.tradeable ? 'var(--green)' : 'var(--text-sub)';
       const fiveM = r.fiveM || {};
       body = `
-        <table class="data-table" style="width:100%;font-size:.82rem;margin-top:6px">
+        <table class="data-table" style="width:100%;font-size:.82rem;margin-top:6px;table-layout:fixed">
+          <colgroup>
+            <col style="width:50px">
+            <col style="width:90px">
+            <col style="width:22%">
+            <col style="width:22%">
+            <col>
+          </colgroup>
           <thead><tr><th>TF</th><th>Bias</th><th>Key Levels</th><th>Invalidation</th><th>Rationale</th></tr></thead>
           <tbody>
             ${tfRow('1M', 'monthly')}

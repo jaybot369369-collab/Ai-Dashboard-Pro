@@ -787,8 +787,8 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
     _setPat: () => {
       const pat = prompt('Paste your GitHub PAT (repo scope, Ai-Dashboard-Pro):');
       if (!pat) return;
-      if (window.RepoWriter && RepoWriter.savePat) {
-        RepoWriter.savePat(pat.trim());
+      if (window.RepoWriter && RepoWriter.setPat) {
+        RepoWriter.setPat(pat.trim());
         App.toast('PAT saved');
         render();
       } else {

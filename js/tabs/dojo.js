@@ -426,15 +426,49 @@ You will receive OHLC data per TF (compact rows: [openTime, o, h, l, c]). Return
 
 Be concise but specific — every "key_level" must be a price (e.g. "63420" or "63,400 swing high"). Every "rationale" must reference what you see in the data, not generic ICT theory.`;
 
+  // Self-contained API caller — works even if ai_coach.js is stale-cached
+  // and AICoachTab.callClaude isn't exposed. Reads jb_ai_key + jb_ai_model
+  // from localStorage (same slots AICoachTab uses).
+  async function callClaudeDirect({ system, user, maxTokens }) {
+    const apiKey = localStorage.getItem('jb_ai_key') || '';
+    if (!apiKey) throw new Error('No API key set. Paste your sk-ant-… key in the Top Down section.');
+    const model = localStorage.getItem('jb_ai_model') || 'claude-sonnet-4-5';
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model, max_tokens: maxTokens, system,
+        messages: [{ role: 'user', content: user }],
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error?.message || `API ${res.status}`);
+    return { text: (json.content || []).map(b => b.type === 'text' ? b.text : '').join('') };
+  }
+
+  function hasApiKey() {
+    if (window.AICoachTab && AICoachTab.hasKey) return AICoachTab.hasKey();
+    return !!localStorage.getItem('jb_ai_key');
+  }
+
   async function runTopDown(sym) {
-    if (!window.AICoachTab || !AICoachTab.hasKey || !AICoachTab.hasKey()) {
-      throw new Error('No API key set. Open AI Coach tab → Settings to add one.');
+    if (!hasApiKey()) {
+      throw new Error('No API key set. Paste your sk-ant-… key in the Top Down section.');
     }
     const candles = await fetchTDCandles(sym);
     const userMsg = `Pair: ${sym}\n\nOHLC data (rows: [openTime, o, h, l, c]):\n` +
       Object.entries(candles).map(([tf, rows]) => `\n=== ${tf} ===\n${rows ? JSON.stringify(rows) : 'unavailable'}`).join('\n');
-    const { text } = await AICoachTab.callClaude({ system: TD_SYSTEM, user: userMsg, maxTokens: 2200 });
-    // Extract JSON from response
+    // Prefer AICoachTab.callClaude if available (gives shared spend tracking),
+    // fall back to direct call so a stale ai_coach.js cache doesn't block us.
+    const caller = (window.AICoachTab && AICoachTab.callClaude)
+      ? AICoachTab.callClaude
+      : callClaudeDirect;
+    const { text } = await caller({ system: TD_SYSTEM, user: userMsg, maxTokens: 2200 });
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('Claude did not return JSON. Raw: ' + text.slice(0, 200));
     return JSON.parse(match[0]);
@@ -449,7 +483,7 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
 
   function renderTopDown() {
     const cache = _td[_pair] || {};
-    const hasKey = window.AICoachTab && AICoachTab.hasKey && AICoachTab.hasKey();
+    const hasKey = hasApiKey();
     const headerBtn = cache.loading
       ? `<button class="btn-ghost btn-sm" disabled>⏳ Analyzing…</button>`
       : `<button class="btn-ghost btn-sm" onclick="DojoTab._runTopDown()">${cache.result ? '↻ Re-run' : '🔍 Run'} Top Down on ${esc(_pair.replace('USDT',''))}</button>`;
@@ -702,10 +736,17 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
       const k = (key || '').trim();
       if (!k) { App.toast('Paste your API key first', 'error'); return; }
       if (!k.startsWith('sk-ant-')) { App.toast('Anthropic keys start with sk-ant-', 'error'); return; }
-      if (!window.AICoachTab || !AICoachTab.saveKey) { App.toast('AI Coach not loaded', 'error'); return; }
-      AICoachTab.saveKey(k);
-      App.toast('API key saved');
-      updateBody();
+      // Write directly to the same localStorage slot AICoachTab uses
+      // (jb_ai_key). Avoids depending on AICoachTab.saveKey being exposed,
+      // which can lag on a freshly deployed cache.
+      try {
+        localStorage.setItem('jb_ai_key', k);
+        if (window.AICoachTab && AICoachTab.saveKey) AICoachTab.saveKey(k);
+        App.toast('API key saved');
+        updateBody();
+      } catch (e) {
+        App.toast('Save failed: ' + e.message, 'error');
+      }
     },
     _runTopDown: async () => {
       const sym = _pair;

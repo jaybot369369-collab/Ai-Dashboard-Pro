@@ -381,6 +381,38 @@ const ProToolsTab = (() => {
       <div class="pro-tip" style="margin-top:14px">
         <strong>How alerts trigger:</strong> Scanner (every 60s) and ICT Dojo (every 60s) both check for dino conditions on each scan. When 3+ PD confluence aligns inside an active killzone with a confirming sweep, you get a single alert per pair (10-min throttle to prevent spam).
       </div>
+
+      <h4 class="pro-hdr" style="font-size:.88rem;margin-top:24px">📨 On-demand "Daily Report" command</h4>
+      <p class="text-sub" style="font-size:.85rem;margin:0 0 12px">
+        Send <code>Daily Report</code> (or <code>/daily</code>) to your bot and it'll trigger a fresh ICT watchlist generation.
+        PDF arrives in ~60 seconds via the existing alert flow above.
+      </p>
+      <details style="margin-bottom:10px">
+        <summary class="text-sub" style="cursor:pointer;font-size:.82rem">🛠 Setup guide (~5 min, one-time)</summary>
+        <ol style="font-size:.82rem;color:var(--text-sub);padding-left:20px;line-height:1.7;margin-top:10px">
+          <li>Cloudflare Dashboard → <strong>Workers &amp; Pages</strong> → <strong>Create</strong> → "Hello World" template → name <code>telegram-dispatch</code> → <strong>Deploy</strong></li>
+          <li>Click your new Worker → <strong>Edit code</strong> → delete sample → paste contents of <code>CLOUDFLARE_TELEGRAM_WORKER.js</code> from your repo (copy below) → <strong>Save and Deploy</strong></li>
+          <li>Worker → <strong>Settings → Variables and Secrets</strong> → add ALL of these as <strong>SECRETS</strong> (encrypted):
+            <ul style="margin-top:4px">
+              <li><code>TG_BOT_TOKEN</code> — same value as the cron secret</li>
+              <li><code>TG_CHAT_ID</code> — same value as the cron secret (used as whitelist)</li>
+              <li><code>GH_DISPATCH_PAT</code> — classic GitHub PAT with <strong>workflow</strong> scope on the <code>ict-watchlist</code> repo (<a href="https://github.com/settings/tokens/new?scopes=workflow,repo&description=Telegram%20on-demand%20dispatch" target="_blank">create here</a>)</li>
+              <li><code>GH_REPO</code> — <code>jaybot369369-collab/ict-watchlist</code></li>
+              <li><code>GH_WORKFLOW</code> — <code>daily_watchlist.yml</code></li>
+            </ul>
+          </li>
+          <li>Copy the Worker URL (e.g. <code>https://telegram-dispatch.YOURACCOUNT.workers.dev</code>)</li>
+          <li>From your terminal, set the Telegram webhook (replace both placeholders):
+            <pre style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;overflow-x:auto;font-size:.72rem;margin-top:6px">curl -F "url=https://telegram-dispatch.YOURACCOUNT.workers.dev/tg-webhook" \
+  https://api.telegram.org/bot&lt;TG_BOT_TOKEN&gt;/setWebhook</pre>
+          </li>
+          <li>Open the bot chat and send <code>Daily Report</code> — you should get a "⏳ Generating…" reply, then the PDF arrives via the cron's existing send_telegram() flow.</li>
+        </ol>
+        <details style="margin-top:10px">
+          <summary class="text-sub" style="cursor:pointer;font-size:.82rem">📜 Show Worker code to paste</summary>
+          <pre style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;overflow-x:auto;font-size:.72rem;margin-top:8px;max-height:240px"><code id="tgWorkerCode">Loading…</code></pre>
+        </details>
+      </details>
     </div>`;
   }
 
@@ -416,6 +448,11 @@ const ProToolsTab = (() => {
         setTimeout(render, 1500);
       } catch (e) { status.textContent = '⚠ ' + e.message; status.style.color = 'var(--red)'; }
     });
+    // Lazy-load the Telegram-dispatch worker code into the <pre> block when expanded
+    const tgCodeEl = document.getElementById('tgWorkerCode');
+    if (tgCodeEl) {
+      fetch('CLOUDFLARE_TELEGRAM_WORKER.js').then(r => r.text()).then(t => { tgCodeEl.textContent = t; }).catch(() => { tgCodeEl.textContent = 'Could not load — find it in the repo root: CLOUDFLARE_TELEGRAM_WORKER.js'; });
+    }
   }
 
   /* ══════════════════════════════════════════════════════

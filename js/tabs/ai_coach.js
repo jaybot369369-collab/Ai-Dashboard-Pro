@@ -338,6 +338,7 @@ ${JSON.stringify(trades.map(t => ({
     autoTagImage,
     callClaude,
     hasKey: () => !!getKey(),
+    saveKey: (key) => { setS(KEYS.apiKey, (key || '').trim()); },
     _showReview: (weekOf) => {
       const all = getJ(KEYS.reviews, []);
       const r = all.find(x => x.weekOf === weekOf);

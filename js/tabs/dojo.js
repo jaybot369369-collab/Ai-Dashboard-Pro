@@ -453,7 +453,16 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
     const headerBtn = cache.loading
       ? `<button class="btn-ghost btn-sm" disabled>⏳ Analyzing…</button>`
       : `<button class="btn-ghost btn-sm" onclick="DojoTab._runTopDown()">${cache.result ? '↻ Re-run' : '🔍 Run'} Top Down on ${esc(_pair.replace('USDT',''))}</button>`;
-    const keyHint = hasKey ? '' : `<div class="text-dim" style="font-size:.78rem;margin-top:6px">⚠ No API key. Open AI Coach → Settings to add one (~$5 starter credit at console.anthropic.com).</div>`;
+    const keyHint = hasKey ? '' : `<div style="margin-top:8px;padding:10px;background:var(--bg-mid);border:1px solid var(--border);border-radius:6px">
+        <div style="font-size:.82rem;margin-bottom:6px">⚠ <strong>Anthropic API key needed</strong> for Top Down Analysis.
+          Get one at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a> (~$5 starter credit).</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input id="dojoApiKeyIn" type="password" placeholder="sk-ant-…" style="flex:1;padding:5px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:.78rem"
+            onkeydown="if(event.key==='Enter'){DojoTab._saveApiKey(this.value)}">
+          <button class="btn-ghost btn-sm" onclick="DojoTab._saveApiKey(document.getElementById('dojoApiKeyIn').value)">Save Key</button>
+        </div>
+        <div class="text-dim" style="font-size:.72rem;margin-top:5px">Stored in localStorage as <code>jb_ai_key</code> (same key AI Coach uses). Never sent anywhere except direct to api.anthropic.com.</div>
+      </div>`;
     let body;
     if (cache.err) {
       body = `<div style="color:var(--red);font-size:.85rem;padding:10px">⚠ ${esc(cache.err)}</div>`;
@@ -688,6 +697,15 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
       pushCustomToRepo()
         .then(() => App.toast('Custom symbols synced to repo'))
         .catch(e => App.toast('Sync failed: ' + e.message, 'error'));
+    },
+    _saveApiKey: (key) => {
+      const k = (key || '').trim();
+      if (!k) { App.toast('Paste your API key first', 'error'); return; }
+      if (!k.startsWith('sk-ant-')) { App.toast('Anthropic keys start with sk-ant-', 'error'); return; }
+      if (!window.AICoachTab || !AICoachTab.saveKey) { App.toast('AI Coach not loaded', 'error'); return; }
+      AICoachTab.saveKey(k);
+      App.toast('API key saved');
+      updateBody();
     },
     _runTopDown: async () => {
       const sym = _pair;

@@ -180,7 +180,21 @@ const DojoTab = (() => {
   };
 
   function renderHeaderPills(sym) {
-    if (!sym) return '';
+    if (!sym) {
+      // Placeholder pills for custom tickers without watcher data
+      return `<div class="dojo-cards" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="dojo-card" style="border-left:3px solid var(--text-sub)">
+          <div class="dojo-card-lbl">AMD Profile (today)</div>
+          <div class="dojo-card-val text-dim">— PENDING</div>
+          <div class="dojo-card-sub">awaiting watcher tick</div>
+        </div>
+        <div class="dojo-card" style="border-left:3px solid var(--text-sub)">
+          <div class="dojo-card-lbl">Killzone</div>
+          <div class="dojo-card-val text-dim">—</div>
+          <div class="dojo-card-sub">awaiting watcher tick</div>
+        </div>
+      </div>`;
+    }
     const amd = sym.amd || {};
     const amdMeta = AMD_META[amd.profile] || AMD_META.no_sweep;
     const kz   = sym.killzone || {};       // Phase-B field; falls back to next_window
@@ -256,10 +270,10 @@ const DojoTab = (() => {
     </div>`;
   }
 
-  /* ══════════════════════════════════════════════════════
-     RENDER — section 3: PD arrays (FVGs + OBs)  [Phase B fields]
-  ══════════════════════════════════════════════════════ */
-  function renderPDArrays(sym) {
+  /* ── (PD Arrays and Recent Sweeps panels removed per user request
+        2026-05-07 — too noisy; the SB Setup card already surfaces the
+        canonical FVG/sweep that's actually actionable.) ── */
+  function _UNUSED_renderPDArrays_(sym) {
     const pda = sym && sym.pd_arrays;
     if (!pda) {
       return `<div class="dojo-section">
@@ -308,10 +322,7 @@ const DojoTab = (() => {
     </div>`;
   }
 
-  /* ══════════════════════════════════════════════════════
-     RENDER — section 4: Recent Sweeps  [Phase B fields]
-  ══════════════════════════════════════════════════════ */
-  function renderSweeps(sym) {
+  function _UNUSED_renderSweeps_(sym) {
     const sw = sym && sym.sweeps;
     if (!sw) {
       return `<div class="dojo-section">
@@ -627,17 +638,28 @@ Be concise but specific — every "key_level" must be a price (e.g. "63420" or "
     }
     const sym = symData();
     if (!sym) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div>
-        <p>No watcher data for <code>${esc(_pair)}</code>.</p>
-        <p class="text-dim" style="font-size:.85rem">${_pair === 'BTCUSDT' ? 'Did the watcher run yet?' : `Add <code>${esc(_pair)}</code> to your custom tickers and the watcher will pick it up on its next tick.`}</p></div>`;
+      // Custom ticker / pair the watcher hasn't seen yet. Don't dead-end —
+      // render the panels that work without watcher data: live price (top
+      // bar), Top Down (uses Binance directly), Extended, Custom Tickers.
+      const hasPat = (window.RepoWriter && RepoWriter.hasPat());
+      const explainer = hasPat
+        ? `Watcher will pick up <code>${esc(_pair)}</code> on its next tick (≤5min) and start emitting AMD / Killzone / SB Setup / Structure data here.`
+        : `<strong>No GitHub PAT set</strong> — custom tickers won't reach the cron watcher. Top Down Analysis still works (uses Binance directly). To enable full canonical data, click <a href="javascript:DojoTab._setPat()">Save PAT</a> below.`;
+      el.innerHTML =
+        renderHeaderPills(null) +
+        `<div class="dojo-section" style="border-left:3px solid var(--gold)">
+          <div style="font-size:.85rem;padding:8px 4px"><strong>📡 No watcher data yet for <code>${esc(_pair)}</code>.</strong></div>
+          <div class="text-dim" style="font-size:.8rem;padding:0 4px 6px">${explainer}</div>
+        </div>` +
+        renderTopDown() +
+        renderExtended() +
+        renderCustomTickers();
       return;
     }
     el.innerHTML =
       renderHeaderPills(sym) +
       renderSetupCard(sym) +
       renderTopDown() +
-      renderPDArrays(sym) +
-      renderSweeps(sym) +
       renderStructure(sym) +
       renderExtended() +
       renderCustomTickers();

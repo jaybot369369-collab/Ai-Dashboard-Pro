@@ -24,9 +24,7 @@ const App = (() => {
   const RENDERERS = {
     dashboard:  () => DashboardTab.render(),
     dailyreport:() => DailyReportTab.render(),
-    sbwatcher:  () => SBWatcherTab.render(),
     dojo:       () => DojoTab.render(),
-    scanner:    () => ScannerTab.render(),
     tradelog:   () => TradeLogTab.render(),
     playbook:   () => PlaybookTab.render(),
     rules:      () => RulesTab.render(),

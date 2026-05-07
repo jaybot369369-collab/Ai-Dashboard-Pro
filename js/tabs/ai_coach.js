@@ -336,6 +336,8 @@ ${JSON.stringify(trades.map(t => ({
     render,
     // Public API for use from other tabs (e.g. trade form auto-tag button)
     autoTagImage,
+    callClaude,
+    hasKey: () => !!getKey(),
     _showReview: (weekOf) => {
       const all = getJ(KEYS.reviews, []);
       const r = all.find(x => x.weekOf === weekOf);

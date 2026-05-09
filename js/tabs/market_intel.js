@@ -1,0 +1,403 @@
+/* ═══════════════════════════════════════════════════════════
+   MARKET INTEL TAB
+   Reads js/data/market_intel.json (generated server-side by
+   automation/run_market_intel.py — twice daily on weekdays).
+
+   Strict-sourcing contract: every claim renders inline citations
+   linking to the upstream source URL + fetched_at timestamp.
+   Claims with empty sources[] are flagged as a hard bug.
+════════════════════════════════════════════════════════════ */
+const MarketIntelTab = (() => {
+
+  let _data = null;
+  let _err  = null;
+  let _autoTimer = null;
+
+  const REFRESH_MS = 4 * 60 * 60 * 1000;   // 4h (cron runs 2x/day)
+  const CHECK_MS   = 30 * 60 * 1000;       // re-check every 30m while tab open
+
+  const REGIME_COLORS = {
+    'Risk-On':       'var(--green)',
+    'Risk-Off':      'var(--red)',
+    'Defensive':     'var(--gold)',
+    'Late-Cycle':    'var(--orange)',
+    'Indeterminate': 'var(--text-dim)',
+  };
+
+  const SECTION_META = [
+    { key: 'macro',       title: 'Macro Drivers',          icon: '🏛️', defaultOpen: true  },
+    { key: 'rotation',    title: 'Equity Sector Rotation', icon: '🔄', defaultOpen: true  },
+    { key: 'cross_asset', title: 'Cross-Asset Flows',      icon: '🌐', defaultOpen: true  },
+    { key: 'crypto',      title: 'Crypto Market Structure',icon: '₿',  defaultOpen: false },
+    { key: 'sentiment',   title: 'Sentiment & Positioning',icon: '🧠', defaultOpen: false },
+    { key: 'seasonality', title: 'Seasonality',            icon: '📅', defaultOpen: false },
+    { key: 'narratives',  title: 'Trending Narratives',    icon: '💬', defaultOpen: false },
+    { key: 'watch_next',  title: 'What to Watch Next',     icon: '🔭', defaultOpen: false },
+  ];
+
+  /* ── Helpers ────────────────────────────────────────── */
+  function esc(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function fmtAge(iso) {
+    if (!iso) return '—';
+    const ms = Date.now() - new Date(iso).getTime();
+    if (isNaN(ms)) return '—';
+    const m = Math.round(ms / 60000);
+    if (m < 60)  return `${m}m ago`;
+    const h = Math.round(m / 60);
+    if (h < 48)  return `${h}h ago`;
+    const d = Math.round(h / 24);
+    return `${d}d ago`;
+  }
+  function ageHours(iso) {
+    if (!iso) return Infinity;
+    return (Date.now() - new Date(iso).getTime()) / 3600000;
+  }
+  function oldestSourceAge(claims) {
+    let oldest = null;
+    (claims || []).forEach(c => (c.sources || []).forEach(s => {
+      if (!s.fetched_at) return;
+      if (!oldest || new Date(s.fetched_at) < new Date(oldest)) oldest = s.fetched_at;
+    }));
+    return oldest;
+  }
+
+  async function load() {
+    _err = null;
+    try {
+      const r = await fetch('js/data/market_intel.json?t=' + Date.now());
+      if (!r.ok) throw new Error('fetch ' + r.status);
+      _data = await r.json();
+    } catch (e) {
+      _err = e.message;
+    }
+  }
+
+  /* ── Citation rendering ─────────────────────────────── */
+  function renderClaim(claim, citeIdxRef) {
+    if (!claim || !claim.text) return '';
+    const sources = claim.sources || [];
+    if (sources.length === 0) {
+      return `<div class="mi-claim mi-claim-broken">
+        <span class="mi-broken-tag">⚠ MISSING CITATION</span>
+        <span>${esc(claim.text)}</span>
+        ${claim._validator_error ? `<span class="mi-broken-err">${esc(claim._validator_error)}</span>` : ''}
+      </div>`;
+    }
+    const sups = sources.map(s => {
+      const idx = ++citeIdxRef.n;
+      citeIdxRef.list.push(s);
+      return `<sup class="mi-cite" data-idx="${idx}" title="${esc(s.name || 'source')} · ${esc(fmtAge(s.fetched_at))}">[${idx}]</sup>`;
+    }).join('');
+    return `<div class="mi-claim"><span>${esc(claim.text)}</span>${sups}</div>`;
+  }
+
+  function renderSectionTable(key, section) {
+    if (key === 'rotation' && section.sectors?.length) {
+      return `<table class="mi-table">
+        <thead><tr><th>Sector</th><th>1D</th><th>1W</th><th>1M</th><th>vs SPY (1M)</th></tr></thead>
+        <tbody>${section.sectors.map(r => `<tr>
+          <td>${esc(r.name || r.symbol || '?')}</td>
+          <td class="${(r.d1||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.d1 || '—')}</td>
+          <td class="${(r.w1||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.w1 || '—')}</td>
+          <td class="${(r.m1||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.m1 || '—')}</td>
+          <td class="${(r.rs_spy||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.rs_spy || '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    if (key === 'cross_asset' && section.assets?.length) {
+      return `<table class="mi-table">
+        <thead><tr><th>Asset</th><th>Last</th><th>1D</th><th>1W</th><th>Source</th></tr></thead>
+        <tbody>${section.assets.map(r => `<tr>
+          <td>${esc(r.name || r.symbol || '?')}</td>
+          <td>${esc(r.last || '—')}</td>
+          <td class="${(r.d1||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.d1 || '—')}</td>
+          <td class="${(r.w1||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.w1 || '—')}</td>
+          <td class="mi-cell-dim">${esc(r.source || '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    if (key === 'crypto' && section.metrics?.length) {
+      return `<table class="mi-table">
+        <thead><tr><th>Metric</th><th>Value</th><th>Δ</th><th>Source</th></tr></thead>
+        <tbody>${section.metrics.map(r => `<tr>
+          <td>${esc(r.name || '?')}</td>
+          <td>${esc(r.value || '—')}</td>
+          <td class="${(r.delta||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.delta || '—')}</td>
+          <td class="mi-cell-dim">${esc(r.source || '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    if (key === 'sentiment' && section.gauges?.length) {
+      return `<table class="mi-table">
+        <thead><tr><th>Gauge</th><th>Reading</th><th>Extreme?</th><th>As of</th></tr></thead>
+        <tbody>${section.gauges.map(r => `<tr>
+          <td>${esc(r.name || '?')}</td>
+          <td>${esc(r.value || '—')}</td>
+          <td>${r.extreme ? `<span class="mi-extreme">${esc(r.extreme)}</span>` : '<span class="mi-cell-dim">—</span>'}</td>
+          <td class="mi-cell-dim">${esc(r.as_of ? fmtAge(r.as_of) : '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    if (key === 'narratives' && section.items?.length) {
+      return `<table class="mi-table">
+        <thead><tr><th>Narrative</th><th>Flow Confirms?</th><th>Evidence</th></tr></thead>
+        <tbody>${section.items.map(r => `<tr>
+          <td>${esc(r.theme || '?')}</td>
+          <td>${r.flow_confirms === true ? '<span class="mi-pos">✓ yes</span>' : r.flow_confirms === false ? '<span class="mi-neg">✗ chatter only</span>' : '<span class="mi-cell-dim">—</span>'}</td>
+          <td>${esc(r.evidence || '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    if (key === 'watch_next' && section.events?.length) {
+      return `<table class="mi-table">
+        <thead><tr><th>When</th><th>Event</th><th>Type</th><th>Source</th></tr></thead>
+        <tbody>${section.events.map(r => `<tr>
+          <td>${esc(r.when || '—')}</td>
+          <td>${esc(r.event || '—')}</td>
+          <td><span class="mi-event-type">${esc(r.type || '—')}</span></td>
+          <td>${r.source_url ? `<a href="${esc(r.source_url)}" target="_blank" class="mi-cell-link">${esc(r.source_name || 'link')}</a>` : '<span class="mi-cell-dim">—</span>'}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+    if (key === 'seasonality') {
+      return `<div class="mi-seasonality-meta">Lookback: <strong>${section.lookback_years || 0}y</strong> · Sample size: <strong>n=${section.sample_size || 0}</strong></div>`;
+    }
+    return '';
+  }
+
+  function renderSection(meta, section, citeIdxRef) {
+    const claims = section.claims || [];
+    const unavailable = section.unavailable || [];
+    const oldestIso = oldestSourceAge(claims);
+    const ageStr = oldestIso ? `oldest ${fmtAge(oldestIso)}` : '';
+
+    const claimsHtml = claims.length
+      ? `<ul class="mi-claims">${claims.map(c => `<li>${renderClaim(c, citeIdxRef)}</li>`).join('')}</ul>`
+      : '';
+
+    const tableHtml = renderSectionTable(meta.key, section);
+
+    const unavailHtml = unavailable.length
+      ? `<div class="mi-unavailable"><div class="mi-unavail-hdr">Not available this run</div>${unavailable.map(u => `<div class="mi-unavail-row">— ${esc(u)}</div>`).join('')}</div>`
+      : '';
+
+    if (!claims.length && !tableHtml && !unavailable.length) {
+      return ''; // section has no content at all, skip
+    }
+
+    return `<details class="mi-section" ${meta.defaultOpen ? 'open' : ''}>
+      <summary class="mi-section-hdr">
+        <span class="mi-section-icon">${meta.icon}</span>
+        <span class="mi-section-title">${meta.title}</span>
+        <span class="mi-section-count">${claims.length} claim${claims.length===1?'':'s'}</span>
+        ${ageStr ? `<span class="mi-section-age">${ageStr}</span>` : ''}
+        <span class="mi-section-chev">▾</span>
+      </summary>
+      <div class="mi-section-body">
+        ${claimsHtml}
+        ${tableHtml}
+        ${unavailHtml}
+      </div>
+    </details>`;
+  }
+
+  function renderFreshness(freshness) {
+    if (!freshness || Object.keys(freshness).length === 0) return '';
+    const rows = Object.entries(freshness)
+      .map(([id, v]) => ({ id, ...v }))
+      .sort((a, b) => {
+        if (a.ok !== b.ok) return a.ok ? 1 : -1;     // failures first
+        return (b.age_hours || 0) - (a.age_hours || 0);
+      });
+    const total = rows.length;
+    const okCount = rows.filter(r => r.ok).length;
+    const failCount = total - okCount;
+    const oldestOk = rows.filter(r => r.ok && r.age_hours != null)
+      .sort((a, b) => (b.age_hours || 0) - (a.age_hours || 0))[0];
+
+    return `<details class="mi-freshness">
+      <summary class="mi-freshness-summary">
+        <span class="mi-freshness-icon">📊</span>
+        <span class="mi-freshness-label">Data Freshness</span>
+        <span class="mi-freshness-stat mi-pos">✓ ${okCount}</span>
+        <span class="mi-freshness-stat ${failCount ? 'mi-neg' : 'mi-cell-dim'}">✗ ${failCount}</span>
+        <span class="mi-freshness-stat mi-cell-dim">of ${total}</span>
+        ${oldestOk ? `<span class="mi-freshness-stat mi-cell-dim">oldest ok: ${oldestOk.age_hours.toFixed(1)}h</span>` : ''}
+        <span class="mi-section-chev">▾</span>
+      </summary>
+      <table class="mi-table mi-freshness-table">
+        <thead><tr><th>Fetcher</th><th>Source</th><th>Age</th><th>OK</th><th>Note</th></tr></thead>
+        <tbody>${rows.map(r => `<tr class="${r.ok ? '' : 'mi-fresh-fail'}">
+          <td><code>${esc(r.id)}</code></td>
+          <td><a href="${esc(r.source_url || r.source || '#')}" target="_blank" class="mi-cell-link">${esc(r.source || '—')}</a></td>
+          <td class="mi-cell-dim">${r.age_hours != null ? `${r.age_hours.toFixed(1)}h` : '—'}</td>
+          <td>${r.ok ? '<span class="mi-pos">✓</span>' : '<span class="mi-neg">✗</span>'}</td>
+          <td class="mi-cell-dim">${esc(r.note || '')}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </details>`;
+  }
+
+  function renderCiteDrawer(citations) {
+    if (!citations.length) return '';
+    return `<aside class="mi-cite-drawer" id="miCiteDrawer" hidden>
+      <div class="mi-drawer-hdr">
+        <h3>Sources</h3>
+        <button class="btn-icon" onclick="MarketIntelTab._closeDrawer()">✕</button>
+      </div>
+      <ol class="mi-drawer-list">${citations.map((s, i) => `<li id="miCite-${i+1}">
+        <div class="mi-drawer-name">${esc(s.name || 'source')}</div>
+        <div class="mi-drawer-meta">${esc(fmtAge(s.fetched_at))} · ${s.value ? `value: <code>${esc(s.value)}</code>` : ''}</div>
+        <a href="${esc(s.url || '#')}" target="_blank" class="mi-drawer-url">${esc(s.url || '—')}</a>
+      </li>`).join('')}</ol>
+    </aside>`;
+  }
+
+  /* ── Public render ──────────────────────────────────── */
+  async function render() {
+    const content = document.getElementById('content');
+    content.innerHTML = `<div class="mi-wrap"><div class="loading-state">Loading Market Intel…</div></div>`;
+
+    if (!_data || ageHours(_data?.generated) > REFRESH_MS / 3600000) {
+      await load();
+    }
+    startAutoRefresh();
+
+    if (_err) {
+      content.innerHTML = `<div class="mi-wrap"><div class="empty-state"><div class="empty-icon">⚠️</div>
+        <p>Could not load market intel: ${esc(_err)}</p>
+        <p class="text-dim" style="font-size:.85rem">Run <code>python3 automation/run_market_intel.py</code> to generate <code>js/data/market_intel.json</code>.</p>
+      </div></div>`;
+      return;
+    }
+
+    const d = _data || {};
+    const isPending = !d.generated;
+    if (isPending) {
+      content.innerHTML = `<div class="mi-wrap">
+        <div class="mi-hdr">
+          <div>
+            <h1 class="mi-title">🛰 Market Intel</h1>
+            <div class="mi-subtitle">First run pending</div>
+          </div>
+        </div>
+        <div class="empty-state" style="margin-top:24px">
+          <div class="empty-icon">⏳</div>
+          <p>The market intelligence cron has not produced data yet.</p>
+          <p class="text-dim" style="font-size:.85rem;margin-top:8px">
+            Trigger the workflow on GitHub Actions, or run<br>
+            <code>python3 automation/run_market_intel.py</code> locally.
+          </p>
+        </div>
+      </div>`;
+      return;
+    }
+
+    const ageH = ageHours(d.generated);
+    const isStale = ageH > 24;
+    const regimeLabel = d.regime?.label || 'Indeterminate';
+    const regimeColor = REGIME_COLORS[regimeLabel] || REGIME_COLORS.Indeterminate;
+    const confidence = d.regime?.confidence || 'low';
+
+    // Track all citations across the entire payload so the drawer can list them
+    const citeIdxRef = { n: 0, list: [] };
+    const heroRationale = renderClaim(d.regime?.rationale, citeIdxRef);
+
+    const sectionsHtml = SECTION_META
+      .map(m => renderSection(m, d.sections?.[m.key] || { claims: [], unavailable: [] }, citeIdxRef))
+      .join('');
+
+    const pdfBtn = d.pdf_url
+      ? `<a href="${esc(d.pdf_url)}" target="_blank" class="btn-ghost btn-sm" title="Download companion PDF">📥 PDF</a>`
+      : '';
+
+    content.innerHTML = `<div class="mi-wrap">
+      ${isStale ? `<div class="mi-stale-banner">⚠ Data may be stale — last refresh ${fmtAge(d.generated)} (cron schedule: 2x/day weekdays).</div>` : ''}
+
+      <div class="mi-hdr">
+        <div>
+          <h1 class="mi-title">🛰 Market Intel</h1>
+          <div class="mi-subtitle">${esc(d.weekday || '')} · ${esc(d.date || '')} · refreshed ${fmtAge(d.generated)}</div>
+        </div>
+        <div class="mi-hdr-actions">
+          ${pdfBtn}
+          <button class="btn-ghost btn-sm" onclick="MarketIntelTab._refresh()" title="Re-fetch JSON from server (does NOT call Claude)">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="mi-hero" style="border-left-color:${regimeColor}">
+        <div class="mi-regime-row">
+          <span class="mi-regime-pill" style="background:${regimeColor};color:#0d1117">${esc(regimeLabel)}</span>
+          <span class="mi-regime-conf mi-regime-conf-${esc(confidence)}">${esc(confidence)} confidence</span>
+        </div>
+        <div class="mi-regime-rationale">${heroRationale}</div>
+      </div>
+
+      <div class="mi-sections">
+        ${sectionsHtml}
+      </div>
+
+      ${renderFreshness(d.freshness)}
+
+      <div class="mi-footer text-dim">
+        Generated by <code>automation/run_market_intel.py</code> · ${esc(d.generated || '')}<br>
+        Model: ${esc(d.model?.name || '—')} · in:${d.model?.input_tokens || 0} / out:${d.model?.output_tokens || 0} tokens<br>
+        Strict-sourcing: every claim must cite a real, verifiable source. Click <sup>[N]</sup> to inspect the upstream URL.
+      </div>
+
+      ${renderCiteDrawer(citeIdxRef.list)}
+    </div>`;
+
+    // Wire citation clicks
+    document.querySelectorAll('.mi-cite').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        const idx = el.dataset.idx;
+        _showDrawer(idx);
+      });
+    });
+  }
+
+  function _showDrawer(highlightIdx) {
+    const d = document.getElementById('miCiteDrawer');
+    if (!d) return;
+    d.hidden = false;
+    document.querySelectorAll('.mi-drawer-list li').forEach(li => li.classList.remove('mi-drawer-active'));
+    if (highlightIdx) {
+      const li = document.getElementById(`miCite-${highlightIdx}`);
+      if (li) {
+        li.classList.add('mi-drawer-active');
+        li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }
+  function _closeDrawer() {
+    const d = document.getElementById('miCiteDrawer');
+    if (d) d.hidden = true;
+  }
+
+  function startAutoRefresh() {
+    if (_autoTimer) return;
+    _autoTimer = setInterval(async () => {
+      const onTab = document.querySelector('.nav-item.active')?.dataset.tab === 'marketintel';
+      if (!onTab) return;
+      const age = _data?.generated ? Date.now() - new Date(_data.generated).getTime() : Infinity;
+      if (age > REFRESH_MS) {
+        await load();
+        render();
+      }
+    }, CHECK_MS);
+  }
+
+  return {
+    render,
+    _refresh: async () => { await load(); render(); },
+    _showDrawer,
+    _closeDrawer,
+  };
+})();

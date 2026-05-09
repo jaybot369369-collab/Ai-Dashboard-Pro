@@ -57,6 +57,9 @@ const DB = (() => {
     { id: 'goals',      label: 'Goals',            icon: '🎯', builtin: true },
     { id: 'tendencies', label: 'Tendencies',       icon: '🧭', builtin: true },
     { id: 'reports',    label: 'My Reports',       icon: '📑', builtin: true },
+    { id: 'liquidity',  label: 'Liquidity Watcher',icon: '🌊', builtin: true },
+    { id: 'marketintel',label: 'Market Intel',     icon: '🛰', builtin: true },
+    { id: 'fund',       label: 'Mini-Hedge Fund',  icon: '🏦', builtin: true },
     { id: 'protools',   label: 'Pro Tools',        icon: '🛠', builtin: true },
   ];
   // Tabs from old versions that should be silently dropped from the sidebar

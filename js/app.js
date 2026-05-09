@@ -33,6 +33,9 @@ const App = (() => {
     goals:      () => GoalsTab.render(),
     tendencies: () => TendenciesTab.render(),
     reports:    () => ReportsTab.render(),
+    liquidity:  () => LiquidityWatcherTab.render(),
+    marketintel:() => MarketIntelTab.render(),
+    fund:       () => FundTab.render(),
     protools:   () => ProToolsTab.render(),
   };
 

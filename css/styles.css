@@ -2814,6 +2814,25 @@ input.date-picker::-webkit-calendar-picker-indicator {
   background: var(--bg-card); color: var(--text-sub);
 }
 .mi-seasonality-meta { font-size: 0.85rem; color: var(--text-sub); margin: 8px 0; }
+.mi-rot-subhdr {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-sub); font-weight: 600;
+  margin: 12px 0 4px;
+}
+.mi-rot-subhdr:first-child { margin-top: 0; }
+
+/* Fresh-fetch button status pill */
+.mi-fetch-status {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.mi-fetch-pending { background: var(--bg-card2); color: var(--text-sub); }
+.mi-fetch-running { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+.mi-fetch-ok      { background: var(--green-dim);  color: var(--green);  border-color: var(--green); }
+.mi-fetch-fail    { background: var(--red-dim);    color: var(--red);    border-color: var(--red); }
 
 /* Unavailable */
 .mi-unavailable {

@@ -16,6 +16,10 @@ const MarketIntelTab = (() => {
   const REFRESH_MS = 4 * 60 * 60 * 1000;   // 4h (cron runs 2x/day)
   const CHECK_MS   = 30 * 60 * 1000;       // re-check every 30m while tab open
 
+  // Cloudflare Worker dispatch — set on first use, persist in localStorage
+  const LS_WORKER  = 'mi_worker_url';
+  const LS_TOKEN   = 'mi_dispatch_token';
+
   const REGIME_COLORS = {
     'Risk-On':       'var(--green)',
     'Risk-Off':      'var(--red)',
@@ -25,14 +29,15 @@ const MarketIntelTab = (() => {
   };
 
   const SECTION_META = [
-    { key: 'macro',       title: 'Macro Drivers',          icon: '🏛️', defaultOpen: true  },
-    { key: 'rotation',    title: 'Equity Sector Rotation', icon: '🔄', defaultOpen: true  },
-    { key: 'cross_asset', title: 'Cross-Asset Flows',      icon: '🌐', defaultOpen: true  },
-    { key: 'crypto',      title: 'Crypto Market Structure',icon: '₿',  defaultOpen: false },
-    { key: 'sentiment',   title: 'Sentiment & Positioning',icon: '🧠', defaultOpen: false },
-    { key: 'seasonality', title: 'Seasonality',            icon: '📅', defaultOpen: false },
-    { key: 'narratives',  title: 'Trending Narratives',    icon: '💬', defaultOpen: false },
-    { key: 'watch_next',  title: 'What to Watch Next',     icon: '🔭', defaultOpen: false },
+    { key: 'macro',           title: 'Macro Drivers',              icon: '🏛️', defaultOpen: true  },
+    { key: 'rotation',        title: 'Equity Sector Rotation',     icon: '🔄', defaultOpen: true  },
+    { key: 'cross_asset',     title: 'Cross-Asset Flows',          icon: '🌐', defaultOpen: true  },
+    { key: 'crypto',          title: 'Crypto Market Structure',    icon: '₿',  defaultOpen: false },
+    { key: 'crypto_rotation', title: 'Crypto Sector & Chain Rotation', icon: '🔁', defaultOpen: false },
+    { key: 'sentiment',       title: 'Sentiment & Positioning',    icon: '🧠', defaultOpen: false },
+    { key: 'seasonality',     title: 'Seasonality',                icon: '📅', defaultOpen: false },
+    { key: 'narratives',      title: 'Trending Narratives',        icon: '💬', defaultOpen: false },
+    { key: 'watch_next',      title: 'What to Watch Next',         icon: '🔭', defaultOpen: false },
   ];
 
   /* ── Helpers ────────────────────────────────────────── */
@@ -152,6 +157,41 @@ const MarketIntelTab = (() => {
           <td>${esc(r.evidence || '—')}</td>
         </tr>`).join('')}</tbody>
       </table>`;
+    }
+    if (key === 'crypto_rotation') {
+      const sectors = section.sectors || [];
+      const chainsArr = section.chains || [];
+      let html = '';
+      if (sectors.length) {
+        html += `<div class="mi-rot-subhdr">Sector flows (DefiLlama categories, 24h $ flow estimate)</div>
+        <table class="mi-table">
+          <thead><tr><th>Sector</th><th>TVL</th><th>Share</th><th>1d %</th><th>7d %</th><th>24h flow</th><th>Dir</th></tr></thead>
+          <tbody>${sectors.map(r => `<tr>
+            <td>${esc(r.category || r.name || '?')}</td>
+            <td>${esc(r.tvl_usd_str || '—')}</td>
+            <td class="mi-cell-dim">${esc(r.share_pct || '—')}</td>
+            <td class="${(r.chg_24h_pct||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.chg_24h_pct || '—')}</td>
+            <td class="${(r.chg_7d_pct||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.chg_7d_pct || '—')}</td>
+            <td>${esc(r.flow_24h_str || '—')}</td>
+            <td>${r.flow_direction === 'in' ? '<span class="mi-pos">▲ in</span>' : r.flow_direction === 'out' ? '<span class="mi-neg">▼ out</span>' : '<span class="mi-cell-dim">~ flat</span>'}</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+      if (chainsArr.length) {
+        html += `<div class="mi-rot-subhdr">Top blockchains by TVL</div>
+        <table class="mi-table">
+          <thead><tr><th>Chain</th><th>TVL</th><th>Dom</th><th>24h %</th><th>7d %</th><th>30d %</th></tr></thead>
+          <tbody>${chainsArr.map(r => `<tr>
+            <td>${esc(r.name || '?')}</td>
+            <td>${esc(r.tvl_usd_str || '—')}</td>
+            <td class="mi-cell-dim">${esc(r.dominance_pct || '—')}</td>
+            <td class="${(r.chg_24h_pct||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.chg_24h_pct || '—')}</td>
+            <td class="${(r.chg_7d_pct||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.chg_7d_pct || '—')}</td>
+            <td class="${(r.chg_30d_pct||'').startsWith('-')?'mi-neg':'mi-pos'}">${esc(r.chg_30d_pct || '—')}</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+      return html;
     }
     if (key === 'watch_next' && section.events?.length) {
       return `<table class="mi-table">
@@ -315,6 +355,7 @@ const MarketIntelTab = (() => {
     const pdfBtn = d.pdf_url
       ? `<a href="${esc(d.pdf_url)}" target="_blank" class="btn-ghost btn-sm" title="Download companion PDF">📥 PDF</a>`
       : '';
+    const fetchBtn = `<button class="btn-primary btn-sm" id="miFreshFetch" title="Trigger a fresh server-side fetch (cron run, ~3 minutes)">🔄 Run Fresh Fetch</button>`;
 
     content.innerHTML = `<div class="mi-wrap">
       ${isStale ? `<div class="mi-stale-banner">⚠ Data may be stale — last refresh ${fmtAge(d.generated)} (cron schedule: 2x/day weekdays).</div>` : ''}
@@ -326,8 +367,10 @@ const MarketIntelTab = (() => {
         </div>
         <div class="mi-hdr-actions">
           ${pdfBtn}
-          <button class="btn-ghost btn-sm" onclick="MarketIntelTab._refresh()" title="Re-fetch JSON from server (does NOT call Claude)">↻ Refresh</button>
+          ${fetchBtn}
+          <button class="btn-ghost btn-sm" onclick="MarketIntelTab._refresh()" title="Re-fetch JSON from server (does NOT call Claude)">↻ Reload</button>
         </div>
+        <div class="mi-fetch-status" id="miFetchStatus" hidden></div>
       </div>
 
       <div class="mi-hero" style="border-left-color:${regimeColor}">
@@ -361,6 +404,102 @@ const MarketIntelTab = (() => {
         _showDrawer(idx);
       });
     });
+
+    // Wire "Run Fresh Fetch" button
+    const fetchBtnEl = document.getElementById('miFreshFetch');
+    if (fetchBtnEl) {
+      fetchBtnEl.addEventListener('click', () => _runFreshFetch());
+    }
+  }
+
+  /* ── Fresh-fetch button ─────────────────────────────────
+     POSTs to a Cloudflare Worker that triggers the GitHub
+     Actions workflow_dispatch. After dispatch, polls the
+     dashboard repo's market_intel.json every 30s for up to
+     6 minutes; auto-reloads when generated_at advances.
+  ───────────────────────────────────────────────────────── */
+  async function _runFreshFetch() {
+    const btn    = document.getElementById('miFreshFetch');
+    const status = document.getElementById('miFetchStatus');
+    if (!btn || !status) return;
+
+    let workerUrl = (localStorage.getItem(LS_WORKER) || '').trim();
+    let token     = (localStorage.getItem(LS_TOKEN)  || '').trim();
+    if (!workerUrl) {
+      workerUrl = (window.prompt('Cloudflare Worker URL (one-time setup):\n\nExample: https://market-intel-dispatch.YOUR-SUBDOMAIN.workers.dev', '') || '').trim();
+      if (!workerUrl) return;
+      localStorage.setItem(LS_WORKER, workerUrl.replace(/\/$/, ''));
+    }
+    if (!token) {
+      token = (window.prompt('Worker DISPATCH_TOKEN (one-time setup; same value as the Worker secret):', '') || '').trim();
+      if (!token) return;
+      localStorage.setItem(LS_TOKEN, token);
+    }
+    workerUrl = workerUrl.replace(/\/$/, '');
+
+    btn.disabled = true;
+    btn.textContent = '🔄 Dispatching…';
+    status.hidden = false;
+    status.className = 'mi-fetch-status mi-fetch-pending';
+    status.textContent = 'Calling Worker…';
+
+    let dispatchOk = false;
+    try {
+      const r = await fetch(`${workerUrl}/dispatch/market_intel`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      const j = await r.json().catch(() => ({}));
+      dispatchOk = r.ok && j.ok;
+      if (!dispatchOk) {
+        const msg = j.error || `HTTP ${r.status}`;
+        status.className = 'mi-fetch-status mi-fetch-fail';
+        status.textContent = `✗ Dispatch failed: ${msg}. ${msg === 'auth' ? 'Token mismatch — clear with MarketIntelTab._resetDispatchAuth() in console.' : 'Check Worker URL and token.'}`;
+        btn.disabled = false;
+        btn.textContent = '🔄 Run Fresh Fetch';
+        return;
+      }
+    } catch (e) {
+      status.className = 'mi-fetch-status mi-fetch-fail';
+      status.textContent = `✗ Worker unreachable: ${e.message}. Check the URL — clear with MarketIntelTab._resetDispatchAuth() in console.`;
+      btn.disabled = false;
+      btn.textContent = '🔄 Run Fresh Fetch';
+      return;
+    }
+
+    btn.textContent = '⏳ Running cron…';
+    status.className = 'mi-fetch-status mi-fetch-running';
+    const startedAt = _data?.generated || null;
+    const tStart = Date.now();
+    const TIMEOUT_MS = 6 * 60 * 1000;
+    const POLL_MS   = 30 * 1000;
+
+    const tick = async () => {
+      const elapsed = Math.round((Date.now() - tStart) / 1000);
+      status.textContent = `⏳ Cron running on GitHub Actions… polled ${elapsed}s ago. JSON should arrive within ~3 min.`;
+      try {
+        await load();
+        const newGen = _data?.generated;
+        if (newGen && newGen !== startedAt) {
+          status.className = 'mi-fetch-status mi-fetch-ok';
+          status.textContent = `✓ Fresh data arrived (${fmtAge(newGen)}). Re-rendering.`;
+          btn.disabled = false;
+          btn.textContent = '🔄 Run Fresh Fetch';
+          setTimeout(() => render(), 600);
+          return;
+        }
+      } catch (_) { /* ignore transient fetch fail */ }
+      if (Date.now() - tStart > TIMEOUT_MS) {
+        status.className = 'mi-fetch-status mi-fetch-fail';
+        status.textContent = '✗ Timeout — no fresh JSON after 6 min. Check the workflow run on GitHub Actions.';
+        btn.disabled = false;
+        btn.textContent = '🔄 Run Fresh Fetch';
+        return;
+      }
+      setTimeout(tick, POLL_MS);
+    };
+    setTimeout(tick, POLL_MS);
   }
 
   function _showDrawer(highlightIdx) {
@@ -397,6 +536,12 @@ const MarketIntelTab = (() => {
   return {
     render,
     _refresh: async () => { await load(); render(); },
+    _runFreshFetch,
+    _resetDispatchAuth: () => {
+      localStorage.removeItem(LS_WORKER);
+      localStorage.removeItem(LS_TOKEN);
+      console.log('Cleared mi_worker_url + mi_dispatch_token. Click "Run Fresh Fetch" to re-enter.');
+    },
     _showDrawer,
     _closeDrawer,
   };

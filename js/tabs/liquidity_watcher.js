@@ -27,7 +27,9 @@ const LiquidityWatcherTab = (() => {
   function _resolveUrl() {
     if (_isLocal()) return LOCAL_URL;
     const override = (localStorage.getItem(LS_KEY) || '').trim();
-    return (override || PUBLIC_LW_FALLBACK).replace(/\/?$/, '/');
+    // Empty override + empty fallback → show LOCAL_URL so the offline panel
+    // displays a clear "you need a tunnel" indicator (same pattern as fund.js).
+    return (override || PUBLIC_LW_FALLBACK || LOCAL_URL).replace(/\/?$/, '/');
   }
 
   async function _serverAlive(baseUrl) {

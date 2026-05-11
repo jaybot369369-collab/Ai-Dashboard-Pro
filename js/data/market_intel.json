@@ -1,655 +1,71 @@
 {
-  "generated": "2026-05-11T13:51:26Z",
+  "generated": "2026-05-11T13:55:26Z",
   "date": "2026-05-11",
   "weekday": "Monday",
   "regime": {
-    "label": "Risk-On",
-    "confidence": "med",
+    "label": "Indeterminate",
+    "confidence": "low",
     "rationale": {
-      "text": "Tech leads +24% YTD, financials lag -7.7%, VIX at 18.3. Yield curve steepened. BTC dominance stable 58%.",
-      "sources": [
-        {
-          "name": "Yahoo Finance XLK Technology",
-          "url": "https://finance.yahoo.com/quote/XLK",
-          "fetched_at": "2026-05-11T13:51:29Z",
-          "value": "+24.01%"
-        }
-      ]
+      "text": "synthesis failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0",
+      "sources": [],
+      "_validator_error": "no sources"
     }
   },
   "sections": {
     "macro": {
-      "claims": [
-        {
-          "text": "10y at 4.41%, +5bps; 2y at 3.92%, +5bps. Curve steepened to 49bps, signaling growth.",
-          "sources": [
-            {
-              "name": "FRED US 10-Year Treasury Yield",
-              "url": "https://fred.stlouisfed.org/series/DGS10",
-              "fetched_at": "2026-05-11T13:51:26Z",
-              "value": "4.41"
-            }
-          ]
-        },
-        {
-          "text": "USD trade-weighted index fell 28bps to 118.39. Broad dollar weakness supports EM.",
-          "sources": [
-            {
-              "name": "FRED USD Index Trade-Weighted Broad",
-              "url": "https://fred.stlouisfed.org/series/DTWEXBGS",
-              "fetched_at": "2026-05-11T13:51:27Z",
-              "value": "118.3926"
-            }
-          ]
-        },
-        {
-          "text": "Fed Funds at 3.63%, down 1bp. HY OAS at 279bps, +4bps\u2014spreads stable.",
-          "sources": [
-            {
-              "name": "FRED Fed Funds Effective Rate",
-              "url": "https://fred.stlouisfed.org/series/DFF",
-              "fetched_at": "2026-05-11T13:51:29Z",
-              "value": "3.63"
-            }
-          ]
-        },
-        {
-          "text": "CPI 330.29 March, +0.86% MoM; PCE 130.34, +0.66% MoM. Inflation above target.",
-          "sources": [
-            {
-              "name": "FRED US CPI",
-              "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
-              "fetched_at": "2026-05-11T13:51:27Z",
-              "value": "330.293"
-            }
-          ]
-        },
-        {
-          "text": "NFP 158.74M April, +115k MoM. Labor market resilient but pace slowing.",
-          "sources": [
-            {
-              "name": "FRED US Nonfarm Payrolls",
-              "url": "https://fred.stlouisfed.org/series/PAYEMS",
-              "fetched_at": "2026-05-11T13:51:28Z",
-              "value": "158736"
-            }
-          ]
-        }
-      ],
-      "unavailable": []
+      "claims": [],
+      "unavailable": [
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
+      ]
     },
     "rotation": {
-      "claims": [
-        {
-          "text": "Tech +24% YTD leads; Financials -7.7%, Healthcare -10.8%, Utilities -12.9% lag.",
-          "sources": [
-            {
-              "name": "Yahoo Finance XLK Technology",
-              "url": "https://finance.yahoo.com/quote/XLK",
-              "fetched_at": "2026-05-11T13:51:29Z",
-              "value": "+24.01%"
-            }
-          ]
-        },
-        {
-          "text": "Energy -9.6% YTD despite WTI +1.47% today. Oil weak W1W masks short-term bounce.",
-          "sources": [
-            {
-              "name": "Yahoo Finance XLE Energy",
-              "url": "https://finance.yahoo.com/quote/XLE",
-              "fetched_at": "2026-05-11T13:51:29Z",
-              "value": "-9.60%"
-            }
-          ]
-        },
-        {
-          "text": "Discretionary +5.6% YTD, Staples +1.3%. Cyclicals outpace defensives.",
-          "sources": [
-            {
-              "name": "Yahoo Finance XLY Consumer Discretionary",
-              "url": "https://finance.yahoo.com/quote/XLY",
-              "fetched_at": "2026-05-11T13:51:30Z",
-              "value": "+5.58%"
-            }
-          ]
-        },
-        {
-          "text": "SPY +0.18% today, +8.75% YTD. Market concentrated in mega-cap tech.",
-          "sources": [
-            {
-              "name": "Yahoo Finance SPY S&P 500",
-              "url": "https://finance.yahoo.com/quote/SPY",
-              "fetched_at": "2026-05-11T13:51:29Z",
-              "value": "+0.18%"
-            }
-          ]
-        }
-      ],
-      "unavailable": [],
-      "sectors": [
-        {
-          "name": "Technology",
-          "symbol": "XLK",
-          "d1": "+0.77%",
-          "w1": "+9.15%",
-          "m1": "+24.01%",
-          "rs_spy": "+15.26%"
-        },
-        {
-          "name": "Financials",
-          "symbol": "XLF",
-          "d1": "+0.17%",
-          "w1": "-0.49%",
-          "m1": "+1.09%",
-          "rs_spy": "-7.66%"
-        },
-        {
-          "name": "Energy",
-          "symbol": "XLE",
-          "d1": "+1.36%",
-          "w1": "-4.94%",
-          "m1": "-0.85%",
-          "rs_spy": "-9.60%"
-        },
-        {
-          "name": "Health Care",
-          "symbol": "XLV",
-          "d1": "+0.59%",
-          "w1": "-0.28%",
-          "m1": "-2.02%",
-          "rs_spy": "-10.78%"
-        },
-        {
-          "name": "Industrials",
-          "symbol": "XLI",
-          "d1": "+0.44%",
-          "w1": "+1.75%",
-          "m1": "+1.43%",
-          "rs_spy": "-7.32%"
-        },
-        {
-          "name": "Utilities",
-          "symbol": "XLU",
-          "d1": "+0.71%",
-          "w1": "-2.87%",
-          "m1": "-4.09%",
-          "rs_spy": "-12.85%"
-        },
-        {
-          "name": "Materials",
-          "symbol": "XLB",
-          "d1": "+1.07%",
-          "w1": "+2.94%",
-          "m1": "+0.35%",
-          "rs_spy": "-8.41%"
-        },
-        {
-          "name": "Discretionary",
-          "symbol": "XLY",
-          "d1": "-0.84%",
-          "w1": "+1.24%",
-          "m1": "+5.58%",
-          "rs_spy": "-3.18%"
-        },
-        {
-          "name": "Staples",
-          "symbol": "XLP",
-          "d1": "-0.93%",
-          "w1": "-0.17%",
-          "m1": "+1.25%",
-          "rs_spy": "-7.50%"
-        },
-        {
-          "name": "Real Estate",
-          "symbol": "XLRE",
-          "d1": "+0.63%",
-          "w1": "+1.38%",
-          "m1": "+4.37%",
-          "rs_spy": "-4.39%"
-        }
+      "claims": [],
+      "unavailable": [
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     },
     "cross_asset": {
-      "claims": [
-        {
-          "text": "DXY -28bps, 10y +5bps. Divergence suggests risk appetite, not safe-haven.",
-          "sources": [
-            {
-              "name": "FRED USD Index",
-              "url": "https://fred.stlouisfed.org/series/DTWEXBGS",
-              "fetched_at": "2026-05-11T13:51:27Z",
-              "value": "118.3926"
-            }
-          ]
-        },
-        {
-          "text": "Gold +5.1% W1W to $4,750. Reflects USD weakness and real-rate concerns.",
-          "sources": [
-            {
-              "name": "Yahoo Finance GC=F Gold",
-              "url": "https://finance.yahoo.com/quote/GC=F",
-              "fetched_at": "2026-05-11T13:51:30Z",
-              "value": "4750.0"
-            }
-          ]
-        },
-        {
-          "text": "WTI -9.02% W1W despite +1.47% today. Supply glut or demand recession fears.",
-          "sources": [
-            {
-              "name": "Yahoo Finance CL=F WTI Crude",
-              "url": "https://finance.yahoo.com/quote/CL=F",
-              "fetched_at": "2026-05-11T13:51:30Z",
-              "value": "96.82"
-            }
-          ]
-        },
-        {
-          "text": "VIX +6.4% today to 18.29. Uptick but not elevated; positioning constructive.",
-          "sources": [
-            {
-              "name": "Yahoo Finance VIX",
-              "url": "https://finance.yahoo.com/quote/^VIX",
-              "fetched_at": "2026-05-11T13:51:30Z",
-              "value": "18.29"
-            }
-          ]
-        }
-      ],
-      "unavailable": [],
-      "assets": [
-        {
-          "name": "US 10Y Yield",
-          "symbol": "DGS10",
-          "last": "4.41",
-          "d1": "+5bps",
-          "w1": "+5bps",
-          "source": "FRED"
-        },
-        {
-          "name": "USD Index",
-          "symbol": "DTWEXBGS",
-          "last": "118.39",
-          "d1": "-2.8bps",
-          "w1": "-28bps",
-          "source": "FRED"
-        },
-        {
-          "name": "Gold",
-          "symbol": "GC=F",
-          "last": "4750",
-          "d1": "+0.63%",
-          "w1": "+5.10%",
-          "source": "Yahoo"
-        },
-        {
-          "name": "WTI",
-          "symbol": "CL=F",
-          "last": "96.82",
-          "d1": "+1.47%",
-          "w1": "-9.02%",
-          "source": "Yahoo"
-        },
-        {
-          "name": "VIX",
-          "symbol": "VIX",
-          "last": "18.29",
-          "d1": "+6.40%",
-          "w1": "0.00%",
-          "source": "Yahoo"
-        }
+      "claims": [],
+      "unavailable": [
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     },
     "crypto": {
-      "claims": [
-        {
-          "text": "BTC dominance 58.27%, flat. ETH/BTC 0.0287 signals modest ETH outperformance.",
-          "sources": [
-            {
-              "name": "CoinGecko Global Market Data",
-              "url": "https://www.coingecko.com/en/global-charts",
-              "fetched_at": "2026-05-11T13:51:31Z",
-              "value": "58.27"
-            }
-          ]
-        },
-        {
-          "text": "BTC 80992 (+0.05% D1), ETH 2322 (-0.27% D1). SOL +1.49%, XRP +1.99%.",
-          "sources": [
-            {
-              "name": "CoinGecko Simple Price",
-              "url": "https://www.coingecko.com/en/coins/bitcoin",
-              "fetched_at": "2026-05-11T13:51:31Z",
-              "value": "80992"
-            }
-          ]
-        },
-        {
-          "text": "Stablecoin supply 320.6B. USDT dominance ~59%, USDC ~24%.",
-          "sources": [
-            {
-              "name": "DefiLlama Stablecoins",
-              "url": "https://defillama.com/stablecoins",
-              "fetched_at": "2026-05-11T13:51:31Z",
-              "value": "320609014077"
-            }
-          ]
-        },
-        {
-          "text": "Market cap 2.78T, +0.06% D1. Volume 107.4B/24h. Risk appetite muted.",
-          "sources": [
-            {
-              "name": "CoinGecko Global Market Data",
-              "url": "https://www.coingecko.com/en/global-charts",
-              "fetched_at": "2026-05-11T13:51:31Z",
-              "value": "2783872971803"
-            }
-          ]
-        }
-      ],
+      "claims": [],
       "unavailable": [
-        "Bybit perps: 403 Forbidden",
-        "Coinalyze L/S: header error"
-      ],
-      "metrics": [
-        {
-          "name": "Bitcoin Price",
-          "value": "80992",
-          "delta": "+0.05%",
-          "source": "CoinGecko"
-        },
-        {
-          "name": "Ethereum Price",
-          "value": "2322",
-          "delta": "-0.27%",
-          "source": "CoinGecko"
-        },
-        {
-          "name": "BTC Dominance",
-          "value": "58.27%",
-          "delta": "flat",
-          "source": "CoinGecko"
-        },
-        {
-          "name": "Stablecoin Supply",
-          "value": "320.6B",
-          "delta": "N/A",
-          "source": "DefiLlama"
-        }
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     },
     "sentiment": {
-      "claims": [
-        {
-          "text": "AAII bullish 38.3%, bearish 33.0% May 7. Bull-bear +5.3pp\u2014neutral.",
-          "sources": [
-            {
-              "name": "AAII Investor Sentiment",
-              "url": "https://www.aaii.com/sentimentsurvey/sent_results",
-              "fetched_at": "2026-05-11T13:51:36Z",
-              "value": "38.3"
-            }
-          ]
-        },
-        {
-          "text": "Fear & Greed 48 Neutral. Not euphoric; prudent risk-on.",
-          "sources": [
-            {
-              "name": "alternative.me Crypto Fear Greed",
-              "url": "https://alternative.me/crypto/fear-and-greed-index/",
-              "fetched_at": "2026-05-11T13:51:36Z",
-              "value": "48"
-            }
-          ]
-        },
-        {
-          "text": "CBOE put/call 0.74 May 8. Below 1.0 signals call demand; retail bullish.",
-          "sources": [
-            {
-              "name": "CBOE Daily Volume",
-              "url": "https://www.cboe.com/us/options/market_statistics/daily/",
-              "fetched_at": "2026-05-11T13:51:39Z",
-              "value": "0.74"
-            }
-          ]
-        }
-      ],
+      "claims": [],
       "unavailable": [
-        "Coinalyze L/S: header error"
-      ],
-      "gauges": [
-        {
-          "name": "AAII Bullish",
-          "value": "38.3%",
-          "extreme": null,
-          "as_of": "2026-05-07"
-        },
-        {
-          "name": "AAII Bearish",
-          "value": "33.0%",
-          "extreme": null,
-          "as_of": "2026-05-07"
-        },
-        {
-          "name": "Fear Greed Index",
-          "value": "48",
-          "extreme": null,
-          "as_of": "2026-05-11"
-        },
-        {
-          "name": "Put/Call Ratio",
-          "value": "0.74",
-          "extreme": "bullish",
-          "as_of": "2026-05-08"
-        }
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     },
     "seasonality": {
-      "claims": [
-        {
-          "text": "Week 20 SPY: -0.02% mean return 10yr, 40% win rate. Weak seasonally.",
-          "sources": [
-            {
-              "name": "Yahoo Finance SPY 10y History",
-              "url": "https://finance.yahoo.com/quote/SPY/history",
-              "fetched_at": "2026-05-11T13:51:39Z",
-              "value": "-0.02"
-            }
-          ]
-        },
-        {
-          "text": "Week 20 BTC: +1.78% mean return 10yr, 60% win rate. Outperforms equities.",
-          "sources": [
-            {
-              "name": "Yahoo Finance BTC-USD 10y History",
-              "url": "https://finance.yahoo.com/quote/BTC-USD/history",
-              "fetched_at": "2026-05-11T13:51:39Z",
-              "value": "1.78"
-            }
-          ]
-        }
+      "claims": [],
+      "unavailable": [
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ],
-      "unavailable": [],
-      "lookback_years": 10,
-      "sample_size": 10
+      "lookback_years": 0,
+      "sample_size": 0
     },
     "narratives": {
-      "claims": [
-        {
-          "text": "AI infrastructure Nvidia AMD Meta capex dominates headlines. Tech bullish.",
-          "sources": [
-            {
-              "name": "Google News AI infrastructure",
-              "url": "https://news.google.com/",
-              "fetched_at": "2026-05-11T13:51:40Z",
-              "value": "Nvidia AMD capex"
-            }
-          ]
-        },
-        {
-          "text": "RWA tokenization BlackRock JPMorgan attracting institutional flow.",
-          "sources": [
-            {
-              "name": "Google News RWA tokenization",
-              "url": "https://news.google.com/",
-              "fetched_at": "2026-05-11T13:51:40Z",
-              "value": "BlackRock JPMorgan"
-            }
-          ]
-        },
-        {
-          "text": "Stablecoin regulation CLARITY Act May 14 vote. Bullish for USDC/USDT.",
-          "sources": [
-            {
-              "name": "Google News Stablecoin regulation",
-              "url": "https://news.google.com/",
-              "fetched_at": "2026-05-11T13:51:41Z",
-              "value": "CLARITY Act"
-            }
-          ]
-        }
-      ],
-      "unavailable": [],
-      "items": [
-        {
-          "theme": "AI capex cycle",
-          "flow_confirms": true,
-          "evidence": "XLK +24% YTD"
-        },
-        {
-          "theme": "RWA tokenization",
-          "flow_confirms": null,
-          "evidence": "Chatter-driven"
-        },
-        {
-          "theme": "Stablecoin regulation",
-          "flow_confirms": false,
-          "evidence": "No TVL surge"
-        }
+      "claims": [],
+      "unavailable": [
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     },
     "watch_next": {
       "claims": [],
       "unavailable": [
-        "ForexFactory macro: empty",
-        "Farside BTC ETF: 403",
-        "CoinMarketCal: 403"
-      ],
-      "events": [
-        {
-          "when": "2026-05-12",
-          "event": "NU SE JD earnings",
-          "type": "earnings",
-          "source_name": "Nasdaq",
-          "source_url": "https://www.nasdaq.com/market-activity/earnings"
-        },
-        {
-          "when": "2026-05-13",
-          "event": "CSCO BABA earnings",
-          "type": "earnings",
-          "source_name": "Nasdaq",
-          "source_url": "https://www.nasdaq.com/market-activity/earnings"
-        },
-        {
-          "when": "2026-05-14",
-          "event": "CLARITY Act Senate vote stablecoin",
-          "type": "regulatory",
-          "source_name": "Google News",
-          "source_url": "https://news.google.com/"
-        }
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     },
     "crypto_rotation": {
-      "claims": [
-        {
-          "text": "Lending received 17.2B inflow 24h, largest flow. Institutional yield seeking.",
-          "sources": [
-            {
-              "name": "DefiLlama Categories",
-              "url": "https://defillama.com/categories",
-              "fetched_at": "2026-05-11T13:51:31Z",
-              "value": "17236839790"
-            }
-          ]
-        },
-        {
-          "text": "CEX dominance 51.3% TVL 287.6B, +1.43B inflow 24h. Exchange consolidation.",
-          "sources": [
-            {
-              "name": "DefiLlama Categories",
-              "url": "https://defillama.com/categories",
-              "fetched_at": "2026-05-11T13:51:31Z",
-              "value": "287587332414"
-            }
-          ]
-        },
-        {
-          "text": "Ethereum 53.4% dominance, +0.72% D1. Solana +6.36% W1W; memecoin + DeFi.",
-          "sources": [
-            {
-              "name": "DefiLlama Top Chains",
-              "url": "https://defillama.com/chains",
-              "fetched_at": "2026-05-11T13:51:32Z",
-              "value": "53.41"
-            }
-          ]
-        }
-      ],
-      "unavailable": [],
-      "sectors": [
-        {
-          "category": "Lending",
-          "tvl_usd_str": "43.4B",
-          "share_pct": "7.74%",
-          "chg_24h_pct": "53114%",
-          "chg_7d_pct": "855%",
-          "flow_24h_str": "17.2B",
-          "flow_direction": "in"
-        },
-        {
-          "category": "CEX",
-          "tvl_usd_str": "287.6B",
-          "share_pct": "51.32%",
-          "chg_24h_pct": "4.54%",
-          "chg_7d_pct": "2.11%",
-          "flow_24h_str": "1.43B",
-          "flow_direction": "in"
-        },
-        {
-          "category": "Liquid Staking",
-          "tvl_usd_str": "43.1B",
-          "share_pct": "7.68%",
-          "chg_24h_pct": "1.11%",
-          "chg_7d_pct": "11.79%",
-          "flow_24h_str": "288M",
-          "flow_direction": "in"
-        }
-      ],
-      "chains": [
-        {
-          "name": "Ethereum",
-          "tvl_usd_str": "45.96B",
-          "dominance_pct": "53.41%",
-          "chg_24h_pct": "0.72%",
-          "chg_7d_pct": "0.12%",
-          "chg_30d_pct": "-15.83%"
-        },
-        {
-          "name": "Solana",
-          "tvl_usd_str": "5.85B",
-          "dominance_pct": "6.79%",
-          "chg_24h_pct": "1.16%",
-          "chg_7d_pct": "6.36%",
-          "chg_30d_pct": "1.02%"
-        },
-        {
-          "name": "BSC",
-          "tvl_usd_str": "5.66B",
-          "dominance_pct": "6.58%",
-          "chg_24h_pct": "1.00%",
-          "chg_7d_pct": "3.36%",
-          "chg_30d_pct": "3.06%"
-        }
+      "claims": [],
+      "unavailable": [
+        "claude_synthesis_failed: claude synthesis failed after retries: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CavtyhSKDA77QH5BiTUY5'}; last_raw_len=0"
       ]
     }
   },
@@ -657,15 +73,15 @@
     "fred_DGS10": {
       "source": "FRED US 10-Year Treasury Yield",
       "source_url": "https://fred.stlouisfed.org/series/DGS10",
-      "fetched_at": "2026-05-11T13:51:26Z",
-      "age_hours": 0.0,
+      "fetched_at": "2026-05-11T13:55:27Z",
+      "age_hours": -0.0,
       "ok": true,
       "note": null
     },
     "fred_DGS2": {
       "source": "FRED US 2-Year Treasury Yield",
       "source_url": "https://fred.stlouisfed.org/series/DGS2",
-      "fetched_at": "2026-05-11T13:51:27Z",
+      "fetched_at": "2026-05-11T13:55:27Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -673,7 +89,7 @@
     "fred_DTWEXBGS": {
       "source": "FRED USD Index (Trade-Weighted Broad)",
       "source_url": "https://fred.stlouisfed.org/series/DTWEXBGS",
-      "fetched_at": "2026-05-11T13:51:27Z",
+      "fetched_at": "2026-05-11T13:55:27Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -681,7 +97,7 @@
     "fred_CPIAUCSL": {
       "source": "FRED US CPI",
       "source_url": "https://fred.stlouisfed.org/series/CPIAUCSL",
-      "fetched_at": "2026-05-11T13:51:27Z",
+      "fetched_at": "2026-05-11T13:55:27Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -689,7 +105,7 @@
     "fred_PCEPI": {
       "source": "FRED US PCE Price Index",
       "source_url": "https://fred.stlouisfed.org/series/PCEPI",
-      "fetched_at": "2026-05-11T13:51:27Z",
+      "fetched_at": "2026-05-11T13:55:27Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -697,7 +113,7 @@
     "fred_PAYEMS": {
       "source": "FRED US Nonfarm Payrolls",
       "source_url": "https://fred.stlouisfed.org/series/PAYEMS",
-      "fetched_at": "2026-05-11T13:51:28Z",
+      "fetched_at": "2026-05-11T13:55:27Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -705,7 +121,7 @@
     "fred_BAMLH0A0HYM2": {
       "source": "FRED US HY OAS Spread",
       "source_url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
-      "fetched_at": "2026-05-11T13:51:29Z",
+      "fetched_at": "2026-05-11T13:55:29Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -713,7 +129,7 @@
     "fred_DFF": {
       "source": "FRED Fed Funds Effective Rate",
       "source_url": "https://fred.stlouisfed.org/series/DFF",
-      "fetched_at": "2026-05-11T13:51:29Z",
+      "fetched_at": "2026-05-11T13:55:30Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -721,7 +137,7 @@
     "yf_SPY": {
       "source": "Yahoo Finance \u00b7 SPY (S&P 500 (benchmark))",
       "source_url": "https://finance.yahoo.com/quote/SPY",
-      "fetched_at": "2026-05-11T13:51:29Z",
+      "fetched_at": "2026-05-11T13:55:30Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -729,7 +145,7 @@
     "yf_XLK": {
       "source": "Yahoo Finance \u00b7 XLK (Technology)",
       "source_url": "https://finance.yahoo.com/quote/XLK",
-      "fetched_at": "2026-05-11T13:51:29Z",
+      "fetched_at": "2026-05-11T13:55:30Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -737,7 +153,7 @@
     "yf_XLF": {
       "source": "Yahoo Finance \u00b7 XLF (Financials)",
       "source_url": "https://finance.yahoo.com/quote/XLF",
-      "fetched_at": "2026-05-11T13:51:29Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -745,7 +161,7 @@
     "yf_XLE": {
       "source": "Yahoo Finance \u00b7 XLE (Energy)",
       "source_url": "https://finance.yahoo.com/quote/XLE",
-      "fetched_at": "2026-05-11T13:51:29Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -753,7 +169,7 @@
     "yf_XLV": {
       "source": "Yahoo Finance \u00b7 XLV (Health Care)",
       "source_url": "https://finance.yahoo.com/quote/XLV",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -761,7 +177,7 @@
     "yf_XLI": {
       "source": "Yahoo Finance \u00b7 XLI (Industrials)",
       "source_url": "https://finance.yahoo.com/quote/XLI",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -769,7 +185,7 @@
     "yf_XLU": {
       "source": "Yahoo Finance \u00b7 XLU (Utilities)",
       "source_url": "https://finance.yahoo.com/quote/XLU",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -777,7 +193,7 @@
     "yf_XLB": {
       "source": "Yahoo Finance \u00b7 XLB (Materials)",
       "source_url": "https://finance.yahoo.com/quote/XLB",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -785,7 +201,7 @@
     "yf_XLY": {
       "source": "Yahoo Finance \u00b7 XLY (Consumer Discretionary)",
       "source_url": "https://finance.yahoo.com/quote/XLY",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:31Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -793,7 +209,7 @@
     "yf_XLP": {
       "source": "Yahoo Finance \u00b7 XLP (Consumer Staples)",
       "source_url": "https://finance.yahoo.com/quote/XLP",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -801,7 +217,7 @@
     "yf_XLRE": {
       "source": "Yahoo Finance \u00b7 XLRE (Real Estate)",
       "source_url": "https://finance.yahoo.com/quote/XLRE",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -809,7 +225,7 @@
     "yf_XLC": {
       "source": "Yahoo Finance \u00b7 XLC (Communication Services)",
       "source_url": "https://finance.yahoo.com/quote/XLC",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -817,7 +233,7 @@
     "yf_^VIX": {
       "source": "Yahoo Finance \u00b7 ^VIX (CBOE Volatility Index)",
       "source_url": "https://finance.yahoo.com/quote/^VIX",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -825,7 +241,7 @@
     "yf_GC=F": {
       "source": "Yahoo Finance \u00b7 GC=F (Gold (continuous))",
       "source_url": "https://finance.yahoo.com/quote/GC=F",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -833,7 +249,7 @@
     "yf_CL=F": {
       "source": "Yahoo Finance \u00b7 CL=F (WTI Crude (continuous))",
       "source_url": "https://finance.yahoo.com/quote/CL=F",
-      "fetched_at": "2026-05-11T13:51:30Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -841,7 +257,7 @@
     "cg_global": {
       "source": "CoinGecko Global Market Data",
       "source_url": "https://www.coingecko.com/en/global-charts",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -849,7 +265,7 @@
     "cg_prices": {
       "source": "CoinGecko Simple Price",
       "source_url": "https://www.coingecko.com/en/coins/bitcoin",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:32Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -857,7 +273,7 @@
     "bybit_perps": {
       "source": "Bybit Perps",
       "source_url": "https://www.bybit.com/derivatives/usdt-perpetual",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": false,
       "note": "403 Client Error: Forbidden for url: https://api.bybit.com/v5/market/tickers?category=linear"
@@ -865,7 +281,7 @@
     "dl_stables": {
       "source": "DefiLlama Stablecoins",
       "source_url": "https://defillama.com/stablecoins",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -873,7 +289,7 @@
     "coinalyze_ls": {
       "source": "Coinalyze L/S",
       "source_url": "https://coinalyze.net/long-short-ratio/",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": false,
       "note": "Invalid leading whitespace, reserved character(s), or return character(s) in header value: 'a9d22afe-8cdc-4dc3-a3d0-2077d0a75543\\n'"
@@ -881,7 +297,7 @@
     "farside_btc": {
       "source": "Farside BTC ETF flows",
       "source_url": "https://farside.co.uk/bitcoin-etf-flow-all-data/",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": false,
       "note": "403 Client Error: Forbidden for url: https://farside.co.uk/bitcoin-etf-flow-all-data/"
@@ -889,7 +305,7 @@
     "farside_eth": {
       "source": "Farside ETH ETF flows",
       "source_url": "https://farside.co.uk/ethereum-etf-flow-all-data/",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": false,
       "note": "403 Client Error: Forbidden for url: https://farside.co.uk/ethereum-etf-flow-all-data/"
@@ -897,7 +313,7 @@
     "dl_sectors": {
       "source": "DefiLlama Categories (sector rotation)",
       "source_url": "https://defillama.com/categories",
-      "fetched_at": "2026-05-11T13:51:31Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -905,7 +321,7 @@
     "dl_chains_top": {
       "source": "DefiLlama \u00b7 Top Chains by TVL",
       "source_url": "https://defillama.com/chains",
-      "fetched_at": "2026-05-11T13:51:32Z",
+      "fetched_at": "2026-05-11T13:55:33Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -913,7 +329,7 @@
     "fng": {
       "source": "alternative.me \u00b7 Crypto Fear & Greed",
       "source_url": "https://alternative.me/crypto/fear-and-greed-index/",
-      "fetched_at": "2026-05-11T13:51:36Z",
+      "fetched_at": "2026-05-11T13:55:35Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -921,7 +337,7 @@
     "aaii": {
       "source": "AAII Investor Sentiment Survey",
       "source_url": "https://www.aaii.com/sentimentsurvey/sent_results",
-      "fetched_at": "2026-05-11T13:51:36Z",
+      "fetched_at": "2026-05-11T13:55:35Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -929,7 +345,7 @@
     "cot_financial": {
       "source": "CFTC Commitments of Traders (Financial Futures, weekly)",
       "source_url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/",
-      "fetched_at": "2026-05-11T13:51:36Z",
+      "fetched_at": "2026-05-11T13:55:35Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -937,7 +353,7 @@
     "cboe_pc": {
       "source": "CBOE Daily Volume Statistics",
       "source_url": "https://www.cboe.com/us/options/market_statistics/daily/",
-      "fetched_at": "2026-05-11T13:51:39Z",
+      "fetched_at": "2026-05-11T13:55:38Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -945,7 +361,7 @@
     "seasonality_SPY": {
       "source": "Yahoo Finance \u00b7 SPY 10y History (computed)",
       "source_url": "https://finance.yahoo.com/quote/SPY/history",
-      "fetched_at": "2026-05-11T13:51:39Z",
+      "fetched_at": "2026-05-11T13:55:38Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -953,7 +369,7 @@
     "seasonality_BTC-USD": {
       "source": "Yahoo Finance \u00b7 BTC-USD 10y History (computed)",
       "source_url": "https://finance.yahoo.com/quote/BTC-USD/history",
-      "fetched_at": "2026-05-11T13:51:39Z",
+      "fetched_at": "2026-05-11T13:55:38Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -961,7 +377,7 @@
     "gnews_ai_infrastructure": {
       "source": "Google News \u00b7 AI infrastructure",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:40Z",
+      "fetched_at": "2026-05-11T13:55:39Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -969,7 +385,7 @@
     "gnews_rwa_tokenization": {
       "source": "Google News \u00b7 RWA tokenization",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:40Z",
+      "fetched_at": "2026-05-11T13:55:39Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -977,7 +393,7 @@
     "gnews_stablecoin_regulation": {
       "source": "Google News \u00b7 Stablecoin regulation",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:41Z",
+      "fetched_at": "2026-05-11T13:55:40Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -985,7 +401,7 @@
     "gnews_bitcoin_etf_flows": {
       "source": "Google News \u00b7 Bitcoin ETF flows",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:41Z",
+      "fetched_at": "2026-05-11T13:55:40Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -993,7 +409,7 @@
     "gnews_ethereum_upgrade": {
       "source": "Google News \u00b7 Ethereum upgrade",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:42Z",
+      "fetched_at": "2026-05-11T13:55:41Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -1001,7 +417,7 @@
     "gnews_memecoin_season": {
       "source": "Google News \u00b7 Memecoin season",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:42Z",
+      "fetched_at": "2026-05-11T13:55:41Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -1009,7 +425,7 @@
     "gnews_uranium___nuclear": {
       "source": "Google News \u00b7 Uranium / nuclear",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:42Z",
+      "fetched_at": "2026-05-11T13:55:41Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -1017,7 +433,7 @@
     "gnews_glp-1___weight-loss_drugs": {
       "source": "Google News \u00b7 GLP-1 / weight-loss drugs",
       "source_url": "https://news.google.com/",
-      "fetched_at": "2026-05-11T13:51:43Z",
+      "fetched_at": "2026-05-11T13:55:42Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -1025,7 +441,7 @@
     "dl_categories": {
       "source": "DefiLlama TVL by Category",
       "source_url": "https://defillama.com/protocols",
-      "fetched_at": "2026-05-11T13:51:43Z",
+      "fetched_at": "2026-05-11T13:55:42Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -1033,7 +449,7 @@
     "ff_calendar": {
       "source": "ForexFactory Macro Calendar (USD high+med impact, 14d)",
       "source_url": "https://www.forexfactory.com/calendar",
-      "fetched_at": "2026-05-11T13:51:43Z",
+      "fetched_at": "2026-05-11T13:55:42Z",
       "age_hours": -0.0,
       "ok": true,
       "note": null
@@ -1041,7 +457,7 @@
     "nasdaq_earnings": {
       "source": "Nasdaq Earnings Calendar",
       "source_url": "https://www.nasdaq.com/market-activity/earnings",
-      "fetched_at": "2026-05-11T13:52:10Z",
+      "fetched_at": "2026-05-11T13:56:12Z",
       "age_hours": -0.01,
       "ok": true,
       "note": null
@@ -1049,7 +465,7 @@
     "sec_8k": {
       "source": "SEC EDGAR \u00b7 Recent 8-K Filings",
       "source_url": "https://www.sec.gov/cgi-bin/browse-edgar",
-      "fetched_at": "2026-05-11T13:52:10Z",
+      "fetched_at": "2026-05-11T13:56:12Z",
       "age_hours": -0.01,
       "ok": true,
       "note": null
@@ -1057,16 +473,12 @@
     "cmc_calendar": {
       "source": "CoinMarketCal Events",
       "source_url": "https://coinmarketcal.com/",
-      "fetched_at": "2026-05-11T13:52:10Z",
+      "fetched_at": "2026-05-11T13:56:12Z",
       "age_hours": -0.01,
       "ok": false,
       "note": "403 Client Error: Forbidden for url: https://coinmarketcal.com/rss/feed.atom"
     }
   },
   "pdf_url": "js/data/market_intel.pdf",
-  "model": {
-    "name": "claude-haiku-4-5",
-    "input_tokens": 47170,
-    "output_tokens": 6011
-  }
+  "model": null
 }

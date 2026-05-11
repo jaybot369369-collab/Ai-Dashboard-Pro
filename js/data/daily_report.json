@@ -1,281 +1,345 @@
 {
-  "generated": "2026-05-08T04:31:08.411203Z",
-  "date": "2026-05-08",
-  "weekday": "Friday",
-  "context": "Bitcoin and altcoins consolidate near weekly lows as the market awaits Senate CLARITY Act markup proceedings. Regulatory tailwinds from the White House crypto agenda provide fundamental support, but near-term price action remains range-bound with modest negative momentum across major cryptos.",
+  "generated": "2026-05-11T12:05:55.582006Z",
+  "date": "2026-05-11",
+  "weekday": "Monday",
+  "context": "Bitcoin holds steady above $81k as Senate prepares to consider the CLARITY Act this week, potentially reshaping US crypto regulation. XRP surges 2.56% on institutional accumulation signals and the prospect of regulatory clarity. Market breadth remains positive with modest volume across major exchanges.",
   "tickers": [
     {
       "sym": "BTC",
-      "price": "$79,693",
-      "chg24": "-1.55%",
-      "chg7": "-2.40%",
-      "vol": "$38.44Bn",
-      "mcap": "$1.60Tn",
-      "bias": "NEUTRAL",
+      "price": "$81,155",
+      "chg24": "+0.44%",
+      "chg7": "+2.18%",
+      "vol": "$35.1Bn",
+      "mcap": "$1.63Tn",
+      "bias": "LONG",
       "priority": "HIGH",
-      "thesis": "BTC consolidates in a narrow band amid legislative optimism; ICT Order Flow Dynamics show institutional buyers defending key support zones. Breakthrough above $81,500 targets $84,200; breakdown below $77,900 risks a deeper correction into the $75,000 zone.",
+      "thesis": "BTC consolidating above key support as macro backdrop improves; Senate CLARITY Act vote expected mid-week provides bullish catalyst. ICT OTE setup favors continuation above $80k with potential run toward $84-85k supply zone.",
       "levels": [
         [
           "Resistance 2",
-          "$84,200",
-          "Prior swing high; breakout target"
+          "$84,500",
+          "Major supply cluster"
         ],
         [
           "Resistance 1",
-          "$81,500",
-          "Weekly supply node; key rejection zone"
+          "$82,800",
+          "Weekly high confluence"
         ],
         [
           "Spot Price",
-          "$79,693",
+          "$81,155",
           "Current price"
         ],
         [
           "Support 1",
-          "$77,900",
-          "ICT demand zone; Order Block"
+          "$79,600",
+          "Daily MA200 proxy"
         ],
         [
           "Support 2",
-          "$75,000",
-          "Market structure support; macro pivot"
+          "$77,200",
+          "Weekly demand zone"
         ],
         [
           "Support 3",
+          "$74,800",
+          "Breaker block"
+        ],
+        [
+          "Support 4",
           "$72,500",
-          "Extended support on monthly timeframe"
+          "Monthly open"
         ]
       ],
       "setup": {
-        "entry": "$78,500\u2013$79,200 (accumulation zone above support 1)",
-        "stop": "$77,200 (below Order Block low)",
-        "tp1": "$81,500 (resistance 1; TP ratio 1:1)",
-        "tp2": "$84,200 (resistance 2; TP ratio 1:2.5)",
-        "invalidation": "Break and close below $77,200 invalidates bullish structure"
+        "entry": "$80,500\u2013$81,200",
+        "stop": "$79,300 (breach of daily structure)",
+        "tp1": "$83,500",
+        "tp2": "$85,200",
+        "invalidation": "Close below $79,000 on daily"
       },
       "catalysts": [
-        "CLARITY Act Senate markup timing (expected early June; July 4 target per White House)",
-        "ETF inflows/outflows; institutional accumulation above $78,000",
-        "Macro risk-off from broader equities; USD strength volatility",
-        "CME Options positioning shifts; put-heavy bias may support call buyers",
-        "Fed commentary on rate trajectory; inflation data releases mid-month"
+        "Senate CLARITY Act markup scheduled May 14; passage would de-risk regulatory environment",
+        "CME OI positioning suggests institutional interest remains defensive; capitulation could trigger rally",
+        "US Treasury and Fed speakers throughout week; any dovish signals boost risk appetite",
+        "Potential ETF inflows if macro data softens expectations for rates",
+        "Technical break above $82k targets $85k supply zone with momentum"
       ],
       "liq_above": [
         [
-          "H1",
-          "$82,100",
-          "Intraday supply; stops above weekly resistance"
+          "Daily",
+          "$83,200",
+          "Stops above resistance"
         ],
         [
-          "Daily",
-          "$84,500",
-          "Swing high liquidity cluster"
+          "4H",
+          "$82,600",
+          "Sweep liquidity"
+        ],
+        [
+          "1H",
+          "$81,800",
+          "Minor cluster"
         ]
       ],
       "liq_below": [
         [
-          "H1",
-          "$77,600",
-          "Order Block stop liquidity"
+          "Daily",
+          "$79,800",
+          "Stops below support"
         ],
         [
-          "Daily",
-          "$75,300",
-          "Weekly demand zone liquidity pool"
+          "4H",
+          "$79,200",
+          "Key MM level"
+        ],
+        [
+          "1H",
+          "$78,500",
+          "Order block"
         ]
       ],
       "charts": {
-        "daily": "charts/BTC_0508_d.png",
-        "h1": "charts/BTC_0508_h.png",
-        "m15": "charts/BTC_0508_m.png"
+        "daily": "charts/BTC_0511_d.png",
+        "h1": "charts/BTC_0511_h.png",
+        "m15": "charts/BTC_0511_m.png"
       }
     },
     {
       "sym": "ETH",
-      "price": "$2,281.53",
-      "chg24": "-1.93%",
-      "chg7": "-3.15%",
-      "vol": "$20.47Bn",
-      "mcap": "$275.34Bn",
+      "price": "$2,333",
+      "chg24": "+0.50%",
+      "chg7": "+1.92%",
+      "vol": "$19.8Bn",
+      "mcap": "$281.9Bn",
       "bias": "NEUTRAL",
-      "priority": "HIGH",
-      "thesis": "Ethereum underperforms BTC on the week, testing ICT Order Block support near $2,200. Bullish divergence on lower timeframes suggests buyers may defend this zone; reclaim of $2,350+ needed to confirm upside continuation into $2,450.",
+      "priority": "MEDIUM",
+      "thesis": "Ethereum trading sideways as BTC leadership dominates; outperformance emerges only on institutional demand. ICT structure suggests range-bound consolidation between $2,200\u2013$2,500 until macro catalyst triggers directional break.",
       "levels": [
         [
           "Resistance 2",
-          "$2,450",
-          "Weekly swing high; breakout target"
+          "$2,550",
+          "Monthly supply"
         ],
         [
           "Resistance 1",
-          "$2,350",
-          "Intraday supply; key rejection zone"
+          "$2,420",
+          "Weekly high"
         ],
         [
           "Spot Price",
-          "$2,281.53",
+          "$2,333",
           "Current price"
         ],
         [
           "Support 1",
-          "$2,200",
-          "ICT Order Block; demand zone"
+          "$2,240",
+          "Daily MA50"
         ],
         [
           "Support 2",
           "$2,100",
-          "Weekly demand support"
+          "Weekly demand zone"
         ],
         [
           "Support 3",
-          "$2,000",
-          "Extended support; macro pivot"
+          "$1,950",
+          "Breaker block"
+        ],
+        [
+          "Support 4",
+          "$1,800",
+          "Monthly open"
         ]
       ],
       "setup": {
-        "entry": "$2,220\u2013$2,270 (accumulation above support 1)",
-        "stop": "$2,170 (below Order Block low)",
-        "tp1": "$2,350 (resistance 1; TP ratio 1:1)",
-        "tp2": "$2,450 (resistance 2; TP ratio 1:2)",
-        "invalidation": "Close below $2,170 invalidates bullish setup"
+        "entry": "$2,280\u2013$2,320 (if BTC confirms above $81.5k)",
+        "stop": "$2,180 (breach of daily support)",
+        "tp1": "$2,420",
+        "tp2": "$2,500",
+        "invalidation": "Close below $2,150 on daily"
       },
       "catalysts": [
-        "Ethereum staking rate changes; network upgrade anticipation",
-        "Altseason rotation; relative strength vs. BTC",
-        "DeFi TVL trends and yield farming incentives",
-        "Layer 2 scaling adoption; institutional Ethereum inflows",
-        "Macro risk sentiment; correlation to tech equity indices"
+        "CLARITY Act passage would benefit DeFi ecosystem and institutional Ethereum adoption",
+        "Ethereum staking flows remain positive; any yield-bearing products get boost from regulatory clarity",
+        "Bitcoin dominance compression in risk-on scenarios typically lifts ETH beta",
+        "Shanghai upgrade anniversary sentiment remains constructive mid-term",
+        "Layer 2 TVL expansion and institutional demand remain key undercurrents"
       ],
       "liq_above": [
         [
-          "H1",
-          "$2,380",
-          "Intraday supply cluster"
+          "Daily",
+          "$2,450",
+          "Stops above resistance"
         ],
         [
-          "Daily",
-          "$2,500",
-          "Weekly resistance liquidity"
+          "4H",
+          "$2,380",
+          "Sweep liquidity"
+        ],
+        [
+          "1H",
+          "$2,340",
+          "Minor cluster"
         ]
       ],
       "liq_below": [
         [
-          "H1",
-          "$2,180",
-          "Order Block stop loss cluster"
+          "Daily",
+          "$2,220",
+          "Stops below support"
         ],
         [
-          "Daily",
-          "$2,050",
-          "Weekly demand liquidity pool"
+          "4H",
+          "$2,180",
+          "Key MM level"
+        ],
+        [
+          "1H",
+          "$2,120",
+          "Order block"
         ]
       ],
       "charts": {
-        "daily": "charts/ETH_0508_d.png",
-        "h1": "charts/ETH_0508_h.png",
-        "m15": "charts/ETH_0508_m.png"
+        "daily": "charts/ETH_0511_d.png",
+        "h1": "charts/ETH_0511_h.png",
+        "m15": "charts/ETH_0511_m.png"
       }
     },
     {
       "sym": "XRP",
-      "price": "$1.39",
-      "chg24": "-1.58%",
-      "chg7": "-4.22%",
-      "vol": "$1.60Bn",
-      "mcap": "$85.64Bn",
+      "price": "$1.46",
+      "chg24": "+2.56%",
+      "chg7": "+8.34%",
+      "vol": "$3.7Bn",
+      "mcap": "$90.2Bn",
       "bias": "LONG",
-      "priority": "MEDIUM",
-      "thesis": "XRP consolidates after recent whale accumulation (90M XRP moved to Coinbase); Ripple CEO's CLARITY Act urgency signals institutional confidence. ICT FVG below $1.35 provides downside cushion; breakout above $1.48 targets $1.65 on regulatory tailwinds.",
+      "priority": "HIGH",
+      "thesis": "XRP exhibits strong momentum on whale accumulation (190M tokens) and imminent CLARITY Act regulatory tailwind. Institutional supply shock narrative combined with ICT breaker blocks at $1.38\u2013$1.40 suggests continuation toward $1.65\u2013$1.80 resistance cluster.",
       "levels": [
         [
           "Resistance 2",
-          "$1.65",
-          "Prior swing high; extended target"
+          "$1.80",
+          "Major supply cluster"
         ],
         [
           "Resistance 1",
-          "$1.48",
-          "Weekly supply; breakout zone"
+          "$1.65",
+          "Weekly high confluence"
         ],
         [
           "Spot Price",
-          "$1.39",
+          "$1.46",
           "Current price"
         ],
         [
           "Support 1",
-          "$1.35",
-          "ICT Fair Value Gap; demand zone"
+          "$1.38",
+          "Daily breaker block"
         ],
         [
           "Support 2",
           "$1.28",
-          "Weekly support; macro pivot"
+          "Weekly demand zone"
         ],
         [
           "Support 3",
-          "$1.20",
-          "Extended support; institutional buy zone"
+          "$1.15",
+          "Monthly open"
+        ],
+        [
+          "Support 4",
+          "$1.08",
+          "Macro support"
         ]
       ],
       "setup": {
-        "entry": "$1.36\u2013$1.41 (accumulation above FVG)",
-        "stop": "$1.32 (below FVG low)",
-        "tp1": "$1.48 (resistance 1; TP ratio 1:1)",
-        "tp2": "$1.65 (resistance 2; TP ratio 1:2.5)",
-        "invalidation": "Close below $1.32 invalidates bullish bias"
+        "entry": "$1.42\u2013$1.48 (limit buy into dip or market on break above $1.50)",
+        "stop": "$1.32 (breach of breaker block)",
+        "tp1": "$1.65",
+        "tp2": "$1.85",
+        "invalidation": "Close below $1.30 on daily"
       },
       "catalysts": [
-        "CLARITY Act markup and passage odds (Ripple CEO tracking closely)",
-        "Whale accumulation signals; institutional on-ramp via Coinbase",
-        "Ripple ODL corridor expansion; enterprise adoption announcements",
-        "Regulatory clarity premium; XRP use case legitimacy",
-        "Altcoin rotation during risk-on periods; BTC correlation changes"
+        "CLARITY Act Senate markup May 14; Ripple regulatory position improves significantly on passage",
+        "Whale accumulation signals institutional conviction; supply shock incoming if price breaks $1.55",
+        "Gary Gensler SEC regime uncertainty; new chair post-CLARITY Act removes litigation overhang",
+        "Ripple's ODL corridor expansion and CBDC partnerships accelerate on regulatory green light",
+        "Technical momentum break above $1.50 targets $1.80 with potential secondary run to $2.00"
       ],
       "liq_above": [
         [
-          "H1",
-          "$1.50",
-          "Intraday supply; stop cluster"
+          "Daily",
+          "$1.60",
+          "Stops above resistance"
         ],
         [
-          "Daily",
-          "$1.70",
-          "Weekly resistance liquidity"
+          "4H",
+          "$1.55",
+          "Sweep liquidity"
+        ],
+        [
+          "1H",
+          "$1.50",
+          "Minor cluster"
         ]
       ],
       "liq_below": [
         [
-          "H1",
-          "$1.34",
-          "FVG stop loss cluster"
+          "Daily",
+          "$1.35",
+          "Stops below support"
         ],
         [
-          "Daily",
+          "4H",
+          "$1.32",
+          "Key MM level"
+        ],
+        [
+          "1H",
           "$1.25",
-          "Weekly demand liquidity pool"
+          "Order block"
         ]
       ],
       "charts": {
-        "daily": "charts/XRP_0508_d.png",
-        "h1": "charts/XRP_0508_h.png",
-        "m15": "charts/XRP_0508_m.png"
+        "daily": "charts/XRP_0511_d.png",
+        "h1": "charts/XRP_0511_h.png",
+        "m15": "charts/XRP_0511_m.png"
       }
     }
   ],
-  "macro_today": [],
+  "macro_today": [
+    {
+      "date": "05-13 08:30 ET",
+      "name": "US CPI (April)",
+      "impact": "RED",
+      "desc": "Consumer Price Index; core inflation gauge critical for Fed rate path expectations"
+    },
+    {
+      "date": "05-14 09:00 ET",
+      "name": "Senate CLARITY Act Markup Vote",
+      "impact": "RED",
+      "desc": "Committee consideration of landmark crypto regulatory framework; major catalyst for XRP and broader market"
+    },
+    {
+      "date": "05-15 14:00 ET",
+      "name": "US Retail Sales (April)",
+      "impact": "ORANGE",
+      "desc": "Consumer spending gauge; soft data supports risk-on bias for crypto markets"
+    }
+  ],
   "insights": [
     {
-      "title": "CLARITY Act Legislative Momentum Accelerates",
-      "body": "White House targets July 4 passage; Senate Banking Committee prepares markup after months of delays. Ripple CEO warns markup delay risks precipitous drop in passage odds, signaling industry urgency. Regulatory tailwinds support bullish thesis for XRP and broader crypto sector."
+      "title": "CLARITY Act Inflection Point This Week",
+      "body": "Senate markup scheduled May 14 represents a critical macro event for crypto. Passage would eliminate regulatory uncertainty that has plagued the space since 2023 and unlock institutional capital into XRP, DeFi, and Bitcoin. Market is pricing in 70%+ probability of favorable vote based on bipartisan support; failure would trigger 3-5% flash correction."
     },
     {
-      "title": "Institutional Whale Positioning in XRP",
-      "body": "90M XRP tokens moved to Coinbase (mid-April); coupled with Ripple's legislative activism, signals institutional accumulation ahead of CLARITY Act. ICT Order Flow analysis shows demand zone defense at $1.35, supporting near-term upside bias."
+      "title": "XRP Whale Accumulation Signals Supply Shock",
+      "body": "Large holder positioning (190M tokens accumulated recently) combined with thin order book above $1.50 suggests liquidity vacuum ready to fill. ICT analysis confirms breaker block sweep at $1.38\u2013$1.40 followed by institutional run toward $1.80 is highest-conviction setup in current market."
     },
     {
-      "title": "Neutral Bias on BTC/ETH Pending Regulatory Clarity",
-      "body": "Both majors consolidate near weekly lows with modest negative momentum but strong institutional support at Order Blocks. Breakthrough of weekly resistances ($81.5K BTC, $2.35K ETH) likely requires either CLARITY Act markup confirmation or macro risk-off stabilization."
+      "title": "Bitcoin Consolidation Building Base for $85k+ Push",
+      "body": "BTC holding above $81k on modest volume suggests smart money accumulation before macro catalysts. CME OI positioning remains defensive (put-heavy), but breaker block sweep potential and CLARITY Act passage could trigger gamma squeeze into $84\u201385k resistance zone by end of week."
     }
   ]
 }

@@ -52,18 +52,23 @@ const DB = (() => {
     { id: 'tradelog',   label: 'Trade Log',        icon: '📋', builtin: true },
     { id: 'playbook',   label: 'Playbook',         icon: '📖', builtin: true },
     { id: 'rules',      label: 'Rules',            icon: '📜', builtin: true },
-    { id: 'coach',      label: 'Dr. Coach',        icon: '🩺', builtin: true },
+    // 'coach' (Dr. Coach) merged into 'aicoach' on 2026-05-10. Module
+    // kept (CoachTab._renderAlerts/Grading/Catalogue exposed) so AI
+    // Coach can compose those sections.
     { id: 'aicoach',    label: 'AI Coach',         icon: '✨', builtin: true },
     { id: 'goals',      label: 'Goals',            icon: '🎯', builtin: true },
     { id: 'tendencies', label: 'Tendencies',       icon: '🧭', builtin: true },
     { id: 'reports',    label: 'My Reports',       icon: '📑', builtin: true },
     { id: 'liquidity',  label: 'Liquidity Watcher',icon: '🌊', builtin: true },
     { id: 'marketintel',label: 'Market Intel',     icon: '🛰', builtin: true },
-    { id: 'fund',       label: 'Mini-Hedge Fund',  icon: '🏦', builtin: true },
+    { id: 'fund',       label: 'Bot Farm',         icon: '🏦', builtin: true },
+    // 🧙 Sensei was its own tab in v1.0; merged into the Bot Farm tab in
+    // v1.1 (2026-05-10) so the operator sees coach + bot status together.
+    // Tab module + endpoints kept around for fallback / future split.
     { id: 'protools',   label: 'Pro Tools',        icon: '🛠', builtin: true },
   ];
   // Tabs from old versions that should be silently dropped from the sidebar
-  const RETIRED_TAB_IDS = new Set(['journal','analytics','mistakes','strengths','quickstats','watchlist','sbwatcher','scanner']);
+  const RETIRED_TAB_IDS = new Set(['journal','analytics','mistakes','strengths','quickstats','watchlist','sbwatcher','scanner','sensei','coach']);
   function getTabs() {
     const stored = load(KEYS.tabs);
     // Always honor the canonical builtin order from DEFAULT_TABS;
@@ -88,7 +93,12 @@ const DB = (() => {
      TRADES
   ══════════════════════════════════════════════════════ */
   function getTrades() { return load(KEYS.trades) || []; }
-  function saveTrades(arr) { save(KEYS.trades, arr); }
+  function saveTrades(arr) {
+    save(KEYS.trades, arr);
+    // Push to fund-API disk store so this survives localStorage clears.
+    // Debounced inside LocalPersist (2s) — safe to call on every write.
+    if (typeof LocalPersist !== 'undefined') LocalPersist.scheduleSave();
+  }
 
   function addTrade(t) {
     const trades = getTrades();

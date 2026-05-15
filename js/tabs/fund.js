@@ -54,41 +54,17 @@ const FundTab = (() => {
     }
   }
 
-  function _offlineHTML(url) {
-    const remote = !_isLocal();
-    const currentOverride = localStorage.getItem(LS_KEY) || '';
-    if (!remote) {
-      // Local: just show a spinner — auto-retry kicks in, no user action needed
-      return `
-        <div class="lw-offline" style="text-align:center; padding:60px 20px;">
-          <div class="lw-offline-icon">🏦</div>
-          <h2 class="lw-offline-title" style="margin-bottom:12px;">Connecting to Bot Farm API…</h2>
-          <p class="lw-offline-sub" style="opacity:.6;">Starting up at <code>localhost:8767</code> — will connect automatically.</p>
-        </div>`;
-    }
-    // Remote: still show the URL override input for Cloudflare tunnels
+  function _offlineHTML() {
     return `
-      <div class="lw-offline">
+      <div class="lw-offline" style="text-align:center; padding:60px 20px;">
         <div class="lw-offline-icon">🏦</div>
-        <h2 class="lw-offline-title">Mini-Hedge Fund API server offline</h2>
-        <p class="lw-offline-sub">Couldn't reach the fund API at <code>${esc(url)}</code>.
-        If you're tunnelling through Cloudflare, paste the public URL below.</p>
-
-        <div class="lw-offline-cmd">
-          <div class="lw-cmd-label">PUBLIC FUND-API URL:</div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <input id="fundUrlInput" type="text" spellcheck="false" autocomplete="off"
-              placeholder="https://xxx.trycloudflare.com"
-              value="${esc(currentOverride)}"
-              style="flex:1; padding:8px 10px; background:#0d1117; color:#fff; border:1px solid #30363d; border-radius:6px; font-family:'SF Mono',Menlo,monospace; font-size:12px;">
-            <button class="btn-primary" id="fundSaveUrl">Save &amp; retry</button>
-          </div>
-          <div style="margin-top:6px; font-size:11px; opacity:.65;">Tip: leave blank to fall back to localhost.</div>
-        </div>
-
-        <div class="lw-offline-actions">
-          <button class="btn-primary" id="fundRetry">Retry</button>
-          <a class="btn-ghost" href="${esc(safeUrl(url))}" target="_blank" rel="noopener">Open in new tab</a>
+        <h2 class="lw-offline-title" style="margin-bottom:12px;">Bot Farm API offline</h2>
+        <p class="lw-offline-sub" style="opacity:.6;">Trying <code>localhost:8767</code> — retrying automatically…</p>
+        <p class="lw-offline-sub" style="opacity:.45; font-size:11px; margin-top:8px;">
+          Start it: <code>cd "Mini Hedge Fund" &amp;&amp; python3 -m fund.api</code>
+        </p>
+        <div class="lw-offline-actions" style="margin-top:20px;">
+          <button class="btn-primary" id="fundRetry">Retry now</button>
         </div>
       </div>`;
   }
@@ -171,24 +147,10 @@ const FundTab = (() => {
     } else {
       // Neither localhost nor override responded — auto-retry every 3s.
       // Only show the URL input form if the user has explicitly opened it.
-      content.innerHTML = _offlineHTML(url);
+      content.innerHTML = _offlineHTML();
       _retryTimer = setTimeout(() => render(), 3000);
-      // Wire up the manual override form (shown only in remote offline HTML)
       const retry = document.getElementById('fundRetry');
       if (retry) retry.addEventListener('click', () => { clearTimeout(_retryTimer); render(); });
-      const save = document.getElementById('fundSaveUrl');
-      if (save) save.addEventListener('click', () => {
-        const input = document.getElementById('fundUrlInput');
-        const v = (input?.value || '').trim();
-        if (v) {
-          if (!/^https?:\/\//i.test(v)) { alert('URL must start with http:// or https://'); return; }
-          localStorage.setItem(LS_KEY, v);
-        } else {
-          localStorage.removeItem(LS_KEY);
-        }
-        clearTimeout(_retryTimer);
-        render();
-      });
     }
   }
 

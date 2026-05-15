@@ -107,6 +107,7 @@ const FundTab = (() => {
           <span class="lw-status">kill_state = ${esc(ks)} · ${nHealthy}/${nBots} bots healthy</span>
         </div>
         <div class="lw-header-right">
+          <button class="btn-ghost" id="fundRunSensei" title="Trigger Sensei AI coach report (runs in ~2 min)">🧠 Run Sensei</button>
           <a class="btn-ghost" href="${safe}" target="_blank" rel="noopener" title="Open standalone in new browser tab">↗ Pop out</a>
         </div>
       </div>
@@ -142,6 +143,31 @@ const FundTab = (() => {
 
     if (health) {
       content.innerHTML = _liveHTML(url, health);
+      // Wire "Run Sensei" button
+      const senseiBtn = document.getElementById('fundRunSensei');
+      if (senseiBtn) {
+        senseiBtn.addEventListener('click', async () => {
+          senseiBtn.disabled = true;
+          senseiBtn.textContent = '⏳ Running…';
+          try {
+            const r = await fetch(url + 'api/coach/run_now', {
+              method: 'POST', mode: 'cors', cache: 'no-store',
+              signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined,
+            });
+            const d = await r.json().catch(() => ({}));
+            if (r.ok) {
+              senseiBtn.textContent = '✓ Queued';
+              setTimeout(() => { senseiBtn.textContent = '🧠 Run Sensei'; senseiBtn.disabled = false; }, 4000);
+            } else {
+              senseiBtn.textContent = '✗ Error';
+              setTimeout(() => { senseiBtn.textContent = '🧠 Run Sensei'; senseiBtn.disabled = false; }, 3000);
+            }
+          } catch (_) {
+            senseiBtn.textContent = '✗ Offline';
+            setTimeout(() => { senseiBtn.textContent = '🧠 Run Sensei'; senseiBtn.disabled = false; }, 3000);
+          }
+        });
+      }
     } else {
       // Neither localhost nor override responded — auto-retry every 3s.
       // Only show the URL input form if the user has explicitly opened it.

@@ -32,6 +32,10 @@ const FundTab = (() => {
     return h === 'localhost' || h === '127.0.0.1' || h === '' || h === '0.0.0.0';
   }
 
+  function _isActiveTab() {
+    return document.querySelector('.nav-item.active')?.dataset.tab === 'fund';
+  }
+
   function _resolveUrl() {
     // Always prefer an explicit override the user has saved.
     // Otherwise fall back to localhost regardless of where the
@@ -148,7 +152,10 @@ const FundTab = (() => {
       // Neither localhost nor override responded — auto-retry every 3s.
       // Only show the URL input form if the user has explicitly opened it.
       content.innerHTML = _offlineHTML();
-      _retryTimer = setTimeout(() => render(), 3000);
+      _retryTimer = setTimeout(() => {
+        if (_isActiveTab()) render();
+        else { _retryTimer = null; }   // user moved away — stop the loop
+      }, 3000);
       const retry = document.getElementById('fundRetry');
       if (retry) retry.addEventListener('click', () => { clearTimeout(_retryTimer); render(); });
     }
